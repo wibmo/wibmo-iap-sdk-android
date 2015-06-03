@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="to_confirm_paper_color">#f4f4f4</color>
+
+    <color name="default_text_color_dark">#6c6c6c</color>
+    <color name="default_text_color_light">#f0f0ee</color>
+
+    <color name="logo_color_blue">#3399ff</color>
+    <color name="logo_color_orange">#ff9933</color>
+    <color name="logo_color_green">#99cc33</color>
+
+    <integer-array name="spb_colors">
+        <item>@color/logo_color_blue</item>
+        <item>@color/logo_color_orange</item>
+        <item>@color/logo_color_green</item>
+    </integer-array>
+</resources>
