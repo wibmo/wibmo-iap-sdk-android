@@ -113,10 +113,7 @@ public class InAppInitActivity extends Activity {
         abortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(asyncTask!=null) {
-                    asyncTask.cancel(true);
-                    asyncTask = null;
-                }
+                cancelIAP();
                 sendAbort();
             }
         });
@@ -127,6 +124,13 @@ public class InAppInitActivity extends Activity {
             isAppReady = false;
 
             startIAP();
+        }
+    }
+
+    private void cancelIAP() {
+        if(asyncTask!=null) {
+            asyncTask.cancel(true);
+            asyncTask = null;
         }
     }
 
@@ -345,9 +349,55 @@ public class InAppInitActivity extends Activity {
         return this;
     }
 
+    private void processInit2FARes() {
+        String weburl = w2faInitResponse.getWebUrl();
+
+        if("000".equals(w2faInitResponse.getResCode())==false) {
+            sendFailure(w2faInitResponse);
+            return;
+        }
+
+        if(isAppReady) {
+            startInAppFlowInApp(activity, w2faInitRequest, w2faInitResponse);
+        } else {
+            startInAppFlowInBrowser(activity, w2faInitRequest, w2faInitResponse);
+            //Log.d(TAG, "Weburl: "+weburl);
+        }
+        mainView.setVisibility(View.INVISIBLE);
+    }
+
+
+
+    private void processInitPayRes() {
+        if("000".equals(wPayInitResponse.getResCode())==false) {
+            sendFailure(wPayInitResponse);
+            return;
+        }
+
+        String weburl = wPayInitResponse.getWebUrl();
+        Log.d(TAG, "Weburl: "+weburl);
+
+        if(isAppReady) {
+            startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse);
+        } else {
+            startInAppFlowInBrowser(activity, wPayInitRequest, wPayInitResponse);
+        }
+        mainView.setVisibility(View.INVISIBLE);
+    }
+
+    private void manageError(Throwable e) {
+        if(e!=null) {
+            Log.e(TAG, "Error: " + e, e);
+        }
+        Toast toast = Toast.makeText(activity,
+                "We had an error, please try after sometime",
+                Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+
     private class Init2FAReqTask extends AsyncTask<W2faInitRequest, Void, Void> {
         private boolean showError = false;
-
 
         @Override
         protected void onPreExecute() {
@@ -370,25 +420,9 @@ public class InAppInitActivity extends Activity {
             Log.v(TAG, "pl wait.. done");
 
             if (showError) {
-                Toast toast = Toast.makeText(activity,
-                        "We had an error, please try after sometime",
-                        Toast.LENGTH_LONG);
-                toast.show();
+                manageError(null);
             } else {
-                String weburl = w2faInitResponse.getWebUrl();
-
-                if("000".equals(w2faInitResponse.getResCode())==false) {
-                    sendFailure(w2faInitResponse);
-                    return;
-                }
-
-                if(isAppReady) {
-                    startInAppFlowInApp(activity, w2faInitRequest, w2faInitResponse);
-                } else {
-                    startInAppFlowInBrowser(activity, w2faInitRequest, w2faInitResponse);
-                    //Log.d(TAG, "Weburl: "+weburl);
-                }
-                mainView.setVisibility(View.INVISIBLE);
+                processInit2FARes();
             }
         }
     }
@@ -425,25 +459,9 @@ public class InAppInitActivity extends Activity {
             Log.v(TAG, "pl wait.. done");
 
             if (showError) {
-                Toast toast = Toast.makeText(activity,
-                        "We had an error, please try after sometime",
-                        Toast.LENGTH_LONG);
-                toast.show();
+                manageError(null);
             } else {
-                if("000".equals(wPayInitResponse.getResCode())==false) {
-                    sendFailure(wPayInitResponse);
-                    return;
-                }
-
-                String weburl = wPayInitResponse.getWebUrl();
-                Log.d(TAG, "Weburl: "+weburl);
-
-                if(isAppReady) {
-                    startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse);
-                } else {
-                    startInAppFlowInBrowser(activity, wPayInitRequest, wPayInitResponse);
-                }
-                mainView.setVisibility(View.INVISIBLE);
+                processInitPayRes();
             }
         }
     }
