@@ -43,6 +43,13 @@ public class InAppShellJavaScriptInterface {
 
     @android.webkit.JavascriptInterface
     @SuppressWarnings("unused")
+    public void openUrl(String url) {
+        Log.d(TAG, "url: "+url);
+        inAppShellHepler.openUrl(url);
+    }
+
+    @android.webkit.JavascriptInterface
+    @SuppressWarnings("unused")
     public void log(String msg) {
         Log.v(TAG, "log: "+msg);
     }

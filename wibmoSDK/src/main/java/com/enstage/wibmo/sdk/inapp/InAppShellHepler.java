@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -163,6 +164,17 @@ public class InAppShellHepler {
         }
     }
 
+    protected void openUrl(String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error: "+e,e);
+            showMsg("We had an error in request! "+e.getMessage());
+        }
+    }
+
     @SuppressLint("NewApi")
     protected void showMsg(String msg) {
         Log.d(TAG, msg);
@@ -194,8 +206,9 @@ public class InAppShellHepler {
 
         try {
             alert.show();
-        } catch(Exception e) {
+        } catch(Throwable e) {
             Log.e(TAG, "error: " + e, e);
+            showToast(msg);
         }
     }
 
@@ -211,7 +224,11 @@ public class InAppShellHepler {
                 if(getToastBackgroundColor() !=-1) {
                     view.setBackgroundColor(getToastBackgroundColor());
                 }
-                toast.show();
+                try {
+                    toast.show();
+                } catch(Throwable e) {
+                    Log.e(TAG, "error: " + e, e);
+                }
             }
         });
     }
