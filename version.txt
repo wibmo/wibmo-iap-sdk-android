@@ -1,0 +1,7 @@
+
+Version 1.1.1 (Dt: 04 Aug 2015) - Akshath
+------------------
+# Added method openUrl in JS interface
+
+
+

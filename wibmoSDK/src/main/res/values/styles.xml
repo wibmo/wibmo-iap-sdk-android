@@ -52,6 +52,7 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <!--
     <style name="WibmoProgressBar" parent="SmoothProgressBar">
         <item name="spb_stroke_separator_length">8dp</item>
         <item name="spb_sections_count">2</item>
@@ -65,6 +66,7 @@
         <item name="spb_progressiveStart_activated">true</item>
         <item name="spb_generate_background_with_colors">false</item>
     </style>
+    -->
 
     <style name="Theme.Transparent" parent="android:Theme">
         <item name="android:windowIsTranslucent">true</item>

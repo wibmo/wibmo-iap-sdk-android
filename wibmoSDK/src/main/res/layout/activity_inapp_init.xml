@@ -78,10 +78,25 @@
                 android:indeterminate="true"
                 android:padding="0dp"
                 android:layout_marginTop="-5dp"
-                style="@style/WibmoProgressBar"
                 app:spb_progressiveStart_activated="true"
                 android:layout_below="@id/image"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+
+                app:spb_stroke_separator_length="8dp"
+                app:spb_sections_count="2"
+                app:spb_speed="1.7"
+                app:spb_progressiveStart_speed="2"
+                app:spb_progressiveStop_speed="3.4"
+                app:spb_interpolator="spb_interpolator_acceleratedecelerate"
+                app:spb_mirror_mode="true"
+                app:spb_reversed="true"
+                app:spb_colors="@array/spb_colors"
+                app:spb_generate_background_with_colors="false"
+                />
+
+            <!--
+            style="@style/WibmoProgressBar"
+            -->
 
             <Button
                 android:id="@+id/abort_button"
