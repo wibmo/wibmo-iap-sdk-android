@@ -97,6 +97,7 @@ public class MainActivity extends ActionBarActivity {
                 "*"});//"w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or *
         transactionInfo.setTxnDesc("merchant txn desc");
         transactionInfo.setMerAppData("This is some merchant data");
+        transactionInfo.setMerDataField("This is for recon");
 
         MerchantInfo merchantInfo = new MerchantInfo();
         merchantInfo.setMerAppId(merAppID);
