@@ -50,7 +50,7 @@ public class InAppHandler {
             //Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
-                throw new IOException("Unable to authenticate!");
+                throw new IOException("Unable to do init2FA!");
             }
 
             //return jacksonMapper.readValue(rawres, W2faInitResponse.class);
@@ -75,7 +75,7 @@ public class InAppHandler {
             Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
-                throw new IOException("Unable to authenticate!");
+                throw new IOException("Unable to do initPay!");
             }
 
             //return jacksonMapper.readValue(rawres, WPayInitResponse.class);
