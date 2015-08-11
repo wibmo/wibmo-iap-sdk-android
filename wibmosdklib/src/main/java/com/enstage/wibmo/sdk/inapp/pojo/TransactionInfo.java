@@ -15,23 +15,26 @@
  */
 package com.enstage.wibmo.sdk.inapp.pojo;
 
-
 import java.io.Serializable;
+
 
 /**
  *
  * @author Preetham
  */
-public class TransactionInfo  implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class TransactionInfo implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private String txnAmount;
 	private String txnCurrency;
 	private String txnDesc;
-    private String merAppData;
-    private String merTxnId;
+	private String merAppData;
+	private String merTxnId;
 	private String[] supportedPaymentType;
-    private String txnFormattedAmount;
+	private String txnFormattedAmount;
+        
+    private String merDataField;
 
 	public String getTxnAmount() {
 		return txnAmount;
@@ -65,28 +68,36 @@ public class TransactionInfo  implements Serializable {
 		this.supportedPaymentType = supportedPaymentType;
 	}
 
-    public String getMerAppData() {
-        return merAppData;
+	public String getMerAppData() {
+		return merAppData;
+	}
+
+	public void setMerAppData(String merAppData) {
+		this.merAppData = merAppData;
+	}
+
+	public String getMerTxnId() {
+		return merTxnId;
+	}
+
+	public void setMerTxnId(String merTxnId) {
+		this.merTxnId = merTxnId;
+	}
+
+    public String getMerDataField() {
+        return merDataField;
     }
 
-    public void setMerAppData(String merAppData) {
-        this.merAppData = merAppData;
-    }
-
-    public String getMerTxnId() {
-        return merTxnId;
-    }
-
-    public void setMerTxnId(String merTxnId) {
-        this.merTxnId = merTxnId;
+    public void setMerDataField(String merDataField) {
+        this.merDataField = merDataField;
     }
 
 
-    public String getTxnFormattedAmount() {
-        return txnFormattedAmount;
-    }
+	public String getTxnFormattedAmount() {
+		return txnFormattedAmount;
+	}
 
-    public void setTxnFormattedAmount(String txnFormattedAmount) {
-        this.txnFormattedAmount = txnFormattedAmount;
-    }
+	public void setTxnFormattedAmount(String txnFormattedAmount) {
+		this.txnFormattedAmount = txnFormattedAmount;
+	}
 }
