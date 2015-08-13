@@ -255,11 +255,19 @@ public class InAppInitActivity extends Activity {
         finish();
     }
 
+    private void sendFailure(String resCode, String resDesc) {
+        Intent resultData = new Intent();
+        resultData.putExtra("ResCode", resCode);
+        resultData.putExtra("ResDesc", resDesc);
+
+        setResult(Activity.RESULT_CANCELED, resultData);
+        finish();
+    }
     private void sendFailure(W2faInitResponse w2faInitResponse) {
         Intent resultData = new Intent();
         resultData.putExtra("ResCode", w2faInitResponse.getResCode());
         resultData.putExtra("ResDesc", w2faInitResponse.getResDesc());
-        if(w2faInitResponse!=null) {
+        if(w2faInitResponse.getWibmoTxnId()!=null) {
             resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
                 resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
@@ -272,7 +280,7 @@ public class InAppInitActivity extends Activity {
         Intent resultData = new Intent();
         resultData.putExtra("ResCode", wPayInitResponse.getResCode());
         resultData.putExtra("ResDesc", wPayInitResponse.getResDesc());
-        if(wPayInitResponse!=null) {
+        if(wPayInitResponse.getWibmoTxnId()!=null) {
             resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
             if(wPayInitResponse.getTransactionInfo()!=null) {
                 resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
@@ -421,6 +429,7 @@ public class InAppInitActivity extends Activity {
 
             if (showError) {
                 manageError(null);
+                sendFailure("051", "init failed with server error.. chk logs");
             } else {
                 processInit2FARes();
             }
@@ -460,6 +469,7 @@ public class InAppInitActivity extends Activity {
 
             if (showError) {
                 manageError(null);
+                sendFailure("051", "init failed with server error.. chk logs");
             } else {
                 processInitPayRes();
             }
