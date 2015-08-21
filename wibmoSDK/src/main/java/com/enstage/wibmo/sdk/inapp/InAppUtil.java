@@ -28,7 +28,7 @@ import com.enstage.wibmo.util.PhoneInfo;
 public class InAppUtil {
     private static final String TAG = "wibmo.sdk.InAppUtil";
 
-    public static DeviceInfo makeDeviceInfo(Activity activity) {
+    public static DeviceInfo makeDeviceInfo(Activity activity, String sdkVersion) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setAppInstalled(isWibmoInstalled(activity));
 
@@ -40,7 +40,8 @@ public class InAppUtil {
         deviceInfo.setDeviceModel(PhoneInfo.getInstance(activity).getPhoneModel());
         deviceInfo.setOsType("Android");
         deviceInfo.setOsVersion(PhoneInfo.getInstance(activity).getAndroidVersion());
-        deviceInfo.setWibmoSdkVersion("??");//todo
+        deviceInfo.setWibmoSdkVersion(sdkVersion);
+
         deviceInfo.setWibmoAppVersion("??");//todo
 
         return deviceInfo;

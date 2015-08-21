@@ -38,8 +38,9 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-	
-	public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
+    public static final String VERSION = "1.1.2";
+
+    public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
     public static final int REQUEST_CODE_IAP_2FA  = 0x0000605f; // Only use bottom 16 bits - 24671
     public static final int REQUEST_CODE_IAP_PAY  = 0x00006060; // Only use bottom 16 bits - 24672
 

@@ -136,7 +136,7 @@ public class InAppInitActivity extends Activity {
 
     private void startIAP() {
         if (w2faInitRequest != null) {
-            w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity));
+            w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
 
             w2faInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
 
@@ -144,7 +144,7 @@ public class InAppInitActivity extends Activity {
         }
 
         if (wPayInitRequest != null) {
-            wPayInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity));
+            wPayInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
 
             wPayInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
 
