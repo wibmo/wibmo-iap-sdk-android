@@ -1,4 +1,11 @@
 
+
+Version 1.1.2 (Dt: 21 Aug 2015) - Akshath
+------------------
+# Added support for reporting sdk version
+
+
+
 Version 1.1.1 (Dt: 04 Aug 2015) - Akshath
 ------------------
 # Added method openUrl in JS interface
