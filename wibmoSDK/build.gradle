@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+//apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.jfrog.bintray'
 
 //maven stuff
 version = "1.1.5"               // This is the library version used when deploying the artifact
@@ -44,6 +44,7 @@ dependencies {
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0@aar'
 }
 
+/*
 //maven stuff
 def siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'      // Homepage URL of the library
 def gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'   // Git repository URL
@@ -127,3 +128,4 @@ bintray {
     }
 }
 //bintray stuff
+*/
