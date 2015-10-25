@@ -119,7 +119,7 @@ public class WibmoSDK {
         Intent intent = new Intent(intentAction);
         //intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-		PackageManager pm = activity.getPackageManager();
+		PackageManager pm = activity.getApplicationContext().getPackageManager();
 		List<ResolveInfo> availableApps = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
         Log.v(TAG, "availableApps: "+availableApps.size());
 
@@ -148,7 +148,7 @@ public class WibmoSDK {
     }
     */
     public static boolean isPackageExisted(Activity activity, String targetPackage){
-        PackageManager pm = activity.getPackageManager();
+        PackageManager pm = activity.getApplicationContext().getPackageManager();
         try {
             PackageInfo info = pm.getPackageInfo(targetPackage, PackageManager.GET_META_DATA);
         } catch (PackageManager.NameNotFoundException e) {
