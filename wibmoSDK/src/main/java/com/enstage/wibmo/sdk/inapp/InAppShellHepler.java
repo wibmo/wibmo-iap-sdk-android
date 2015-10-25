@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -183,7 +184,8 @@ public class InAppShellHepler {
 
         if(getDialogStyle() !=-1) {
             try {
-                builder = new AlertDialog.Builder(activity, getDialogStyle());
+                builder = new AlertDialog.Builder(
+                        new ContextThemeWrapper(activity, getDialogStyle()));
             } catch (Throwable e) {
                 Log.e(TAG, "does not support theme " + e);
                 builder = new AlertDialog.Builder(activity);
