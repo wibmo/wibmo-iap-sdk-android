@@ -1,5 +1,5 @@
 apply plugin: 'java'
-apply plugin: 'maven'
+//apply plugin: 'maven'
 //apply plugin: 'com.jfrog.bintray'
 
 //maven stuff
@@ -7,8 +7,8 @@ version = "1.1.5"               // This is the library version used when deployi
 group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
