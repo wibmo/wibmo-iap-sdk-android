@@ -30,6 +30,8 @@ public class W2faInitRequest implements Serializable {
 	private CustomerInfo customerInfo;
 	private DeviceInfo deviceInfo;
 	private String msgHash;
+
+	private CardInfo cardInfo;
 	
 	public MerchantInfo getMerchantInfo() {
 		return merchantInfo;
