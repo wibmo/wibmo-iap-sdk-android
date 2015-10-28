@@ -75,4 +75,3 @@ public class CardInfo implements Serializable {
     }
 
 }
-

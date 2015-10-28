@@ -23,9 +23,9 @@ import java.io.Serializable;
  * @author Preetham
  */
 public class TransactionInfo implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String txnAmount;
 	private String txnCurrency;
 	private String txnDesc;
@@ -33,7 +33,7 @@ public class TransactionInfo implements Serializable {
 	private String merTxnId;
 	private String[] supportedPaymentType;
 	private String txnFormattedAmount;
-        
+
     private String merDataField;
 
 	public String getTxnAmount() {

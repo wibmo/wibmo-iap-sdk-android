@@ -9,7 +9,6 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-
     defaultConfig {
         applicationId "com.enstage.wibmo.iap.sample.iappay"
         minSdkVersion 10
@@ -18,7 +17,6 @@ android {
         versionCode 2060200
         versionName '2.6.02.00'
     }
-
 
     buildTypes {
         debug {
