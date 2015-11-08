@@ -61,5 +61,4 @@ public class CustomerInfo implements Serializable {
 	public void setCustDob(String custDob) {
 		this.custDob = custDob;
 	}
-	
 }

@@ -18,7 +18,7 @@ package com.enstage.wibmo.sdk.inapp.pojo;
 import java.io.Serializable;
 
 /**
- * 
+ *
  * //import org.codehaus.jackson.annotate.JsonIgnore;
  * //Use to ignore any method from populating in json @JsonIgnore
  * @author Preetham
@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 public class DeviceInfo implements Serializable {
     private static final long serialVersionUID = 1L;
-	
+
 	private String wibmoSdkVersion;
 	private String wibmoAppVersion;
 	private String deviceID;
@@ -43,7 +43,7 @@ public class DeviceInfo implements Serializable {
     public String getWibmoSdkVersion() {
 		return wibmoSdkVersion;
 	}
-	
+
 	public void setWibmoSdkVersion(String wibmoSdkVersion) {
 		this.wibmoSdkVersion = wibmoSdkVersion;
 	}

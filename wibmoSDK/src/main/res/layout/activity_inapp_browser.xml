@@ -22,7 +22,7 @@
         <RelativeLayout
             android:id="@+id/layout_root"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:background="@color/to_confirm_paper_color"
             android:padding="0dp">

@@ -31,7 +31,7 @@ import java.io.*; // needed only for main() method.
 /**
  * Provides encoding of raw bytes to base64-encoded characters, and decoding of
  * base64 characters to raw bytes.
- * 
+ *
  * @author Kevin Kelley (kelley@ruralnet.net)
  * @version 1.3
  * @date 06 August 1998
@@ -43,7 +43,7 @@ public class Base64 {
 	/**
 	 * returns an array of base64-encoded characters to represent the passed
 	 * data array.
-	 * 
+	 *
 	 * @param data
 	 *            the array of bytes to encode
 	 * @return base64-coded character array.
@@ -86,7 +86,7 @@ public class Base64 {
 	 * Decodes a BASE-64 encoded stream to recover the original data. White
 	 * space before and after will be trimmed away, but no other manipulation of
 	 * the input will be performed.
-	 * 
+	 *
 	 * As of version 1.2 this method will properly handle input containing junk
 	 * characters (newlines and the like) rather than throwing an error. It does
 	 * this by pre-parsing the input and generating from that a count of VALID

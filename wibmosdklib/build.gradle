@@ -19,7 +19,6 @@ def siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'      // Homepage 
 def gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'   // Git repository URL
 //maven stuff
 
-
 //bintray stuff
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())

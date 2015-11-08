@@ -21,12 +21,12 @@ package com.enstage.wibmo.sdk.inapp.pojo;
  */
 public class W2faInitResponse extends GenericResponse {
     private static final long serialVersionUID = 1L;
-	
+
 	private boolean wibmoCustomer;
 	private String registeredUas;
 	private MerchantInfo merchantInfo;
     private TransactionInfo transactionInfo;
-	
+
 	private String wibmoTxnId;
 	private String wibmoTxnToken;
 	private String webUrl;

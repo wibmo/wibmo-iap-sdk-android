@@ -12,10 +12,6 @@ group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.1'
-    /*
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
-    */
 
     defaultConfig {
         minSdkVersion 10
@@ -29,13 +25,13 @@ android {
         debug {
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         release {
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
