@@ -50,6 +50,8 @@ public class WibmoSDK {
 	public static final String DEFAULT_YES = "Yes";
 	public static final String DEFAULT_NO = "No";
 
+    public static final boolean IS_PHONE_STATE_PERMISSION_REQ = false;
+
     private static String wibmoIntentActionPackage = "com.enstage.wibmo.sdk.inapp.main";
     private static String wibmoAppPackage;
 
@@ -67,6 +69,7 @@ public class WibmoSDK {
     }
 
     public static void startForInApp(Activity activity, WPayInitRequest wPayInitRequest) {
+        Log.i(TAG, "Called startForInApp");
         if(activity==null) {
             throw new IllegalArgumentException("Activity passed was null");
         }

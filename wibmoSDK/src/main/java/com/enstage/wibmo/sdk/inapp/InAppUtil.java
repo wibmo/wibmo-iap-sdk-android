@@ -15,7 +15,9 @@
  */
 package com.enstage.wibmo.sdk.inapp;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.enstage.wibmo.sdk.WibmoSDK;
@@ -32,17 +34,20 @@ public class InAppUtil {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setAppInstalled(isWibmoInstalled(activity));
 
-        deviceInfo.setDeviceID(PhoneInfo.getInstance(activity).getDeviceID());
+        if (WibmoSDKPermissionUtil.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE)
+                == PackageManager.PERMISSION_GRANTED) {
+            deviceInfo.setDeviceID(PhoneInfo.getInstance(activity).getDeviceID());
+
+            deviceInfo.setDeviceMake(PhoneInfo.getInstance(activity).getPhoneMaker());
+            deviceInfo.setDeviceModel(PhoneInfo.getInstance(activity).getPhoneModel());
+            deviceInfo.setOsVersion(PhoneInfo.getInstance(activity).getAndroidVersion());
+        }
         deviceInfo.setDeviceIDType(3);//mobile
         deviceInfo.setDeviceType(3);//mobile
 
-        deviceInfo.setDeviceMake(PhoneInfo.getInstance(activity).getPhoneMaker());
-        deviceInfo.setDeviceModel(PhoneInfo.getInstance(activity).getPhoneModel());
         deviceInfo.setOsType("Android");
-        deviceInfo.setOsVersion(PhoneInfo.getInstance(activity).getAndroidVersion());
         deviceInfo.setWibmoSdkVersion(sdkVersion);
-
-        deviceInfo.setWibmoAppVersion("??");//todo
+        deviceInfo.setWibmoAppVersion("??");
 
         return deviceInfo;
     }

@@ -15,9 +15,11 @@
  */
 package com.enstage.wibmo.sdk.inapp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,6 +40,7 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.google.gson.Gson;
+import android.support.v4.app.ActivityCompat;
 
 /**
  * Created by akshath on 17/10/14.
@@ -118,6 +121,38 @@ public class InAppInitActivity extends Activity {
             }
         });
 
+
+        if(WibmoSDK.IS_PHONE_STATE_PERMISSION_REQ) {
+            if (WibmoSDKPermissionUtil.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "Permission not granted! READ_PHONE_STATE");
+
+                WibmoSDKPermissionUtil.showRequestPermissionRationalel(activity,
+                        getString(R.string.wibmosdk_phone_state_permission_rationale),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                ActivityCompat.requestPermissions(activity,
+                                        new String[]{Manifest.permission.READ_PHONE_STATE},
+                                        WibmoSDKPermissionUtil.REQUEST_CODE_ASK_PERMISSION_PHONE_STATE);
+                            }
+                        },
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
+                                sendAbort("no permission ph state");
+                            }
+                        });
+
+                return;//we need this so can;t go on
+            }
+        }
+
+        doIAPStuff();
+    }
+
+    private void doIAPStuff() {
         if(InAppUtil.isWibmoInstalled(this)) {
             startInAppReadinessCheck(this);
         } else {
@@ -149,6 +184,22 @@ public class InAppInitActivity extends Activity {
             wPayInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
 
             asyncTask = new InitPayReqTask().execute(wPayInitRequest);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == WibmoSDKPermissionUtil.REQUEST_CODE_ASK_PERMISSION_PHONE_STATE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Got permission READ_PHONE_STATE");
+                // success!
+                doIAPStuff();
+            } else {
+                Log.w(TAG, "Permission not got! READ_PHONE_STATE");//we need this
+                WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
+                sendAbort("no permission ph state");
+            }
+            return;
         }
     }
 
@@ -237,9 +288,13 @@ public class InAppInitActivity extends Activity {
     }
 
     private void sendAbort() {
+        sendAbort("user abort");
+    }
+
+    private void sendAbort(String reason) {
         Intent resultData = new Intent();
         resultData.putExtra("ResCode", "204");
-        resultData.putExtra("ResDesc", "user abort");
+        resultData.putExtra("ResDesc", reason);
         if(w2faInitResponse!=null) {
             resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
