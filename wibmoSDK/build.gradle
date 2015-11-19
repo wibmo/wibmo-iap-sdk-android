@@ -17,8 +17,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
-        versionCode 10101
-        versionName '1.1.1'
+        versionCode 10102
+        versionName '1.1.2'
     }
 
     buildTypes {
@@ -37,11 +37,17 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:support-v4:23.0.+'
+    compile 'com.android.support:appcompat-v7:23.0.0'
+
     compile project(':wibmosdklib')
     //compile 'com.wibmo.iap.sdk:wibmosdklib:1.1.1'
 
     compile files('libs/wibmoMerchant.jar')
+
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0@aar'
+
+
 }
 
 /*
