@@ -2,14 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.enstage.wibmo.sdk" >
 
-    <application
-        android:allowBackup="true" >
-
+    <application>
         <activity
             android:name="com.enstage.wibmo.sdk.inapp.InAppInitActivity"
             android:label="@string/title_sdk_inapp"
             android:excludeFromRecents="true"
-            android:theme="@style/Theme.Transparent"
+            android:theme="@style/Wibmo.Transparent"
             android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
 
@@ -17,7 +15,7 @@
             android:name="com.enstage.wibmo.sdk.inapp.InAppBrowserActivity"
             android:label="@string/title_sdk_inapp"
             android:excludeFromRecents="true"
-            android:theme="@style/Theme.Transparent"
+            android:theme="@style/Wibmo.Transparent"
             android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
     </application>

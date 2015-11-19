@@ -17,7 +17,10 @@ package com.enstage.wibmo.sdk.inapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.http.SslError;
@@ -35,12 +38,12 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
+import com.enstage.wibmo.sdk.R;
 
 /**
  * Created by akshath on 20/10/14.
@@ -178,7 +181,7 @@ public class InAppBrowserActivity extends Activity {
                 Log.i(TAG, "progress: " + progress);
                 webViewProgressBar.setProgress(progress);
                 if(progress==100) {
-                    webViewProgressBar.setVisibility(View.INVISIBLE);
+                    webViewProgressBar.setVisibility(View.GONE);
                 } else if(webViewProgressBar.getVisibility()==View.INVISIBLE) {
                     webViewProgressBar.setVisibility(View.VISIBLE);
                 }
@@ -343,8 +346,8 @@ public class InAppBrowserActivity extends Activity {
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
+
+    public void processBackAction() {
         if(resultSet) {
             Log.v(TAG, "resultSet was true");
             _notifyCompletion();
@@ -352,39 +355,45 @@ public class InAppBrowserActivity extends Activity {
             Log.v(TAG, "resultSet was false");
             sendAbort();
         }
-        super.onBackPressed();
-    }
-
-    @SuppressLint("NewApi")
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
+    public void onBackPressed() {
+        final Activity activity = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(
+                activity.getString(R.string.confirm_iap_cancel))
+                .setPositiveButton(
+                        activity.getString(R.string.title_yes),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                processBackAction();
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(R.string.title_no),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                                if (dialog != null) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, "Error: " + e);
+                                    }
+                                }
+                            }
+                        });
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
+        Dialog dialog = builder.create();
+        try {
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e, e);
 
-
-    public void showWait(boolean flag) {
-
-    }
-
-    public void startWait() {
-
-    }
-
-    public void stopWait() {
-
-    }
-
-    public Activity getActivity() {
-        return this;
+            processBackAction();
+        }
     }
 }
