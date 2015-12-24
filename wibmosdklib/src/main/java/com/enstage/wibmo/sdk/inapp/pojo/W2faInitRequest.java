@@ -72,4 +72,12 @@ public class W2faInitRequest implements Serializable {
 	public void setMsgHash(String msgHash) {
 		this.msgHash = msgHash;
 	}
+
+	public CardInfo getCardInfo() {
+		return cardInfo;
+	}
+
+	public void setCardInfo(CardInfo cardInfo) {
+		this.cardInfo = cardInfo;
+	}
 }
