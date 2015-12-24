@@ -1,4 +1,9 @@
 
+Version 1.2.0 (Dt: 24 Dec 2015) - Akshath
+------------------
++ SDK: added toast, alert, log and userCancel JS interface for InAppBrowserActivity
+# Updated okhttp 2.5.0=>2.60
+
 
 Version 1.1.2 (Dt: 21 Aug 2015) - Akshath
 ------------------
