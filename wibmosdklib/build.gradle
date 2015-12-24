@@ -8,7 +8,7 @@ group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 
 dependencies {
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.squareup.okhttp:okhttp:2.6.0'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
