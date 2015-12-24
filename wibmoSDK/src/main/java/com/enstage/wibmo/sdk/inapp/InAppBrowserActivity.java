@@ -25,7 +25,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.http.SslError;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -247,6 +249,33 @@ public class InAppBrowserActivity extends Activity {
                 }
                 _notifyCompletion();
             }
+
+            @android.webkit.JavascriptInterface
+            @SuppressWarnings("unused")
+            public void toast(String msg) {
+                Log.d(TAG, "alert: " + msg);
+                showToast(msg);
+            }
+
+            @android.webkit.JavascriptInterface
+            @SuppressWarnings("unused")
+            public void alert(String msg) {
+                Log.d(TAG, "alert: "+msg);
+                showMsg(msg);
+            }
+
+            @android.webkit.JavascriptInterface
+            @SuppressWarnings("unused")
+            public void log(String msg) {
+                Log.v(TAG, "log: " + msg);
+            }
+
+            @android.webkit.JavascriptInterface
+            @SuppressWarnings("unused")
+            public void userCancel() {
+                Log.d(TAG, "userCancel");
+                onBackPressed();
+            }
         }
         webView.addJavascriptInterface(new MyJavaScriptInterface(), "WibmoSDK");
         //webView.clearCache(true);
@@ -395,5 +424,50 @@ public class InAppBrowserActivity extends Activity {
 
             processBackAction();
         }
+    }
+
+    @SuppressLint("NewApi")
+    protected void showMsg(String msg) {
+        Log.d(TAG, msg);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(msg);
+        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.setIcon(android.R.drawable.ic_dialog_alert);
+
+        try {
+            alert.show();
+        } catch(Throwable e) {
+            Log.e(TAG, "error: " + e, e);
+            showToast(msg);
+        }
+    }
+
+    private Handler handler = new Handler();
+    protected void showToast(final String msg) {
+        Log.i(TAG, "Show Toast: " + msg);
+
+        final Activity activity = this;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(activity, msg, Toast.LENGTH_LONG);
+                View view = toast.getView();
+
+                try {
+                    toast.show();
+                } catch(Throwable e) {
+                    Log.e(TAG, "error: " + e, e);
+                }
+            }
+        });
     }
 }
