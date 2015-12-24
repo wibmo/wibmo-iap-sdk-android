@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 //apply plugin: 'com.jfrog.bintray'
 
 //maven stuff
-version = "1.1.5"               // This is the library version used when deploying the artifact
+version = "1.2.0"               // This is the library version used when deploying the artifact
 group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 
 //causes issues with pom placement
@@ -17,8 +17,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
-        versionCode 10102
-        versionName '1.1.2'
+        versionCode 10200
+        versionName '1.2.0'
     }
 
     buildTypes {
