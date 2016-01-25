@@ -51,7 +51,7 @@ public class InAppShellJavaScriptInterface {
     @android.webkit.JavascriptInterface
     @SuppressWarnings("unused")
     public void log(String msg) {
-        Log.v(TAG, "log: "+msg);
+        Log.v(TAG, "log: " + msg);
     }
 
     @android.webkit.JavascriptInterface

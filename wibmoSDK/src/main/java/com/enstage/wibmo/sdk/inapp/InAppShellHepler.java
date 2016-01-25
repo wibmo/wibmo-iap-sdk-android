@@ -54,6 +54,8 @@ public class InAppShellHepler {
     public void injectIAP() {
         InAppShellJavaScriptInterface jsInterface = new InAppShellJavaScriptInterface(this);
         webView.addJavascriptInterface(jsInterface, "WibmoIAP");
+
+
     }
 
     public void initSDK() {
@@ -177,7 +179,7 @@ public class InAppShellHepler {
     }
 
     @SuppressLint("NewApi")
-    protected void showMsg(String msg) {
+    public void showMsg(String msg) {
         Log.d(TAG, msg);
 
         AlertDialog.Builder builder = null;
