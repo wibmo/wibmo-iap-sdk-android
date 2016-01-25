@@ -32,6 +32,7 @@ public class TransactionInfo implements Serializable {
 	private String merAppData;
 	private String merTxnId;
 	private String[] supportedPaymentType;
+	private String[] restrictedPaymentType;
 	private String txnFormattedAmount;
 
     private String merDataField;
@@ -99,5 +100,13 @@ public class TransactionInfo implements Serializable {
 
 	public void setTxnFormattedAmount(String txnFormattedAmount) {
 		this.txnFormattedAmount = txnFormattedAmount;
+	}
+
+	public String[] getRestrictedPaymentType() {
+		return restrictedPaymentType;
+	}
+
+	public void setRestrictedPaymentType(String[] restrictedPaymentType) {
+		this.restrictedPaymentType = restrictedPaymentType;
 	}
 }
