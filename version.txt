@@ -1,3 +1,8 @@
+Version 1.3.0 (Dt: 25 Jan 2015) - Akshath
+------------------
++ IAP: Added support for RestrictedPaymentType (wibmo wallet only)
+# Upgraded 3 party libs
+	okhttp 2.6.0 => 3.0.1
 
 Version 1.2.0 (Dt: 24 Dec 2015) - Akshath
 ------------------
