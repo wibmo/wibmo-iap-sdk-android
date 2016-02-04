@@ -18,6 +18,9 @@ package com.enstage.wibmo.sdk.inapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -41,6 +44,9 @@ import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.google.gson.Gson;
 import android.support.v4.app.ActivityCompat;
+
+import java.io.IOError;
+import java.io.IOException;
 
 /**
  * Created by akshath on 17/10/14.
@@ -461,6 +467,7 @@ public class InAppInitActivity extends Activity {
 
     private class Init2FAReqTask extends AsyncTask<W2faInitRequest, Void, Void> {
         private boolean showError = false;
+        private String lastError;
 
         @Override
         protected void onPreExecute() {
@@ -473,6 +480,7 @@ public class InAppInitActivity extends Activity {
                 w2faInitResponse = InAppHandler.init2FA(data[0]);
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
+                lastError = ex.toString();
                 showError = true;
             }
             return null;
@@ -483,8 +491,7 @@ public class InAppInitActivity extends Activity {
             Log.v(TAG, "pl wait.. done");
 
             if (showError) {
-                manageError(null);
-                sendFailure("051", "init failed with server error.. chk logs");
+                askRetryOnError(lastError);
             } else {
                 processInit2FARes();
             }
@@ -493,6 +500,7 @@ public class InAppInitActivity extends Activity {
 
     private class InitPayReqTask extends AsyncTask<WPayInitRequest, Void, Void> {
         private boolean showError = false;
+        private String lastError;
 
         @Override
         protected void onPreExecute() {
@@ -513,6 +521,7 @@ public class InAppInitActivity extends Activity {
                 //Log.v(TAG, "wPayInitResponse  "+ (new Gson()).toJson(wPayInitResponse));
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
+                lastError = ex.toString();
                 showError = true;
             }
             return null;
@@ -523,11 +532,50 @@ public class InAppInitActivity extends Activity {
             Log.v(TAG, "pl wait.. done");
 
             if (showError) {
-                manageError(null);
-                sendFailure("051", "init failed with server error.. chk logs");
+                askRetryOnError(lastError);
             } else {
                 processInitPayRes();
             }
+        }
+    }
+
+    private void askRetryOnError(final String lastError) {
+        String msg = getString(R.string.msg_internet_issue);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(msg)
+                .setPositiveButton(
+                        activity.getString(R.string.title_try_again),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                startIAP();
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(R.string.title_cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (dialog != null) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, "Error: " + e);
+                                    }
+                                }
+
+                                manageError(null);
+                                sendFailure("051", "init failed with server error.. chk logs " + lastError);
+                            }
+                        });
+
+        Dialog dialog = builder.create();
+        try {
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e, e);
+
+            manageError(null);
+            sendFailure("051", "init failed with server error.. chk logs " + lastError);
         }
     }
 

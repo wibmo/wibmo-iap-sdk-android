@@ -10,4 +10,9 @@
 
     <string name="wibmosdk_phone_state_permission_rationale">We need access to basic info about your phone to secure your transaction.</string>
     <string name="wibmosdk_phone_state_permission_missing_msg">You need to allow access to basic info about your phone to secure this transaction.</string>
+
+    <string name="title_try_again">Try Again</string>
+    <string name="title_cancel">Cancel</string>
+
+    <string name="msg_internet_issue">Unable to reach our servers!\n\nPlease check internet connection.</string>
 </resources>
