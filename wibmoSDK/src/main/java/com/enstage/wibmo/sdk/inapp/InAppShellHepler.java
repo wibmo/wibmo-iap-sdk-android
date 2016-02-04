@@ -127,7 +127,9 @@ public class InAppShellHepler {
 
                 StringBuilder resPostData = new StringBuilder();
                 resPostData.append("resCode=").append(URLEncoder.encode(resCode, charSet)).append('&');
-                resPostData.append("resDesc=").append(URLEncoder.encode(resDesc, charSet)).append('&');
+                if(resDesc!=null) {
+                    resPostData.append("resDesc=").append(URLEncoder.encode(resDesc, charSet)).append('&');
+                }
 
                 if(merTxnId!=null) {
                     resPostData.append("merTxnId=").append(URLEncoder.encode(merTxnId, charSet)).append('&');

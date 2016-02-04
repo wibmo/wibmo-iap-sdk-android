@@ -300,7 +300,7 @@ public class InAppBrowserActivity extends Activity {
 
         Intent resultData = new Intent();
         resultData.putExtra("ResCode", "204");
-        resultData.putExtra("ResDesc", "user abort");
+        resultData.putExtra("ResDesc", "user abort - sdk browser");
 
         if(w2faInitResponse!=null) {
             resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());

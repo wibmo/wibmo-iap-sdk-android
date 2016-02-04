@@ -288,7 +288,7 @@ public class InAppInitActivity extends Activity {
     }
 
     private void sendAbort() {
-        sendAbort("user abort");
+        sendAbort("user abort - sdk init");
     }
 
     private void sendAbort(String reason) {

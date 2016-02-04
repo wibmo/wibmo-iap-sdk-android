@@ -56,6 +56,7 @@ public class WibmoSDK {
     private static String wibmoAppPackage;
 
     public static final String PAYMENT_TYPE_ALL = "*";
+    public static final String PAYMENT_TYPE_NONE = "w.ds.pt.none";
     public static final String PAYMENT_TYPE_WALLET_CARD = "w.ds.pt.card_wallet";
     //public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
     //public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
