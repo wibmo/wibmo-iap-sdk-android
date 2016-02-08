@@ -86,11 +86,52 @@ public class InAppShellHepler {
         t.start();
     }
 
+    public static String getPostBodyForMerchant(Intent data) throws Exception {
+        if (data == null) {
+            return null;
+        }
+
+        String resCode = data.getStringExtra("ResCode");
+        String resDesc = data.getStringExtra("ResDesc");
+
+        String wibmoTxnId = data.getStringExtra("WibmoTxnId");
+        String merTxnId = data.getStringExtra("MerTxnId");
+
+        WPayResponse wPayResponse = WibmoSDK.processInAppResponseWPay(data);
+
+        return getPostBodyForMerchant(resCode, resDesc, wibmoTxnId, merTxnId, wPayResponse);
+    }
+
+    public static String getPostBodyForMerchant(String resCode, String resDesc,
+            String wibmoTxnId, String merTxnId, WPayResponse wPayResponse) throws Exception {
+
+
+        StringBuilder resPostData = new StringBuilder();
+        resPostData.append("resCode=").append(URLEncoder.encode(resCode, charSet)).append('&');
+        if(resDesc!=null) {
+            resPostData.append("resDesc=").append(URLEncoder.encode(resDesc, charSet)).append('&');
+        }
+
+        if(merTxnId!=null) {
+            resPostData.append("merTxnId=").append(URLEncoder.encode(merTxnId, charSet)).append('&');
+        }
+
+        if (wPayResponse != null) {
+            resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wPayResponse.getWibmoTxnId(), charSet)).append('&');
+            resPostData.append("msgHash=").append(URLEncoder.encode(wPayResponse.getMsgHash(), charSet)).append('&');
+            resPostData.append("dataPickUpCode=").append(URLEncoder.encode(wPayResponse.getDataPickUpCode(), charSet)).append('&');
+        } else {
+            if(merTxnId!=null) {
+                resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wibmoTxnId, charSet)).append('&');
+            }
+        }
+
+        return resPostData.toString();
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         String resCode = null;
         String resDesc = null;
-        String wibmoTxnId = null;
-        String merTxnId = null;
         WPayResponse wPayResponse = null;
 
         if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY) {
@@ -102,11 +143,7 @@ public class InAppShellHepler {
             } else {
                 resCode = data.getStringExtra("ResCode");
                 resDesc = data.getStringExtra("ResDesc");
-
-                wibmoTxnId = data.getStringExtra("WibmoTxnId");
-                merTxnId = data.getStringExtra("MerTxnId");
             }
-
 
             Log.i(TAG, "resCode: " + resCode+"; ResDesc: "+resDesc);
 
@@ -125,27 +162,9 @@ public class InAppShellHepler {
                 }//result not ok
 
 
-                StringBuilder resPostData = new StringBuilder();
-                resPostData.append("resCode=").append(URLEncoder.encode(resCode, charSet)).append('&');
-                if(resDesc!=null) {
-                    resPostData.append("resDesc=").append(URLEncoder.encode(resDesc, charSet)).append('&');
-                }
+                String resPostData = getPostBodyForMerchant(data);
 
-                if(merTxnId!=null) {
-                    resPostData.append("merTxnId=").append(URLEncoder.encode(merTxnId, charSet)).append('&');
-                }
-
-                if (wPayResponse != null) {
-                    resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wPayResponse.getWibmoTxnId(), charSet)).append('&');
-                    resPostData.append("msgHash=").append(URLEncoder.encode(wPayResponse.getMsgHash(), charSet)).append('&');
-                    resPostData.append("dataPickUpCode=").append(URLEncoder.encode(wPayResponse.getDataPickUpCode(), charSet)).append('&');
-                } else {
-                    if(merTxnId!=null) {
-                        resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wibmoTxnId, charSet)).append('&');
-                    }
-                }
-
-                webView.postUrl(getResponseUrl(), resPostData.toString().getBytes());
+                webView.postUrl(getResponseUrl(), resPostData.getBytes());
                 Log.i(TAG, "posting to responseUrl " + getResponseUrl());
             } catch (Exception e) {
                 Log.e(TAG, "Error in onActivityResult: "+e, e);

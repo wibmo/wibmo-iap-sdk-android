@@ -96,7 +96,7 @@ public class InAppInitActivity extends Activity {
                 qrMsg = "InApp payment";
             } else {
                 Log.e(TAG, "W2faInitRequest and wPayInitRequest was null!");
-                sendAbort();
+                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - W2faInitRequest and wPayInitRequest was null!");
                 return;
             }
         }
@@ -147,7 +147,7 @@ public class InAppInitActivity extends Activity {
                             @Override
                             public void run() {
                                 WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
-                                sendAbort("no permission ph state");
+                                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - no permission ph state");
                             }
                         });
 
@@ -203,7 +203,7 @@ public class InAppInitActivity extends Activity {
             } else {
                 Log.w(TAG, "Permission not got! READ_PHONE_STATE");//we need this
                 WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
-                sendAbort("no permission ph state");
+                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - no permission ph state");
             }
             return;
         }
@@ -294,13 +294,17 @@ public class InAppInitActivity extends Activity {
     }
 
     private void sendAbort() {
-        sendAbort("user abort - sdk init");
+        sendAbort("sdk init - user abort");
     }
 
     private void sendAbort(String reason) {
+        sendAbort(WibmoSDK.RES_CODE_FAILURE_USER_ABORT, reason);
+    }
+
+    private void sendAbort(String resCode, String resDesc) {
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", "204");
-        resultData.putExtra("ResDesc", reason);
+        resultData.putExtra("ResCode", resCode);
+        resultData.putExtra("ResDesc", resDesc);
         if(w2faInitResponse!=null) {
             resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
@@ -381,8 +385,42 @@ public class InAppInitActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        sendAbort();
-        super.onBackPressed();
+        final Activity activity = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(
+                activity.getString(R.string.confirm_iap_cancel))
+                .setPositiveButton(
+                        activity.getString(R.string.title_yes),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                sendAbort("sdk init - backpress");
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(R.string.title_no),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                                if (dialog != null) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, "Error: " + e);
+                                    }
+                                }
+                            }
+                        });
+
+        Dialog dialog = builder.create();
+        try {
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e, e);
+
+            sendAbort("sdk init - backpress");
+        }
     }
 
     @SuppressLint("NewApi")
@@ -564,7 +602,8 @@ public class InAppInitActivity extends Activity {
                                 }
 
                                 manageError(null);
-                                sendFailure("051", "init failed with server error.. chk logs " + lastError);
+                                sendFailure(WibmoSDK.RES_CODE_FAILURE_INTERNAL_ERROR,
+                                        "init failed with server error.. chk logs " + lastError);
                             }
                         });
 
@@ -575,7 +614,8 @@ public class InAppInitActivity extends Activity {
             Log.e(TAG, "Error: " + e, e);
 
             manageError(null);
-            sendFailure("051", "init failed with server error.. chk logs " + lastError);
+            sendFailure(WibmoSDK.RES_CODE_FAILURE_INTERNAL_ERROR,
+                    "init failed with server error.. chk logs " + lastError);
         }
     }
 

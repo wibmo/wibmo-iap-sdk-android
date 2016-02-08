@@ -40,6 +40,7 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
@@ -97,7 +98,7 @@ public class InAppBrowserActivity extends Activity {
             } else if (wPayInitRequest != null && wPayInitResponse!=null) {
                 qrMsg = "Wibmo InApp payment";
             } else {
-                sendAbort();
+                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "SDK Browser - InitReq was null");
                 return;
             }
         }
@@ -194,7 +195,7 @@ public class InAppBrowserActivity extends Activity {
             @android.webkit.JavascriptInterface
             @SuppressWarnings("unused")
             public void notifyAbort() {
-                sendAbort();
+                sendAbort(WibmoSDK.RES_CODE_FAILURE_USER_ABORT, "SDK Browser - JS");
             }
 
             @android.webkit.JavascriptInterface
@@ -294,13 +295,16 @@ public class InAppBrowserActivity extends Activity {
     }
 
 
-
     private void sendAbort() {
+        sendAbort(WibmoSDK.RES_CODE_FAILURE_USER_ABORT, "sdk browser - user abort");
+    }
+
+    private void sendAbort(String resCode, String resDesc) {
         //webView.destroy();
 
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", "204");
-        resultData.putExtra("ResDesc", "user abort - sdk browser");
+        resultData.putExtra("ResCode", resCode);
+        resultData.putExtra("ResDesc", resDesc);
 
         if(w2faInitResponse!=null) {
             resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
