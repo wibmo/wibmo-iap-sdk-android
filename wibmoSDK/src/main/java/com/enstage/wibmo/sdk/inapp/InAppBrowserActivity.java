@@ -421,6 +421,7 @@ public class InAppBrowserActivity extends Activity {
                         });
 
         Dialog dialog = builder.create();
+        dialog.setCancelable(false);
         try {
             dialog.show();
         } catch (Throwable e) {
@@ -446,7 +447,7 @@ public class InAppBrowserActivity extends Activity {
 
         AlertDialog alert = builder.create();
         alert.setIcon(android.R.drawable.ic_dialog_alert);
-
+        alert.setCancelable(false);
         try {
             alert.show();
         } catch(Throwable e) {

@@ -389,14 +389,15 @@ public class InAppInitActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(
                 activity.getString(R.string.confirm_iap_cancel))
+                .setCancelable(false)
                 .setPositiveButton(
-                        activity.getString(R.string.title_yes),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                sendAbort("sdk init - backpress");
-                            }
-                        })
+                activity.getString(R.string.title_yes),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(
+                            DialogInterface dialog, int id) {
+                        sendAbort("sdk init - backpress");
+                    }
+                })
                 .setNegativeButton(
                         activity.getString(R.string.title_no),
                         new DialogInterface.OnClickListener() {
@@ -582,13 +583,14 @@ public class InAppInitActivity extends Activity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(msg)
+                .setCancelable(false)
                 .setPositiveButton(
                         activity.getString(R.string.title_try_again),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 startIAP();
                             }
-                        })
+                })
                 .setNegativeButton(
                         activity.getString(R.string.title_cancel),
                         new DialogInterface.OnClickListener() {

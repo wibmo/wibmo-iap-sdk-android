@@ -217,6 +217,7 @@ public class InAppShellHepler {
             builder = new AlertDialog.Builder(activity);
         }
 
+        builder.setCancelable(false);
         builder.setMessage(msg);
         builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
             @Override

@@ -181,6 +181,7 @@ public class WibmoSDK {
 
 		downloadDialog.setTitle(title);
 		downloadDialog.setMessage(message);
+        downloadDialog.setCancelable(false);
 		downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
 
 			@Override

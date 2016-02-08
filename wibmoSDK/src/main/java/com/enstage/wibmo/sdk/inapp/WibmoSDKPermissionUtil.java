@@ -71,6 +71,7 @@ public class WibmoSDKPermissionUtil {
     public static void showMessageOKCancel(Activity activity, String message, DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
         new AlertDialog.Builder(activity)
                 .setMessage(message)
+                .setCancelable(false)
                 .setPositiveButton("OK", okListener)
                 .setNegativeButton("Cancel", cancelListener)
                 .create()
