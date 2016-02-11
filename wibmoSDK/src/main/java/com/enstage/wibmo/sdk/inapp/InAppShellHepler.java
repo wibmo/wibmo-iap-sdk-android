@@ -117,9 +117,15 @@ public class InAppShellHepler {
         }
 
         if (wPayResponse != null) {
-            resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wPayResponse.getWibmoTxnId(), charSet)).append('&');
-            resPostData.append("msgHash=").append(URLEncoder.encode(wPayResponse.getMsgHash(), charSet)).append('&');
-            resPostData.append("dataPickUpCode=").append(URLEncoder.encode(wPayResponse.getDataPickUpCode(), charSet)).append('&');
+            if(wPayResponse.getWibmoTxnId()!=null) {
+                resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wPayResponse.getWibmoTxnId(), charSet)).append('&');
+            }
+            if(wPayResponse.getMsgHash()!=null) {
+                resPostData.append("msgHash=").append(URLEncoder.encode(wPayResponse.getMsgHash(), charSet)).append('&');
+            }
+            if(wPayResponse.getDataPickUpCode()!=null) {
+                resPostData.append("dataPickUpCode=").append(URLEncoder.encode(wPayResponse.getDataPickUpCode(), charSet)).append('&');
+            }
         } else {
             if(merTxnId!=null) {
                 resPostData.append("wibmoTxnId=").append(URLEncoder.encode(wibmoTxnId, charSet)).append('&');
