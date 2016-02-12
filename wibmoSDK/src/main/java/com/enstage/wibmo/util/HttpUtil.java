@@ -34,12 +34,12 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
-import okhttp3.Cache;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 /**
  * Created by akshath on 21/10/14.
@@ -54,24 +54,16 @@ public class HttpUtil {
     private static final int HTTP_CACHE_SIZE = 20 * 1024 * 1024; // 20 MiB
     private static boolean okhttpinit = false;
 
-    private static OkHttpClient client = null;
+    private static OkHttpClient client = new OkHttpClient();
     private static Cache cache = null;
 
     public static boolean init(Context context) {
         if(okhttpinit==false || cache ==null) {
             try {
-                File cacheDirectory = context.getDir("service_api_cache", Context.MODE_PRIVATE);
-                cache = new Cache(cacheDirectory, HTTP_CACHE_SIZE);
-                makeSSLSocketFactory();
+                cache = createHttpClientCache(context);
+                client.setCache(cache);
 
-                client = new OkHttpClient.Builder()
-                    .cache(cache)
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(90, TimeUnit.SECONDS)
-                    .sslSocketFactory(sslSocketFactory)
-                    .hostnameVerifier(vf)
-                    .build();
+                setSSLstuff();
 
                 okhttpinit = true;
             } catch (Exception e) {
@@ -80,6 +72,26 @@ public class HttpUtil {
             }
         }
         return okhttpinit;
+    }
+
+    private static void setSSLstuff() {
+        //30sec,90sec TODO
+        client.setConnectTimeout(30, TimeUnit.SECONDS);
+        client.setWriteTimeout(30, TimeUnit.SECONDS);
+        client.setReadTimeout(90, TimeUnit.SECONDS);
+
+        try {
+            makeSSLSocketFactory();
+            client.setSslSocketFactory(sslSocketFactory);
+            client.setHostnameVerifier(vf);
+        } catch (Exception e) {
+            Log.e(TAG, "Error "+e,e);
+        }
+    }
+
+    public static Cache createHttpClientCache(Context context) {
+        File cacheDir = context.getDir("service_api_cache", Context.MODE_PRIVATE);
+        return new Cache(cacheDir, HTTP_CACHE_SIZE);
     }
 
     public static String postData(String posturl, byte postData[], boolean useCache,
