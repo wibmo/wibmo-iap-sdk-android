@@ -29,13 +29,20 @@ public class TransactionInfo implements Serializable {
 	private String txnAmount;
 	private String txnCurrency;
 	private String txnDesc;
-	private String merAppData;
+	private String merAppData = "";
 	private String merTxnId;
 	private String[] supportedPaymentType;
 	private String[] restrictedPaymentType;
 	private String txnFormattedAmount;
 
     private String merDataField;
+
+	private String txnDate;//YYYYMMDD
+
+
+	private boolean txnAmtKnown = true;
+	private boolean chargeLater = false;
+
 
 	public String getTxnAmount() {
 		return txnAmount;
@@ -108,5 +115,30 @@ public class TransactionInfo implements Serializable {
 
 	public void setRestrictedPaymentType(String[] restrictedPaymentType) {
 		this.restrictedPaymentType = restrictedPaymentType;
+	}
+
+	public String getTxnDate() {
+		return txnDate;
+	}
+
+	public void setTxnDate(String txnDate) {
+		this.txnDate = txnDate;
+	}
+
+
+	public boolean isTxnAmtKnown() {
+		return txnAmtKnown;
+	}
+
+	public void setTxnAmtKnown(boolean txnAmtKnown) {
+		this.txnAmtKnown = txnAmtKnown;
+	}
+
+	public boolean isChargeLater() {
+		return chargeLater;
+	}
+
+	public void setChargeLater(boolean chargeLater) {
+		this.chargeLater = chargeLater;
 	}
 }

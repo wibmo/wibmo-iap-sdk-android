@@ -22,71 +22,71 @@ package com.enstage.wibmo.sdk.inapp.pojo;
 public class W2faInitResponse extends GenericResponse {
     private static final long serialVersionUID = 1L;
 
-	private boolean wibmoCustomer;
-	private String registeredUas;
-	private MerchantInfo merchantInfo;
+    private boolean wibmoCustomer;
+    private String registeredUas;
+    private MerchantInfo merchantInfo;
     private TransactionInfo transactionInfo;
 
-	private String wibmoTxnId;
-	private String wibmoTxnToken;
-	private String webUrl;
-	private String msgHash;
+    private String wibmoTxnId;
+    private String wibmoTxnToken;
+    private String webUrl;
+    private String msgHash;
 
-	public String getWibmoTxnId() {
-		return wibmoTxnId;
-	}
+    public String getWibmoTxnId() {
+        return wibmoTxnId;
+    }
 
-	public void setWibmoTxnId(String wibmoTxnId) {
-		this.wibmoTxnId = wibmoTxnId;
-	}
+    public void setWibmoTxnId(String wibmoTxnId) {
+        this.wibmoTxnId = wibmoTxnId;
+    }
 
-	public String getWibmoTxnToken() {
-		return wibmoTxnToken;
-	}
+    public String getWibmoTxnToken() {
+        return wibmoTxnToken;
+    }
 
-	public void setWibmoTxnToken(String wibmoTxnToken) {
-		this.wibmoTxnToken = wibmoTxnToken;
-	}
+    public void setWibmoTxnToken(String wibmoTxnToken) {
+        this.wibmoTxnToken = wibmoTxnToken;
+    }
 
-	public String getWebUrl() {
-		return webUrl;
-	}
+    public String getWebUrl() {
+        return webUrl;
+    }
 
-	public void setWebUrl(String webUrl) {
-		this.webUrl = webUrl;
-	}
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
+    }
 
-	public String getMsgHash() {
-		return msgHash;
-	}
+    public String getMsgHash() {
+        return msgHash;
+    }
 
-	public void setMsgHash(String msgHash) {
-		this.msgHash = msgHash;
-	}
+    public void setMsgHash(String msgHash) {
+        this.msgHash = msgHash;
+    }
 
-	public MerchantInfo getMerchantInfo() {
-		return merchantInfo;
-	}
+    public MerchantInfo getMerchantInfo() {
+        return merchantInfo;
+    }
 
-	public void setMerchantInfo(MerchantInfo merchantInfo) {
-		this.merchantInfo = merchantInfo;
-	}
+    public void setMerchantInfo(MerchantInfo merchantInfo) {
+        this.merchantInfo = merchantInfo;
+    }
 
-	public boolean isWibmoCustomer() {
-		return wibmoCustomer;
-	}
+    public boolean isWibmoCustomer() {
+        return wibmoCustomer;
+    }
 
-	public void setWibmoCustomer(boolean wibmoCustomer) {
-		this.wibmoCustomer = wibmoCustomer;
-	}
+    public void setWibmoCustomer(boolean wibmoCustomer) {
+        this.wibmoCustomer = wibmoCustomer;
+    }
 
-	public String getRegisteredUas() {
-		return registeredUas;
-	}
+    public String getRegisteredUas() {
+        return registeredUas;
+    }
 
-	public void setRegisteredUas(String registeredUas) {
-		this.registeredUas = registeredUas;
-	}
+    public void setRegisteredUas(String registeredUas) {
+        this.registeredUas = registeredUas;
+    }
 
     public TransactionInfo getTransactionInfo() {
         return transactionInfo;

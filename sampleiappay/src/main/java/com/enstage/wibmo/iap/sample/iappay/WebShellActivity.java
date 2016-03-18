@@ -23,14 +23,14 @@ public class WebShellActivity extends ActionBarActivity {
 
 
     //config - staging
-    String shellMerchantUrl = "http://www.enstage.com";
-    String iapPackage = "com.enstage.wibmo.sdk.inapp.staging";
-    String iapDomainToPost = "https://lite.pcuat.enstage-sas.com";
+    //String shellMerchantUrl = "https://wallet.pc.enstage-sas.com/testWebMerchant";
+    //String iapPackage = "com.enstage.wibmo.sdk.inapp.staging";
+    //String iapDomainToPost = "https://wallet.pc.enstage-sas.com";
 
     //config - prod
-    //String shellMerchantUrl = "http://www.enstage.com";
-    //String iapPackage = "com.enstage.wibmo.sdk.inapp.main";
-    //String iapDomainToPost = "https://www.wibmo.com";
+    String shellMerchantUrl = "https://www.wibmo.com/testWebMerchant";
+    String iapPackage = "com.enstage.wibmo.sdk.inapp.main";
+    String iapDomainToPost = "https://www.wibmo.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

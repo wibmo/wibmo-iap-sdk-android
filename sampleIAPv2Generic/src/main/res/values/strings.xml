@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Generic Sample IAP V2</string>
+
+    <string name="action_buttons">View Button Options</string>
+    <string name="action_shell">Web Shell Sample</string>
+    <string name="action_browser">Open in Browser</string>
+
+    <string name="title_activity_button">Button Options</string>
+    <string name="title_activity_web_shell">Web Shell Sample</string>
+
+</resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Taxi Sample IAP V2</string>
+    <string name="main_title">Sample IAP Taxi</string>
+    <string name="action_settings">Settings</string>
+</resources>

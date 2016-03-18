@@ -30,13 +30,17 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -62,7 +66,7 @@ public class InAppBrowserActivity extends Activity {
 
     private String qrMsg;
 
-    private View mainView;
+    private FrameLayout mainView;
     private WebView webView;
 
     private W2faInitRequest w2faInitRequest;
@@ -72,6 +76,7 @@ public class InAppBrowserActivity extends Activity {
     private WPayInitResponse wPayInitResponse;
 
     private boolean resultSet;
+    private boolean isViewSmall = true;
 
 
     @Override
@@ -115,6 +120,7 @@ public class InAppBrowserActivity extends Activity {
         setContentView(view);
 
         webView = (WebView) findViewById(R.id.webView);
+        mainView = (FrameLayout) findViewById(R.id.layout_root);
 
 
         final Activity activity = this;
@@ -137,9 +143,9 @@ public class InAppBrowserActivity extends Activity {
 
             public void onReceivedError(WebView view, int errorCode,
                                         String description, String failingUrl) {
-                Log.e(TAG, "onReceivedError: " + description+"; "+failingUrl);
-                Toast.makeText(activity, "Oh no! " + description,
-                        Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "errorCode: "+errorCode+"; description: " + description + "; " + failingUrl);
+
+                InAppUtil.manageWebViewOnError(activity, webView, errorCode, description, failingUrl, null);
             }
 
             public void onPageFinished(WebView view, String url) {
@@ -176,6 +182,7 @@ public class InAppBrowserActivity extends Activity {
         final ProgressBar webViewProgressBar = (ProgressBar) findViewById(R.id.web_view_progress_bar);
 
         webView.setWebChromeClient(new WebChromeClient() {
+
             public void onProgressChanged(WebView view, int progress) {
                 // Activities and WebViews measure progress with different
                 // scales.
@@ -185,9 +192,65 @@ public class InAppBrowserActivity extends Activity {
                 webViewProgressBar.setProgress(progress);
                 if(progress==100) {
                     webViewProgressBar.setVisibility(View.GONE);
-                } else if(webViewProgressBar.getVisibility()==View.INVISIBLE) {
+                } else if(webViewProgressBar.getVisibility()!=View.VISIBLE) {
                     webViewProgressBar.setVisibility(View.VISIBLE);
                 }
+
+                String url = view.getUrl();
+
+                if(isViewSmall && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly())==-1) {
+                    changeSizeToFull();
+                } else if(isViewSmall==false && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly())!=-1) {
+                    changeSizeToSmall();
+                }
+            }
+            @Override
+            public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+                Log.i(TAG, "onJsConfirm");
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setMessage(message)
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                result.cancel();
+                            }
+                        })
+                        .setNegativeButton(activity.getString(R.string.label_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                result.cancel();
+                            }
+                        })
+                        .setPositiveButton(activity.getString(R.string.label_ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                result.confirm();
+                            }
+                        })
+                        .create();
+                dialog.show();
+                return true;
+            }
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+                Log.i(TAG, "onJsAlert");
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setMessage(message)
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                result.cancel();
+                            }
+                        })
+                        .setPositiveButton(activity.getString(R.string.label_ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                result.confirm();
+                            }
+                        })
+                        .create();
+                dialog.show();
+                return true;
             }
         });
 
@@ -294,6 +357,82 @@ public class InAppBrowserActivity extends Activity {
         //webView.requestFocus();
     }
 
+    private void askRetryOnError(final  WebView webView) {
+        String msg = getString(com.enstage.wibmo.sdk.R.string.msg_internet_issue);
+
+        final Activity activity = this;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(
+                        activity.getString(com.enstage.wibmo.sdk.R.string.label_try_again),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Log.v(TAG, "Calling reload");
+                                Toast.makeText(activity, activity.getString(R.string.label_pl_wait_reloading),
+                                        Toast.LENGTH_SHORT).show();
+                                webView.reload();
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(com.enstage.wibmo.sdk.R.string.label_cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (dialog != null) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, "Error: " + e);
+                                    }
+                                }
+                            }
+                        });
+
+        Dialog dialog = builder.create();
+        try {
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e, e);
+        }
+    }
+
+    private void changeSizeToFull() {
+        Log.i(TAG, "changeSizeToFull "+webView.getUrl());
+
+        isViewSmall = false;
+        mainView.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        webView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
+        /*
+        //webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setUseWideViewPort(true);
+        webView.setInitialScale(1);
+        webView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        */
+    }
+
+    private void changeSizeToSmall() {
+        Log.i(TAG, "changeSizeToSmall "+webView.getUrl());
+
+        isViewSmall = true;
+        mainView.setLayoutParams(new FrameLayout.LayoutParams(
+                getResources().getDimensionPixelSize(R.dimen.activity_inapp_browser_width), ViewGroup.LayoutParams.MATCH_PARENT));
+        webView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        /*
+        //webView.getSettings().setBuiltInZoomControls(false);
+        webView.getSettings().setLoadWithOverviewMode(false);
+        webView.getSettings().setUseWideViewPort(false);
+        webView.setInitialScale(0);
+        webView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        */
+    }
+
 
     private void sendAbort() {
         sendAbort(WibmoSDK.RES_CODE_FAILURE_USER_ABORT, "sdk browser - user abort");
@@ -303,15 +442,17 @@ public class InAppBrowserActivity extends Activity {
         //webView.destroy();
 
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", resCode);
-        resultData.putExtra("ResDesc", resDesc);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, resDesc);
 
         if(w2faInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, w2faInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, w2faInitResponse.getTransactionInfo().getMerAppData());
         } else if(wPayInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, wPayInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
         }
 
         setResult(Activity.RESULT_CANCELED, resultData);
@@ -327,15 +468,17 @@ public class InAppBrowserActivity extends Activity {
         //webView.destroy();
 
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", resCode);
-        resultData.putExtra("ResDesc", resDesc);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "sdk browser - "+resDesc);
 
         if(w2faInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, w2faInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, w2faInitResponse.getTransactionInfo().getMerAppData());
         } else if(wPayInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, wPayInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
         }
 
         setResult(Activity.RESULT_CANCELED, resultData);
@@ -347,19 +490,19 @@ public class InAppBrowserActivity extends Activity {
         //webView.destroy();
 
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", resCode);
-        resultData.putExtra("ResDesc", resDesc);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, resDesc);
 
-        resultData.putExtra("DataPickUpCode", dataPickUpCode);
-        resultData.putExtra("WibmoTxnId", wTxnId);
-        resultData.putExtra("MsgHash", msgHash);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_DATA_PICKUP_CODE, dataPickUpCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, wTxnId);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_MSG_HASH, msgHash);
 
         if(w2faInitResponse!=null) {
-            //resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, w2faInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, w2faInitResponse.getTransactionInfo().getMerAppData());
         } else if(wPayInitResponse!=null) {
-            //resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
-            resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
         }
 
         setResult(Activity.RESULT_OK, resultData);
@@ -397,7 +540,7 @@ public class InAppBrowserActivity extends Activity {
         builder.setMessage(
                 activity.getString(R.string.confirm_iap_cancel))
                 .setPositiveButton(
-                        activity.getString(R.string.title_yes),
+                        activity.getString(R.string.label_yes),
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog, int id) {
@@ -405,7 +548,7 @@ public class InAppBrowserActivity extends Activity {
                             }
                         })
                 .setNegativeButton(
-                        activity.getString(R.string.title_no),
+                        activity.getString(R.string.label_no),
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog, int id) {

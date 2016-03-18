@@ -2,17 +2,26 @@
 <resources>
     <string name="title_sdk_inapp">Wibmo IAP</string>
     <string name="start_qco_call">Pay with Wibmo</string>
-    <string name="menu_cancel">Cancel</string>
-
     <string name="confirm_iap_cancel">Are you sure you want to cancel?</string>
-    <string name="title_yes">Yes</string>
-    <string name="title_no">No</string>
+    <string name="label_yes">Yes</string>
+    <string name="label_no">No</string>
 
     <string name="wibmosdk_phone_state_permission_rationale">We need access to basic info about your phone to secure your transaction.</string>
     <string name="wibmosdk_phone_state_permission_missing_msg">You need to allow access to basic info about your phone to secure this transaction.</string>
 
-    <string name="title_try_again">Try Again</string>
-    <string name="title_cancel">Cancel</string>
+    <!--New String-->
+    <string name="lable_please_wait">please wait</string>
 
-    <string name="msg_internet_issue">Unable to reach our servers!\n\nPlease check internet connection.</string>
+    <string name="label_try_again">Try Again</string>
+    <string name="label_cancel">Cancel</string>
+
+    <string name="msg_servers_issue">Unable to reach our servers!\n\nPlease check connection.</string>
+    <string name="msg_internet_issue">We don\'t look to have active internet connection!</string>
+
+    <string name="label_pl_wait_goingback">Please wait.. Reloading last page..</string>
+    <string name="label_pl_wait_reloading">Please wait.. Reloading current page..</string>
+    <string name="label_ok">OK</string>
+
+    <string name="error_generic_try_after_st">Sorry, we had an error. Please try after some time.</string>
+
 </resources>

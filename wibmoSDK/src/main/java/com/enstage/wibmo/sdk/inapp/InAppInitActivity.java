@@ -45,9 +45,6 @@ import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.google.gson.Gson;
 import android.support.v4.app.ActivityCompat;
 
-import java.io.IOError;
-import java.io.IOException;
-
 /**
  * Created by akshath on 17/10/14.
  */
@@ -303,17 +300,19 @@ public class InAppInitActivity extends Activity {
 
     private void sendAbort(String resCode, String resDesc) {
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", resCode);
-        resultData.putExtra("ResDesc", resDesc);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, resDesc);
         if(w2faInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
-                resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, w2faInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, w2faInitResponse.getTransactionInfo().getMerAppData());
             }
         } else if(wPayInitResponse!=null) {
-            resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, wPayInitResponse.getWibmoTxnId());
             if(wPayInitResponse.getTransactionInfo()!=null) {
-                resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
             }
         }
         setResult(Activity.RESULT_CANCELED, resultData);
@@ -322,20 +321,21 @@ public class InAppInitActivity extends Activity {
 
     private void sendFailure(String resCode, String resDesc) {
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", resCode);
-        resultData.putExtra("ResDesc", resDesc);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "sdk init - "+resDesc);
 
         setResult(Activity.RESULT_CANCELED, resultData);
         finish();
     }
     private void sendFailure(W2faInitResponse w2faInitResponse) {
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", w2faInitResponse.getResCode());
-        resultData.putExtra("ResDesc", w2faInitResponse.getResDesc());
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, w2faInitResponse.getResCode());
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "sdk init - "+w2faInitResponse.getResDesc());
         if(w2faInitResponse.getWibmoTxnId()!=null) {
-            resultData.putExtra("WibmoTxnId", w2faInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
-                resultData.putExtra("MerTxnId", w2faInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, w2faInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, w2faInitResponse.getTransactionInfo().getMerAppData());
             }
         }
         setResult(Activity.RESULT_CANCELED, resultData);
@@ -343,12 +343,13 @@ public class InAppInitActivity extends Activity {
     }
     private void sendFailure(WPayInitResponse wPayInitResponse) {
         Intent resultData = new Intent();
-        resultData.putExtra("ResCode", wPayInitResponse.getResCode());
-        resultData.putExtra("ResDesc", wPayInitResponse.getResDesc());
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, wPayInitResponse.getResCode());
+        resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "sdk init - "+wPayInitResponse.getResDesc());
         if(wPayInitResponse.getWibmoTxnId()!=null) {
-            resultData.putExtra("WibmoTxnId", wPayInitResponse.getWibmoTxnId());
+            resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, wPayInitResponse.getWibmoTxnId());
             if(wPayInitResponse.getTransactionInfo()!=null) {
-                resultData.putExtra("MerTxnId", wPayInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
+                resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
             }
         }
 
@@ -373,6 +374,9 @@ public class InAppInitActivity extends Activity {
             if(data!=null) {
                 readyPackage = data.getStringExtra("Package");
                 Log.v(TAG, "readyPackage: " + readyPackage);
+                Log.v(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
+                Log.v(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
+                Log.v(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
             }
             startIAP();
 
@@ -391,7 +395,7 @@ public class InAppInitActivity extends Activity {
                 activity.getString(R.string.confirm_iap_cancel))
                 .setCancelable(false)
                 .setPositiveButton(
-                activity.getString(R.string.title_yes),
+                activity.getString(R.string.label_yes),
                 new DialogInterface.OnClickListener() {
                     public void onClick(
                             DialogInterface dialog, int id) {
@@ -399,7 +403,7 @@ public class InAppInitActivity extends Activity {
                     }
                 })
                 .setNegativeButton(
-                        activity.getString(R.string.title_no),
+                        activity.getString(R.string.label_no),
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog, int id) {
@@ -517,6 +521,30 @@ public class InAppInitActivity extends Activity {
         protected Void doInBackground(W2faInitRequest... data) {
             try {
                 w2faInitResponse = InAppHandler.init2FA(data[0]);
+
+                if(w2faInitResponse!=null && WibmoSDK.getInAppTxnIdCallback()!=null) {
+                    Thread t = new Thread() {
+                        public void run() {
+                            boolean recorderByApp = false;
+                            for(int i=0;i<3;i++) {
+                                Log.v(TAG, "Calling app callback.. "+i);
+                                try {
+                                    recorderByApp = WibmoSDK.getInAppTxnIdCallback().recordInit(activity.getApplicationContext(),
+                                            w2faInitResponse.getWibmoTxnId(), w2faInitResponse.getTransactionInfo().getMerTxnId());
+                                } catch (Throwable e) {
+                                    Log.e(TAG, "Error: "+e,e);
+                                    break;
+                                }
+
+                                if (recorderByApp) {
+                                    break;
+                                }
+                            }
+                        }
+                    };
+                    t.setName("InAppTxnIdCallback");
+                    t.start();
+                }
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
                 lastError = ex.toString();
@@ -556,8 +584,33 @@ public class InAppInitActivity extends Activity {
         protected Void doInBackground(WPayInitRequest... data) {
             try {
                 wPayInitResponse = InAppHandler.initPay(data[0]);
-
                 //Log.v(TAG, "wPayInitResponse  "+ (new Gson()).toJson(wPayInitResponse));
+
+                if(wPayInitResponse!=null
+                        && WibmoSDK.RES_CODE_NO_ERROR.equals(wPayInitResponse.getResCode())
+                        && WibmoSDK.getInAppTxnIdCallback()!=null) {
+                    Thread t = new Thread() {
+                        public void run() {
+                            boolean recorderByApp = false;
+                            for(int i=0;i<3;i++) {
+                                Log.v(TAG, "Calling app callback.. "+i);
+                                try {
+                                    recorderByApp = WibmoSDK.getInAppTxnIdCallback().recordInit(activity.getApplicationContext(),
+                                            wPayInitResponse.getWibmoTxnId(), wPayInitResponse.getTransactionInfo().getMerTxnId());
+                                } catch (Throwable e) {
+                                    Log.e(TAG, "Error: "+e,e);
+                                    break;
+                                }
+
+                                if (recorderByApp) {
+                                    break;
+                                }
+                            }
+                        }
+                    };
+                    t.setName("InAppTxnIdCallback");
+                    t.start();
+                }
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
                 lastError = ex.toString();
@@ -585,14 +638,14 @@ public class InAppInitActivity extends Activity {
         builder.setMessage(msg)
                 .setCancelable(false)
                 .setPositiveButton(
-                        activity.getString(R.string.title_try_again),
+                        activity.getString(R.string.label_try_again),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 startIAP();
                             }
                 })
                 .setNegativeButton(
-                        activity.getString(R.string.title_cancel),
+                        activity.getString(R.string.label_cancel),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 if (dialog != null) {

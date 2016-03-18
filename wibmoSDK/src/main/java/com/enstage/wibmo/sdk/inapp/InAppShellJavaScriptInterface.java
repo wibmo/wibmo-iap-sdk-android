@@ -22,6 +22,7 @@ public class InAppShellJavaScriptInterface {
     private static final String TAG = "InAppShellJSInterface";
 
     private InAppShellHepler inAppShellHepler;
+    private String callbackMethodName;
 
     public InAppShellJavaScriptInterface(InAppShellHepler inAppShellHepler) {
         this.inAppShellHepler = inAppShellHepler;
@@ -63,6 +64,14 @@ public class InAppShellJavaScriptInterface {
 
     @android.webkit.JavascriptInterface
     @SuppressWarnings("unused")
+    public void setCallbackForTxnId(String methodName) {
+        Log.d(TAG, "setCallbackForTxnId : "+methodName);
+
+        this.callbackMethodName = methodName;
+    }
+
+    @android.webkit.JavascriptInterface
+    @SuppressWarnings("unused")
     public void doIAPWPay(String wPayInitRequest, String returnUrl) {
         inAppShellHepler.setResponseUrl(returnUrl);
         Log.d(TAG, "IAPWPay : "+wPayInitRequest);
@@ -75,5 +84,39 @@ public class InAppShellJavaScriptInterface {
     @SuppressWarnings("unused")
     public void scrollToTop() {
         inAppShellHepler.getWebView().scrollTo(0, 0);
+    }
+
+    public void sendWibmoTxnId(String wibmoTxnId, String merTxnId) {
+        if(callbackMethodName!=null) {
+            callJavaScript(callbackMethodName, wibmoTxnId, merTxnId);
+        }
+    }
+
+    private void callJavaScript(String methodName, Object...params){
+        Log.i(TAG, "callJavaScript: " + methodName + "; p: "+params);
+
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("javascript:try{");
+        stringBuilder.append(methodName);
+        stringBuilder.append("(");
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            if(param instanceof String){
+                stringBuilder.append("'");
+                stringBuilder.append(param);
+                stringBuilder.append("'");
+            }
+            if(i < params.length - 1){
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append(")}catch(error){alert('error: '+error.message);}");
+
+        inAppShellHepler.getWebView().post(new Runnable() {
+            @Override
+            public void run() {
+                inAppShellHepler.getWebView().loadUrl(stringBuilder.toString());
+            }
+        });
     }
 }

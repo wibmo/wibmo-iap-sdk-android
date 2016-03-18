@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -65,13 +67,13 @@ public class HttpUtil {
                 makeSSLSocketFactory();
 
                 client = new OkHttpClient.Builder()
-                    .cache(cache)
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(90, TimeUnit.SECONDS)
-                    .sslSocketFactory(sslSocketFactory)
-                    .hostnameVerifier(vf)
-                    .build();
+                        .cache(cache)
+                        .connectTimeout(30, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(90, TimeUnit.SECONDS)
+                        .sslSocketFactory(sslSocketFactory)
+                        .hostnameVerifier(vf)
+                        .build();
 
                 okhttpinit = true;
             } catch (Exception e) {
@@ -84,6 +86,11 @@ public class HttpUtil {
 
     public static String postData(String posturl, byte postData[], boolean useCache,
                                   MediaType mediaType) throws Exception {
+        return postData(posturl, postData, useCache, mediaType, null);
+    }
+
+    public static String postData(String posturl, byte postData[], boolean useCache,
+                                  MediaType mediaType, Map<String,String> headers) throws Exception {
         String data = new String(postData, "utf-8");
         int i = data.indexOf("p=");
         int j = data.indexOf("&", i);
@@ -97,12 +104,12 @@ public class HttpUtil {
 
         Log.i(TAG, "op: " + method + " @ " + posturl);
 
-        return postDataUseOkHttp(posturl, postData, useCache, mediaType);
+        return postDataUseOkHttp(posturl, postData, useCache, mediaType, headers);
     }
 
 
-    public static String postDataUseOkHttp(String posturl, byte postData[],
-                                           boolean useCache, MediaType mediaType) throws Exception {
+    private static String postDataUseOkHttp(String posturl, byte postData[],
+                                            boolean useCache, MediaType mediaType, Map<String,String> headers) throws Exception {
         URL url;
         long stime = System.currentTimeMillis();
         try {
@@ -116,6 +123,16 @@ public class HttpUtil {
                 builder.addHeader("Cache-Control", "no-cache");
             }
             builder.post(body);
+
+            if(headers!=null) {
+                Iterator<String> iterator = headers.keySet().iterator();
+                String headerKey = null;
+                while(iterator.hasNext()) {
+                    headerKey = iterator.next();
+                    builder.addHeader(headerKey, headers.get(headerKey));
+                }
+            }
+
             Request request = builder.build();
 
             if(okhttpinit==false) {

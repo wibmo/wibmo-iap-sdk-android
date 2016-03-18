@@ -1,2 +1,2 @@
 include ':wibmosdklib', ':wibmoSDK'
-include ':sampleiappay'
+include ':sampleiappay', ':sampleIAPv2Generic', ':sampleIAPv2Taxi'

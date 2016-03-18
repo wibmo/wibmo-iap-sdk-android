@@ -22,21 +22,14 @@ public class WPayInitRequest extends W2faInitRequest {
     private static final long serialVersionUID = 1L;
 
     private boolean performAuthorization = true;
-    private String merchantReturnUrl;
 
+    @Deprecated
     public boolean isPerformAuthorization() {
         return performAuthorization;
     }
 
+    @Deprecated
     public void setPerformAuthorization(boolean performAuthorization) {
         this.performAuthorization = performAuthorization;
-    }
-
-    public String getMerchantReturnUrl() {
-        return merchantReturnUrl;
-    }
-
-    public void setMerchantReturnUrl(String merchantReturnUrl) {
-        this.merchantReturnUrl = merchantReturnUrl;
     }
 }

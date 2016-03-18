@@ -29,11 +29,13 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayResponse;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.net.URLEncoder;
 
@@ -41,7 +43,7 @@ public class InAppShellHepler {
     private static final String TAG = "InAppShellHepler";
 
     protected static final String charSet = "utf-8";
-    private static Gson gson = new Gson();
+    private static Gson gson = InAppUtil.makeGson();
 
     private Activity activity;
 
@@ -51,11 +53,11 @@ public class InAppShellHepler {
     private String responseUrl;
     private WebView webView;
 
+    private InAppShellJavaScriptInterface jsInterface;
+
     public void injectIAP() {
-        InAppShellJavaScriptInterface jsInterface = new InAppShellJavaScriptInterface(this);
+        jsInterface = new InAppShellJavaScriptInterface(this);
         webView.addJavascriptInterface(jsInterface, "WibmoIAP");
-
-
     }
 
     public void initSDK() {
@@ -70,6 +72,7 @@ public class InAppShellHepler {
         final Context context = activity.getApplicationContext();
         Thread t = new Thread() {
             public void run() {
+                Log.i(TAG, "initSDK in inappshell helper");
                 if(wibmoIntentActionPackage!=null) {
                     WibmoSDK.setWibmoIntentActionPackage(wibmoIntentActionPackage);
                 }
@@ -81,6 +84,7 @@ public class InAppShellHepler {
                 }
 
                 WibmoSDK.init(context);
+                WibmoSDK.setInAppTxnIdCallback(null);//re-set
             }
         };
         t.start();
@@ -91,19 +95,20 @@ public class InAppShellHepler {
             return null;
         }
 
-        String resCode = data.getStringExtra("ResCode");
-        String resDesc = data.getStringExtra("ResDesc");
+        String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+        String resDesc = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC);
 
-        String wibmoTxnId = data.getStringExtra("WibmoTxnId");
-        String merTxnId = data.getStringExtra("MerTxnId");
+        String wibmoTxnId = data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID);
+        String merTxnId = data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID);
+        String merAppData = data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA);
 
         WPayResponse wPayResponse = WibmoSDK.processInAppResponseWPay(data);
 
-        return getPostBodyForMerchant(resCode, resDesc, wibmoTxnId, merTxnId, wPayResponse);
+        return getPostBodyForMerchant(resCode, resDesc, wibmoTxnId, merTxnId, merAppData, wPayResponse);
     }
 
     public static String getPostBodyForMerchant(String resCode, String resDesc,
-            String wibmoTxnId, String merTxnId, WPayResponse wPayResponse) throws Exception {
+            String wibmoTxnId, String merTxnId, String merAppData, WPayResponse wPayResponse) throws Exception {
 
 
         StringBuilder resPostData = new StringBuilder();
@@ -114,6 +119,10 @@ public class InAppShellHepler {
 
         if(merTxnId!=null) {
             resPostData.append("merTxnId=").append(URLEncoder.encode(merTxnId, charSet)).append('&');
+        }
+
+        if(merAppData!=null) {
+            resPostData.append("merAppData=").append(URLEncoder.encode(merAppData, charSet)).append('&');
         }
 
         if (wPayResponse != null) {
@@ -186,6 +195,13 @@ public class InAppShellHepler {
         try {
             WPayInitRequest wPayInitRequest = gson.fromJson(jsonWPayInitRequest, WPayInitRequest.class);
             //jacksonMapper.readValue(jsonWPayInitRequest, WPayInitRequest.class);
+            WibmoSDK.setInAppTxnIdCallback(new InAppTxnIdCallback() {
+                @Override
+                public boolean recordInit(Context context, String wibmoTxnId, String merTxnId) {
+                    jsInterface.sendWibmoTxnId(wibmoTxnId, merTxnId);
+                    return true;
+                }
+            });
 
             WibmoSDK.startForInApp(activity, wPayInitRequest);
         } catch (Exception e) {
@@ -225,7 +241,7 @@ public class InAppShellHepler {
 
         builder.setCancelable(false);
         builder.setMessage(msg);
-        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.label_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();

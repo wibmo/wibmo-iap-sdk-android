@@ -23,15 +23,17 @@ import java.io.Serializable;
  */
 
 public class W2faInitRequest implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	private MerchantInfo merchantInfo;
 	private TransactionInfo transactionInfo;
 	private CustomerInfo customerInfo;
 	private DeviceInfo deviceInfo;
 	private String msgHash;
+	private String merchantReturnUrl;
 
 	private CardInfo cardInfo;
+	private String txnType;
 
 	public MerchantInfo getMerchantInfo() {
 		return merchantInfo;
@@ -79,5 +81,21 @@ public class W2faInitRequest implements Serializable {
 
 	public void setCardInfo(CardInfo cardInfo) {
 		this.cardInfo = cardInfo;
+	}
+
+	public String getTxnType() {
+		return txnType;
+	}
+
+	public void setTxnType(String txnType) {
+		this.txnType = txnType;
+	}
+
+	public String getMerchantReturnUrl() {
+		return merchantReturnUrl;
+	}
+
+	public void setMerchantReturnUrl(String merchantReturnUrl) {
+		this.merchantReturnUrl = merchantReturnUrl;
 	}
 }
