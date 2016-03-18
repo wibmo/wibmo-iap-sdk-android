@@ -30,7 +30,7 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            //signingConfig signingConfigs.debug
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -52,7 +52,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.0'
 
     compile project(':wibmoSDK')
     //compile 'com.wibmo.iap.sdk:wibmoSDK:1.1.5@aar'

@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.enstage.wibmo.sdk.WibmoSDK;
 
+import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.CustomerInfo;
 import com.enstage.wibmo.sdk.inapp.pojo.MerchantInfo;
 import com.enstage.wibmo.sdk.inapp.pojo.TransactionInfo;
@@ -61,8 +62,8 @@ public class MainActivity extends ActionBarActivity {
         Thread t = new Thread() {
             public void run() {
                 //uncomment next two statement for staging setup
-                WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
-                WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
+                //WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
 
                 WibmoSDK.init(context);
             }
