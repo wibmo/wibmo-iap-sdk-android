@@ -107,17 +107,9 @@ public class MainActivity extends AppCompatActivity {
         final Context context = getApplicationContext();
         Thread t = new Thread() {
             public void run() {
-                //uncomment next two statement for staging setup
-                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
-                //WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
-
-                //uncomment next two statement for dev setup
-                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.dev");
-                //WibmoSDKConfig.setWibmoDomain("https://wallet.pcdev.enstage-sas.com");
-
-                //uncomment next two statement for beta setup
-                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.main");
-                //WibmoSDKConfig.setWibmoDomain("https://beta.wibmo.com");
+                //comment next two statement for prod setup
+                WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
+                WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
 
                 WibmoSDK.init(context);
             }
@@ -126,32 +118,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processPayWithWibmo() {
-        /**/
-        //Prod - Main Test
-        String merID = "59108865964003234764"; //"MYMERCHANTID";//change me
-        String merAppID = "6786"; //"MYAPPID";//change me
+        /*
+        //Prod
+        String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
+        String merAppID = "MYAPPID"; //"MYAPPID";//change me
         String merMerCountryCode = "IN";//change me if req
-        MerchantHandler.setMerchantDomain("www.wibmo.com"); //"myprodserver.com"
+        MerchantHandler.setMerchantDomain("myprodserver.com"); //"myprodserver.com"
         //-
         /**/
 
-        /*
+        /**/
         //staging
-        String merID = "81516121"; //"MYMERCHANTID";//change me
-        String merAppID = "1"; //"MYAPPID";//change me
+        String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
+        String merAppID = "MYAPPID"; //"MYAPPID";//change me
         String merMerCountryCode = "IN";//change me if req
-        MerchantHandler.setMerchantDomain("wallet.pc.enstage-sas.com"); //"mytestserver.com"
+        MerchantHandler.setMerchantDomain("mytestserver.com"); //"mytestserver.com"
         //-
-        */
-
-        /*
-        //Dev
-        String merID = "81516121"; //"MYMERCHANTID";//change me
-        String merAppID = "1"; //"MYAPPID";//change me
-        String merMerCountryCode = "IN";//change me if req
-        MerchantHandler.setMerchantDomain("wallet.pcdev.enstage-sas.com"); //"mytestserver.com"
-        //-
-        */
+        /**/
 
         wPayInitRequest = new WPayInitRequest();
         wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);
@@ -177,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
         merchantInfo.setMerId(merID);
 
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustEmail("customer@somemail.com");//change this to user's values if available
-        customerInfo.setCustName("Customer Name");//change this to user's values if available
-        customerInfo.setCustDob("20011231");//change this to user's values if available
-        customerInfo.setCustMobile("9123412346");//change this to user's values if available
+        customerInfo.setCustEmail("customer@somemail.com");//change this to user's values if available for better ux
+        customerInfo.setCustName("Customer Name");//change this to user's values if available for better ux
+        customerInfo.setCustDob("20011231");//change this to user's values if available for better ux
+        customerInfo.setCustMobile("9123412346");//change this to user's values if available for better ux
 
         /*
         //..pass card saved if available
