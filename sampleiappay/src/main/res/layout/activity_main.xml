@@ -52,7 +52,7 @@
             android:id="@+id/pww_button"
             android:layout_width="fill_parent"
             android:layout_height="60dp"
-            android:src="@drawable/paywith_payzapp1"
+            android:src="@drawable/paywith_wibmo"
             android:layout_centerHorizontal="true"
             android:adjustViewBounds="true"
             android:cropToPadding="false"

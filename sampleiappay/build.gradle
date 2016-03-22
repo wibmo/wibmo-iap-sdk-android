@@ -20,12 +20,14 @@ android {
     }
 
     signingConfigs {
+        /*
         debug {
             storeFile file("./../key/dev_key.jks")
             storePassword "password"
             keyAlias "enstage"
             keyPassword "password"
         }
+        */
     }
 
     buildTypes {

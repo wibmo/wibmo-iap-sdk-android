@@ -61,9 +61,9 @@ public class MainActivity extends ActionBarActivity {
         final Context context = getApplicationContext();
         Thread t = new Thread() {
             public void run() {
-                //uncomment next two statement for staging setup
-                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
-                //WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
+                //comment next two statement for production setup
+                WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
+                WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
 
                 WibmoSDK.init(context);
             }
@@ -96,12 +96,13 @@ public class MainActivity extends ActionBarActivity {
         transactionInfo.setTxnAmount("" + amount);//implied decimals Rs1=100
         transactionInfo.setTxnCurrency("356");//356 for INR
         transactionInfo.setSupportedPaymentType(new String[]{
-                "*"});//"w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or *
-                //"w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or * or "w.ds.pt.card_wallet"
+                "*"});
+        //"*", "w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or * or "w.ds.pt.card_wallet"
         //transactionInfo.setRestrictedPaymentType(new String[]{WibmoSDK.PAYMENT_TYPE_WALLET_CARD});
-        transactionInfo.setTxnDesc("merchant txn desc");
-        transactionInfo.setMerAppData("This is some merchant data");
-        transactionInfo.setMerDataField("This is for recon");
+
+        transactionInfo.setTxnDesc("merchant txn desc");//change me
+        transactionInfo.setMerAppData("This is some merchant data");//change me
+        transactionInfo.setMerDataField("This is for recon");//change me
         transactionInfo.setChargeLater(false);
         transactionInfo.setTxnAmtKnown(true);
 
@@ -111,10 +112,11 @@ public class MainActivity extends ActionBarActivity {
         merchantInfo.setMerId(merID);
 
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustEmail("customer@somemail.com");
-        customerInfo.setCustName("Customer Name");
-        customerInfo.setCustDob("20011231");
-        customerInfo.setCustMobile("9123412345");
+        customerInfo.setCustEmail("customer@somemail.com");//change me [set if available for better ux]
+        customerInfo.setCustName("Customer Name");//change me [set if available for better ux]
+        customerInfo.setCustDob("20011231");//change me [set if available for better ux]
+        customerInfo.setCustMobile("9123412345");//change me [set if available for better ux]
+
         /*
         //..pass card saved at merchant..
         CardInfo cardInfo = new CardInfo();

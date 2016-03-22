@@ -19,8 +19,6 @@ import java.net.URLEncoder;
 public class MerchantHandler {
     private static final String TAG = MerchantHandler.class.getSimpleName();
 
-
-
     private static String merchantDomain = "www.wibmo.com";
 
     public static WPayInitRequest generateMessageHash(WPayInitRequest req) throws Exception {
