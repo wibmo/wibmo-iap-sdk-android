@@ -51,7 +51,7 @@ public class InAppHandler {
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
                     false, HttpUtil.JSON, null);
-            Log.v(TAG, "rawres: "+rawres);
+            //Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do init2FA!");
@@ -71,7 +71,7 @@ public class InAppHandler {
             String posturl = WibmoSDKConfig.getInitPayPostUrl();
 
             String postData = gson.toJson(request); //request.toJSON();
-            //Log.v(TAG, "postData: "+postData);
+            Log.v(TAG, "postData: "+postData);
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
@@ -96,7 +96,7 @@ public class InAppHandler {
             String posturl = WibmoSDKConfig.getStatusIAPPostUrl() + response.getWibmoTxnId();
 
             String postData = gson.toJson(request); //request.toJSON();
-            //Log.v(TAG, "postData: "+postData);
+            Log.v(TAG, "postData: "+postData);
 
             Map<String, String> headers = new Hashtable<>();
             headers.put("X-IAP-Token", response.getWibmoTxnToken());
@@ -104,7 +104,7 @@ public class InAppHandler {
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
                     false, HttpUtil.JSON, headers);
-            //Log.v(TAG, "rawres: "+rawres);
+            Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do checkIAPStatus!");
