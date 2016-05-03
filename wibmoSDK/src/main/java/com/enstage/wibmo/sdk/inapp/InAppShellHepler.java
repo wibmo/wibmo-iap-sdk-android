@@ -34,29 +34,33 @@ import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayResponse;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
 public class InAppShellHepler {
     private static final String TAG = "InAppShellHepler";
 
     protected static final String charSet = "utf-8";
-    private static Gson gson = InAppUtil.makeGson();
 
-    private Activity activity;
+    private WeakReference<Activity> activityWR;
 
     private int dialogStyle = -1;
     private int toastBackgroundColor = -1;
 
     private String responseUrl;
-    private WebView webView;
+    private WeakReference<WebView> webViewWR;
 
     private InAppShellJavaScriptInterface jsInterface;
 
     public void injectIAP() {
         jsInterface = new InAppShellJavaScriptInterface(this);
+
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+            return;
+        }
         webView.addJavascriptInterface(jsInterface, "WibmoIAP");
     }
 
@@ -69,6 +73,12 @@ public class InAppShellHepler {
     }
 
     public void initSDK(final String wibmoIntentActionPackage, final String wibmoAppPackage, final String wibmoDomain) {
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         final Context context = activity.getApplicationContext();
         Thread t = new Thread() {
             public void run() {
@@ -149,6 +159,12 @@ public class InAppShellHepler {
         String resDesc = null;
         WPayResponse wPayResponse = null;
 
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+            return;
+        }
+
         if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY) {
             if(data==null) {
                 Log.e(TAG, "DATA was null!");
@@ -192,16 +208,17 @@ public class InAppShellHepler {
     protected void processIAP(String jsonWPayInitRequest) {
         Log.d(TAG, "processIAP: " + jsonWPayInitRequest);
 
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         try {
-            WPayInitRequest wPayInitRequest = gson.fromJson(jsonWPayInitRequest, WPayInitRequest.class);
-            //jacksonMapper.readValue(jsonWPayInitRequest, WPayInitRequest.class);
-            WibmoSDK.setInAppTxnIdCallback(new InAppTxnIdCallback() {
-                @Override
-                public boolean recordInit(Context context, String wibmoTxnId, String merTxnId) {
-                    jsInterface.sendWibmoTxnId(wibmoTxnId, merTxnId);
-                    return true;
-                }
-            });
+            WPayInitRequest wPayInitRequest = InAppUtil.makeGson().fromJson(jsonWPayInitRequest, WPayInitRequest.class);
+
+            InAppShellTxnIdCallback inAppShellTxnIdCallback = new InAppShellTxnIdCallback(jsInterface);
+            WibmoSDK.setInAppTxnIdCallback(inAppShellTxnIdCallback);
 
             WibmoSDK.startForInApp(activity, wPayInitRequest);
         } catch (Exception e) {
@@ -211,6 +228,14 @@ public class InAppShellHepler {
     }
 
     protected void openUrl(String url) {
+        Log.d(TAG, "url: "+url);
+
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(url));
@@ -223,7 +248,13 @@ public class InAppShellHepler {
 
     @SuppressLint("NewApi")
     public void showMsg(String msg) {
-        Log.d(TAG, msg);
+        Log.d(TAG, "showMsg: "+msg);
+
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
 
         AlertDialog.Builder builder = null;
 
@@ -263,6 +294,12 @@ public class InAppShellHepler {
     private Handler handler = new Handler();
     protected void showToast(final String msg) {
         Log.i(TAG, "Show Toast: " + msg);
+
+        final Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
 
         handler.post(new Runnable() {
             @Override
@@ -306,19 +343,23 @@ public class InAppShellHepler {
     }
 
     public WebView getWebView() {
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+        }
         return webView;
     }
 
     public void setWebView(WebView webView) {
-        this.webView = webView;
+        webViewWR = new WeakReference<WebView>(webView);
     }
 
     public Activity getActivity() {
-        return activity;
+        return activityWR.get();
     }
 
     public void setActivity(Activity activity) {
-        this.activity = activity;
+        activityWR = new WeakReference<Activity>(activity);
     }
 
 }
