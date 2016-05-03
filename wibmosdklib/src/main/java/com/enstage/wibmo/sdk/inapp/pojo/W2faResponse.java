@@ -23,6 +23,9 @@ public class W2faResponse extends GenericResponse {
     private String msgHash;
     private String dataPickUpCode;
 
+    private String merAppData = "";
+    private String merTxnId;
+
     public String getMsgHash() {
         return msgHash;
     }
@@ -45,5 +48,21 @@ public class W2faResponse extends GenericResponse {
 
     public void setWibmoTxnId(String wibmoTxnId) {
         this.wibmoTxnId = wibmoTxnId;
+    }
+
+    public String getMerAppData() {
+        return merAppData;
+    }
+
+    public void setMerAppData(String merAppData) {
+        this.merAppData = merAppData;
+    }
+
+    public String getMerTxnId() {
+        return merTxnId;
+    }
+
+    public void setMerTxnId(String merTxnId) {
+        this.merTxnId = merTxnId;
     }
 }

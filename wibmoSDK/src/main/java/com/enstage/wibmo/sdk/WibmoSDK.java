@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.enstage.wibmo.sdk.inapp.InAppInitActivity;
 import com.enstage.wibmo.sdk.inapp.InAppTxnIdCallback;
+import com.enstage.wibmo.sdk.inapp.InAppUtil;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
@@ -108,13 +109,16 @@ public class WibmoSDK {
 
         W2faResponse response = new W2faResponse();
 
-        response.setResCode(data.getStringExtra("ResCode"));
-        response.setResDesc(data.getStringExtra("ResDesc"));
+        response.setResCode(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE));
+        response.setResDesc(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC));
 
-        response.setWibmoTxnId(data.getStringExtra("WibmoTxnId"));
-        response.setDataPickUpCode(data.getStringExtra("DataPickUpCode"));
+        response.setWibmoTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID));
+        response.setDataPickUpCode(data.getStringExtra(InAppUtil.EXTRA_KEY_DATA_PICKUP_CODE));
 
-        response.setMsgHash(data.getStringExtra("MsgHash"));
+        response.setMerAppData(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA));
+        response.setMerTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID));
+
+        response.setMsgHash(data.getStringExtra(InAppUtil.EXTRA_KEY_MSG_HASH));
 
         return response;
     }
@@ -124,13 +128,16 @@ public class WibmoSDK {
 
         WPayResponse response = new WPayResponse();
 
-        response.setResCode(data.getStringExtra("ResCode"));
-        response.setResDesc(data.getStringExtra("ResDesc"));
+        response.setResCode(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE));
+        response.setResDesc(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC));
 
-        response.setWibmoTxnId(data.getStringExtra("WibmoTxnId"));
-        response.setDataPickUpCode(data.getStringExtra("DataPickUpCode"));
+        response.setWibmoTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID));
+        response.setDataPickUpCode(data.getStringExtra(InAppUtil.EXTRA_KEY_DATA_PICKUP_CODE));
 
-        response.setMsgHash(data.getStringExtra("MsgHash"));
+        response.setMerAppData(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA));
+        response.setMerTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID));
+
+        response.setMsgHash(data.getStringExtra(InAppUtil.EXTRA_KEY_MSG_HASH));
 
         return response;
     }

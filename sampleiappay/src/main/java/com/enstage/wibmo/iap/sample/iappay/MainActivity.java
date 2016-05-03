@@ -166,6 +166,12 @@ public class MainActivity extends ActionBarActivity {
                 String wPayTxnId = res.getWibmoTxnId();
                 sb.append("wPayTxnId: "+wPayTxnId).append("\n");
 
+                String merAppData = res.getMerAppData();
+                sb.append("merAppData: "+merAppData).append("\n");
+
+                String merTxnId = res.getMerTxnId();
+                sb.append("merTxnId: "+merTxnId).append("\n");
+
                 String msgHash = res.getMsgHash();
                 sb.append("msgHash: "+msgHash).append("\n");
 
