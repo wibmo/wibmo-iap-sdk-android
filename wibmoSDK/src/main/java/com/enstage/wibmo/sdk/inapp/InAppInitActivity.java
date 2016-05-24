@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,8 +43,6 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
-import com.google.gson.Gson;
-import android.support.v4.app.ActivityCompat;
 
 /**
  * Created by akshath on 17/10/14.
@@ -219,7 +218,7 @@ public class InAppInitActivity extends Activity {
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, REQUEST_CODE_IAP_READY);
     }
@@ -261,7 +260,7 @@ public class InAppInitActivity extends Activity {
 
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, WibmoSDK.REQUEST_CODE_IAP_2FA);
     }
@@ -285,7 +284,7 @@ public class InAppInitActivity extends Activity {
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, WibmoSDK.REQUEST_CODE_IAP_PAY);
     }
@@ -502,7 +501,7 @@ public class InAppInitActivity extends Activity {
             Log.e(TAG, "Error: " + e, e);
         }
         Toast toast = Toast.makeText(activity,
-                "We had an error, please try after sometime",
+                getString(R.string.error_generic_try_after_st),
                 Toast.LENGTH_LONG);
         toast.show();
     }
