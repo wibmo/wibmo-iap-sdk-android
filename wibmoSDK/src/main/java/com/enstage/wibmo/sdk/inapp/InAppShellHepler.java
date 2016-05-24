@@ -195,8 +195,19 @@ public class InAppShellHepler {
 
                 String resPostData = getPostBodyForMerchant(data);
 
-                webView.postUrl(getResponseUrl(), resPostData.getBytes());
-                Log.i(TAG, "posting to responseUrl " + getResponseUrl());
+                if(resPostData!=null) {
+                    webView.postUrl(getResponseUrl(), resPostData.getBytes());
+                    Log.i(TAG, "posting to responseUrl " + getResponseUrl());
+                } else {
+                    Log.i(TAG, "resPostData was null! will finish");
+
+                    Activity activity = activityWR.get();
+                    if(activity==null) {
+                        Log.e(TAG, "activity was null");
+                        return;
+                    }
+                    activity.finish();
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Error in onActivityResult: "+e, e);
                 showMsg("We had an error! " + e.getMessage());
