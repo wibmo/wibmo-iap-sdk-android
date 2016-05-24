@@ -18,6 +18,7 @@ package com.enstage.wibmo.util;
 import android.content.Context;
 import android.util.Log;
 
+import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 
 import java.io.File;
@@ -59,22 +60,42 @@ public class HttpUtil {
     private static OkHttpClient client = null;
     private static Cache cache = null;
 
+    private static SSLSocketFactory sslSocketFactory;
+
+    private static TrustManager[] trustManager;
+    private static SSLContext sslContext;
+
+    private static HostnameVerifier vf = null;
+
+    private static void makeHostnameVerifier() {
+        vf = new HostnameVerifier() {
+            public boolean verify(String hostName, SSLSession session) {
+                //logger.warning("WARNING: hostname may not match the certificate host name :" + hostName);
+                return true;
+            }
+        };
+    }
+
     public static boolean init(Context context) {
         if(okhttpinit==false || cache ==null) {
             try {
                 File cacheDirectory = context.getDir("service_api_cache", Context.MODE_PRIVATE);
                 cache = new Cache(cacheDirectory, HTTP_CACHE_SIZE);
-                makeSSLSocketFactory();
+                makeSSLSocketFactory(context);
 
-                client = new OkHttpClient.Builder()
+                OkHttpClient.Builder builder = new OkHttpClient.Builder()
                         .cache(cache)
                         .connectTimeout(30, TimeUnit.SECONDS)
                         .writeTimeout(30, TimeUnit.SECONDS)
                         .readTimeout(90, TimeUnit.SECONDS)
-                        .sslSocketFactory(sslSocketFactory)
-                        .hostnameVerifier(vf)
-                        .build();
+                        .sslSocketFactory(sslSocketFactory);
 
+                if(WibmoSDKConfig.isTestMode()) {
+                    makeHostnameVerifier();
+                    builder.hostnameVerifier(vf);
+                }
+
+                client = builder.build();
                 okhttpinit = true;
             } catch (Exception e) {
                 Log.e(TAG, "Error "+e,e);
@@ -156,18 +177,17 @@ public class HttpUtil {
         }
     }
 
-    private static SSLSocketFactory sslSocketFactory;
-
-    private static TrustManager[] trustManager;
-    private static SSLContext sslContext;
-
-    public static void makeSSLSocketFactory() throws Exception {
+    public static void makeSSLSocketFactory(Context context) throws Exception {
         if (sslContext == null && getSslSocketFactory() == null) {
-            Log.d(TAG, "making makeSSLSocketFactory");
+            Log.d(TAG, "making makeSSLSocketFactory.. ");
             sslContext = SSLContext.getInstance("TLS");
             if (trustManager == null) {
                 if(WibmoSDKConfig.isTestMode()) {
-                    trustManager = new TrustManager[]{DummyTrustManager.getInstance()};
+                    Log.v(TAG, "Loading non uat trust cert..");
+                    trustManager = SSLUtil.loadTrustManagerFromRawBks(context,
+                            R.raw.trust_wsdk_bks_star_ens_uat, ("pa"+"ssw"+"ord").toCharArray());
+                } else {
+                    Log.v(TAG, "using default null trust manager");
                 }
             }
 
@@ -181,12 +201,6 @@ public class HttpUtil {
             Log.d(TAG, "done getSocketFactory");
         }
     }
-    static HostnameVerifier vf = new HostnameVerifier() {
-        public boolean verify(String hostName, SSLSession session) {
-            //logger.warning("WARNING: hostname may not match the certificate host name :" + hostName);
-            return true;
-        }
-    };
 
     public static SSLSocketFactory getSslSocketFactory() {
         return sslSocketFactory;
