@@ -49,8 +49,10 @@ public class InAppUtil {
     public static final String EXTRA_KEY_MER_TXN_ID = "MerTxnId";
     public static final String EXTRA_KEY_MER_APP_DATA = "MerAppData";
 
+    private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();//new Gson();
+
     public static Gson makeGson() {
-        return new GsonBuilder().disableHtmlEscaping().create();//new Gson();
+        return gson;
     }
 
     public static DeviceInfo makeDeviceInfo(Activity activity, String sdkVersion) {
