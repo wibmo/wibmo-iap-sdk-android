@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +35,9 @@ public class MainActivity extends ActionBarActivity {
     //test data
     private long amount = 100;
 
+    private long startTime;
+    private long endTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
         final Context context = getApplicationContext();
         Thread t = new Thread() {
             public void run() {
-                //uncomment next two statement for staging setup
+                //comment next two statement for production setup
                 WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
                 WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
 
@@ -91,13 +93,18 @@ public class MainActivity extends ActionBarActivity {
         wPayInitRequest = new WPayInitRequest();
 
         TransactionInfo transactionInfo = new TransactionInfo();
-        transactionInfo.setTxnAmount(""+amount);//implied decimals Rs1=100
+        transactionInfo.setTxnAmount("" + amount);//implied decimals Rs1=100
         transactionInfo.setTxnCurrency("356");//356 for INR
         transactionInfo.setSupportedPaymentType(new String[]{
-                "*"});//"w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or *
-        transactionInfo.setTxnDesc("merchant txn desc");
-        transactionInfo.setMerAppData("This is some merchant data");
-        transactionInfo.setMerDataField("This is for recon");
+                "*"});
+        //"*", "w.ds.pt.card_visa", "w.ds.pt.card_mastercard" or * or "w.ds.pt.card_wallet"
+        //transactionInfo.setRestrictedPaymentType(new String[]{WibmoSDK.PAYMENT_TYPE_WALLET_CARD});
+
+        transactionInfo.setTxnDesc("merchant txn desc");//change me
+        transactionInfo.setMerAppData("This is some merchant data");//change me
+        transactionInfo.setMerDataField("This is for recon");//change me
+        transactionInfo.setChargeLater(false);
+        transactionInfo.setTxnAmtKnown(true);
 
         MerchantInfo merchantInfo = new MerchantInfo();
         merchantInfo.setMerAppId(merAppID);
@@ -105,10 +112,22 @@ public class MainActivity extends ActionBarActivity {
         merchantInfo.setMerId(merID);
 
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustEmail("customer@somemail.com");
-        customerInfo.setCustName("Customer Name");
-        customerInfo.setCustDob("20011231");
-        customerInfo.setCustMobile("9123412345");
+        customerInfo.setCustEmail("customer@somemail.com");//change me [set if available for better ux]
+        customerInfo.setCustName("Customer Name");//change me [set if available for better ux]
+        customerInfo.setCustDob("20011231");//change me [set if available for better ux]
+        customerInfo.setCustMobile("9123412345");//change me [set if available for better ux]
+
+        /*
+        //..pass card saved at merchant..
+        CardInfo cardInfo = new CardInfo();
+        cardInfo.setCardnumber("4111111111111111");
+        cardInfo.setExpiryMM("12");
+        cardInfo.setExpiryYYYY("2015");
+        cardInfo.setNameOnCard("Name on Card");
+
+        wPayInitRequest.setCardInfo(cardInfo);
+        //..pass card saved at merchant..
+        */
 
         wPayInitRequest.setTransactionInfo(transactionInfo);
         wPayInitRequest.setMerchantInfo(merchantInfo);
@@ -129,6 +148,10 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY) {
+            endTime = System.currentTimeMillis();
+
+            long timeDiff = endTime - startTime;
+
             StringBuilder sb = new StringBuilder();
             if (resultCode == RESULT_OK) {
 
@@ -142,6 +165,12 @@ public class MainActivity extends ActionBarActivity {
                 //success;
                 String wPayTxnId = res.getWibmoTxnId();
                 sb.append("wPayTxnId: "+wPayTxnId).append("\n");
+
+                String merAppData = res.getMerAppData();
+                sb.append("merAppData: "+merAppData).append("\n");
+
+                String merTxnId = res.getMerTxnId();
+                sb.append("merTxnId: "+merTxnId).append("\n");
 
                 String msgHash = res.getMsgHash();
                 sb.append("msgHash: "+msgHash).append("\n");
@@ -162,6 +191,9 @@ public class MainActivity extends ActionBarActivity {
                     //failed
                 }
             }//result not ok
+
+            //sb.append("\nTime: "+timeDiff).append(" ms").append("\n");
+            sb.append("\nTime: "+timeDiff/1000).append(" sec").append("\n");
 
             outputView.setText(sb.toString());
         }// requestCode
@@ -193,7 +225,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPreExecute() {
-            dialog = ProgressDialog.show(activity, "", "Please wait", true);
+            dialog = ProgressDialog.show(activity, "", getString(R.string.lable_please_wait), true);
             dialog.setInverseBackgroundForced(true);
             dialog.setProgressStyle(android.R.attr.progressBarStyleInverse);
         }
@@ -218,11 +250,12 @@ public class MainActivity extends ActionBarActivity {
 
             if (showError) {
                 Toast toast = Toast.makeText(activity,
-                        "We had an error, please try after sometime",
+                        activity.getString(R.string.error_generic_try_after_st),
                         Toast.LENGTH_LONG);
                 toast.show();
             } else {
                 if(wPayInitRequest!=null) {
+                    startTime = System.currentTimeMillis();
                     WibmoSDK.startForInApp(activity, wPayInitRequest);
                 }
             }

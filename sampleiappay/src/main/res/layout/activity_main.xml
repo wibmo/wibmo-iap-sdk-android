@@ -8,9 +8,10 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/title_1"
@@ -24,7 +25,6 @@
             android:id="@+id/title_2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title_1"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:text="IAP Payment" />
@@ -33,7 +33,6 @@
             android:id="@+id/title_3"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title_2"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:text="INR 10.00" />
@@ -44,7 +43,6 @@
             android:id="@+id/title_5"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title_3"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="4dp"
             android:gravity="left"
@@ -54,7 +52,6 @@
             android:id="@+id/pww_button"
             android:layout_width="fill_parent"
             android:layout_height="60dp"
-            android:layout_below="@id/title_5"
             android:src="@drawable/paywith_wibmo"
             android:layout_centerHorizontal="true"
             android:adjustViewBounds="true"
@@ -66,7 +63,6 @@
             android:id="@+id/title_4"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/pww_button"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:text="--- Output ---" />
@@ -75,10 +71,8 @@
             android:id="@+id/result"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title_4"
             android:layout_marginTop="20dp"
             android:gravity="center_horizontal"
             android:text="" />
-
-    </RelativeLayout>
+    </LinearLayout>
 </ScrollView>

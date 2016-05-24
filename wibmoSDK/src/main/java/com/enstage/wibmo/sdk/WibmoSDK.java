@@ -28,6 +28,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.enstage.wibmo.sdk.inapp.InAppInitActivity;
+import com.enstage.wibmo.sdk.inapp.InAppTxnIdCallback;
+import com.enstage.wibmo.sdk.inapp.InAppUtil;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
@@ -38,12 +40,14 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "1.3.1";
+    public static final String VERSION = "1.4.1";
 
+    public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
     public static final String RES_CODE_FAILURE_USER_ABORT = "204";
     public static final String RES_CODE_FAILURE_SYSTEM_ABORT = "205";
     public static final String RES_CODE_FAILURE_INTERNAL_ERROR = "051";
+    public static final String RES_CODE_TOO_EARLY = "080";
 
     public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
     public static final int REQUEST_CODE_IAP_2FA  = 0x0000605f; // Only use bottom 16 bits - 24671
@@ -65,6 +69,13 @@ public class WibmoSDK {
     public static final String PAYMENT_TYPE_WALLET_CARD = "w.ds.pt.card_wallet";
     //public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
     //public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
+
+    public static final String TRANSACTION_TYPE_W2FA = "W2fa";
+    public static final String TRANSACTION_TYPE_WPAY = "WPay";
+    public static final String TRANSACTION_TYPE_EBILL_GENERIC = "WPay-Ebill-Generic";
+    public static final String TRANSACTION_TYPE_EBILL_POS = "WPay-Ebill-POS";
+
+    private static InAppTxnIdCallback inAppTxnIdCallback;
 
     public static void startForInApp(Activity activity, W2faInitRequest w2faInitRequest) {
         if(activity==null) {
@@ -98,13 +109,16 @@ public class WibmoSDK {
 
         W2faResponse response = new W2faResponse();
 
-        response.setResCode(data.getStringExtra("ResCode"));
-        response.setResDesc(data.getStringExtra("ResDesc"));
+        response.setResCode(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE));
+        response.setResDesc(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC));
 
-        response.setWibmoTxnId(data.getStringExtra("WibmoTxnId"));
-        response.setDataPickUpCode(data.getStringExtra("DataPickUpCode"));
+        response.setWibmoTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID));
+        response.setDataPickUpCode(data.getStringExtra(InAppUtil.EXTRA_KEY_DATA_PICKUP_CODE));
 
-        response.setMsgHash(data.getStringExtra("MsgHash"));
+        response.setMerAppData(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA));
+        response.setMerTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID));
+
+        response.setMsgHash(data.getStringExtra(InAppUtil.EXTRA_KEY_MSG_HASH));
 
         return response;
     }
@@ -114,13 +128,16 @@ public class WibmoSDK {
 
         WPayResponse response = new WPayResponse();
 
-        response.setResCode(data.getStringExtra("ResCode"));
-        response.setResDesc(data.getStringExtra("ResDesc"));
+        response.setResCode(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE));
+        response.setResDesc(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC));
 
-        response.setWibmoTxnId(data.getStringExtra("WibmoTxnId"));
-        response.setDataPickUpCode(data.getStringExtra("DataPickUpCode"));
+        response.setWibmoTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID));
+        response.setDataPickUpCode(data.getStringExtra(InAppUtil.EXTRA_KEY_DATA_PICKUP_CODE));
 
-        response.setMsgHash(data.getStringExtra("MsgHash"));
+        response.setMerAppData(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA));
+        response.setMerTxnId(data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID));
+
+        response.setMsgHash(data.getStringExtra(InAppUtil.EXTRA_KEY_MSG_HASH));
 
         return response;
     }
@@ -246,5 +263,13 @@ public class WibmoSDK {
     public static void setWibmoAppPackage(String wibmoAppPackage) {
         Log.i(TAG, "wibmoAppPackage: "+wibmoAppPackage);
         WibmoSDK.wibmoAppPackage = wibmoAppPackage;
+    }
+
+    public static InAppTxnIdCallback getInAppTxnIdCallback() {
+        return inAppTxnIdCallback;
+    }
+
+    public static void setInAppTxnIdCallback(InAppTxnIdCallback inAppTxnIdCallback) {
+        WibmoSDK.inAppTxnIdCallback = inAppTxnIdCallback;
     }
 }

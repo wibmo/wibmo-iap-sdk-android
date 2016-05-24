@@ -23,9 +23,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-/**
- * Created by akshath on 21/10/14.
- */
+
+//Google does not allow Dummy Trust Manager any more as of May 17, 2016
+//https://support.google.com/faqs/answer/6346016
+/*
 public class DummyTrustManager implements X509TrustManager {
 
     private static DummyTrustManager instance;
@@ -49,12 +50,6 @@ public class DummyTrustManager implements X509TrustManager {
         tmf.init((KeyStore) null);
 
         TrustManager tms[] = tmf.getTrustManagers();
-
-		/*
-		 * Iterate over the returned trustmanagers, look
-		 * for an instance of X509TrustManager.  If found,
-		 * use that as our "default" trust manager.
-		 */
         for (int i = 0; i < tms.length; i++) {
             if (tms[i] instanceof X509TrustManager) {
                 sunJSSEX509TrustManager = (X509TrustManager) tms[i];
@@ -66,15 +61,6 @@ public class DummyTrustManager implements X509TrustManager {
         }
     }
 
-	/*
-	 * The default X509TrustManager returned by SunX509.  We'll delegate
-	 * decisions to it, and fall back to the logic in this class if the
-	 * default X509TrustManager doesn't trust it.
-	 */
-
-    /*
-     * Delegate to the default trust manager.
-     */
     public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
         try {
@@ -85,24 +71,16 @@ public class DummyTrustManager implements X509TrustManager {
         }
     }
 
-    /*
-     * Delegate to the default trust manager.
-     */
     public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
         try {
             sunJSSEX509TrustManager.checkServerTrusted(chain, authType);
         } catch (CertificateException excep) {
-			/*
-			 * Possibly pop up a dialog box asking whether to trust the
-			 * cert chain.
-			 */
+			//Possibly pop up a dialog box asking whether to trust the
+			//cert chain.
         }
     }
 
-    /*
-     * Merely pass this through.
-     */
     public X509Certificate[] getAcceptedIssuers() {
         // return sunJSSEX509TrustManager.getAcceptedIssuers();
         if (sunJSSEX509TrustManager == null) {
@@ -110,6 +88,5 @@ public class DummyTrustManager implements X509TrustManager {
         }
 
         return sunJSSEX509TrustManager.getAcceptedIssuers();
-
     }
-}
+}*/

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.util.HttpUtil;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
 
@@ -17,8 +18,6 @@ import java.net.URLEncoder;
  */
 public class MerchantHandler {
     private static final String TAG = MerchantHandler.class.getSimpleName();
-
-
 
     private static String merchantDomain = "www.wibmo.com";
 
@@ -48,7 +47,7 @@ public class MerchantHandler {
 
         Log.d(TAG, "rawres: " + rawres);
         //JSONObject resObj = null;
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();//new Gson();
         JsonParser jsonParser = new JsonParser();
         com.google.gson.JsonObject resObj = null;
 

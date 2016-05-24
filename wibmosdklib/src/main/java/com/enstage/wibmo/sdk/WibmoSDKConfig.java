@@ -29,6 +29,8 @@ public class WibmoSDKConfig {
     private static String init2FAPostUrl = wibmoDomain + "/v1/w2fa/init";
     private static String initPayPostUrl = wibmoDomain + "/v1/wPay/init";
 
+    private static String statusIAPPostUrl = wibmoDomain + "/v1/wPay/status/sdk/";
+
 
     public static void setWibmoDomain(String wibmoDomain) {
         WibmoSDKConfig.wibmoDomain = wibmoDomain;
@@ -47,6 +49,7 @@ public class WibmoSDKConfig {
 
         init2FAPostUrl = wibmoDomain + "/v1/w2fa/init";
         initPayPostUrl = wibmoDomain + "/v1/wPay/init";
+        setStatusIAPPostUrl(wibmoDomain + "/v1/wPay/status/sdk/");
     }
 
     public static boolean isTestMode() {
@@ -75,5 +78,18 @@ public class WibmoSDKConfig {
 
     public static String getWibmoDomain() {
         return wibmoDomain;
+    }
+
+    public static String getWibmoNwDomainOnly() {
+        int i = wibmoDomain.indexOf(".");
+        return wibmoDomain.substring(i+1);//wibmo.com
+    }
+
+    public static String getStatusIAPPostUrl() {
+        return statusIAPPostUrl;
+    }
+
+    public static void setStatusIAPPostUrl(String statusIAPPostUrl) {
+        WibmoSDKConfig.statusIAPPostUrl = statusIAPPostUrl;
     }
 }

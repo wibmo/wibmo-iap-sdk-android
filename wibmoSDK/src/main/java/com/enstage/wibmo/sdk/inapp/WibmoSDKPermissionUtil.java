@@ -72,8 +72,8 @@ public class WibmoSDKPermissionUtil {
         new AlertDialog.Builder(activity)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", cancelListener)
+                .setPositiveButton(R.string.label_ok, okListener)
+                .setNegativeButton(R.string.label_cancel, cancelListener)
                 .create()
                 .show();
     }

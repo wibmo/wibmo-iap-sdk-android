@@ -56,7 +56,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="60dp"
                 android:gravity="center_horizontal"
-                android:text="please wait" />
+                android:text="@string/lable_please_wait" />
 
             <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
                 android:id="@+id/smoothprogressbar"
@@ -91,7 +91,7 @@
                 android:layout_below="@id/smoothprogressbar"
                 android:layout_marginTop="12dp"
                 android:gravity="center"
-                android:text="@string/menu_cancel" />
+                android:text="@string/label_cancel" />
         </RelativeLayout>
 
     </LinearLayout>

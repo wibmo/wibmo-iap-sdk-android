@@ -29,33 +29,39 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayResponse;
-import com.google.gson.Gson;
 
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
 public class InAppShellHepler {
     private static final String TAG = "InAppShellHepler";
 
     protected static final String charSet = "utf-8";
-    private static Gson gson = new Gson();
 
-    private Activity activity;
+    private WeakReference<Activity> activityWR;
 
     private int dialogStyle = -1;
     private int toastBackgroundColor = -1;
 
     private String responseUrl;
-    private WebView webView;
+    private WeakReference<WebView> webViewWR;
+
+    private InAppShellJavaScriptInterface jsInterface;
 
     public void injectIAP() {
-        InAppShellJavaScriptInterface jsInterface = new InAppShellJavaScriptInterface(this);
+        jsInterface = new InAppShellJavaScriptInterface(this);
+
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+            return;
+        }
         webView.addJavascriptInterface(jsInterface, "WibmoIAP");
-
-
     }
 
     public void initSDK() {
@@ -67,9 +73,16 @@ public class InAppShellHepler {
     }
 
     public void initSDK(final String wibmoIntentActionPackage, final String wibmoAppPackage, final String wibmoDomain) {
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         final Context context = activity.getApplicationContext();
         Thread t = new Thread() {
             public void run() {
+                Log.i(TAG, "initSDK in inappshell helper");
                 if(wibmoIntentActionPackage!=null) {
                     WibmoSDK.setWibmoIntentActionPackage(wibmoIntentActionPackage);
                 }
@@ -81,6 +94,7 @@ public class InAppShellHepler {
                 }
 
                 WibmoSDK.init(context);
+                WibmoSDK.setInAppTxnIdCallback(null);//re-set
             }
         };
         t.start();
@@ -91,19 +105,20 @@ public class InAppShellHepler {
             return null;
         }
 
-        String resCode = data.getStringExtra("ResCode");
-        String resDesc = data.getStringExtra("ResDesc");
+        String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+        String resDesc = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC);
 
-        String wibmoTxnId = data.getStringExtra("WibmoTxnId");
-        String merTxnId = data.getStringExtra("MerTxnId");
+        String wibmoTxnId = data.getStringExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID);
+        String merTxnId = data.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID);
+        String merAppData = data.getStringExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA);
 
         WPayResponse wPayResponse = WibmoSDK.processInAppResponseWPay(data);
 
-        return getPostBodyForMerchant(resCode, resDesc, wibmoTxnId, merTxnId, wPayResponse);
+        return getPostBodyForMerchant(resCode, resDesc, wibmoTxnId, merTxnId, merAppData, wPayResponse);
     }
 
     public static String getPostBodyForMerchant(String resCode, String resDesc,
-            String wibmoTxnId, String merTxnId, WPayResponse wPayResponse) throws Exception {
+            String wibmoTxnId, String merTxnId, String merAppData, WPayResponse wPayResponse) throws Exception {
 
 
         StringBuilder resPostData = new StringBuilder();
@@ -114,6 +129,10 @@ public class InAppShellHepler {
 
         if(merTxnId!=null) {
             resPostData.append("merTxnId=").append(URLEncoder.encode(merTxnId, charSet)).append('&');
+        }
+
+        if(merAppData!=null) {
+            resPostData.append("merAppData=").append(URLEncoder.encode(merAppData, charSet)).append('&');
         }
 
         if (wPayResponse != null) {
@@ -139,6 +158,12 @@ public class InAppShellHepler {
         String resCode = null;
         String resDesc = null;
         WPayResponse wPayResponse = null;
+
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+            return;
+        }
 
         if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY) {
             if(data==null) {
@@ -170,8 +195,19 @@ public class InAppShellHepler {
 
                 String resPostData = getPostBodyForMerchant(data);
 
-                webView.postUrl(getResponseUrl(), resPostData.getBytes());
-                Log.i(TAG, "posting to responseUrl " + getResponseUrl());
+                if(resPostData!=null) {
+                    webView.postUrl(getResponseUrl(), resPostData.getBytes());
+                    Log.i(TAG, "posting to responseUrl " + getResponseUrl());
+                } else {
+                    Log.i(TAG, "resPostData was null! will finish");
+
+                    Activity activity = activityWR.get();
+                    if(activity==null) {
+                        Log.e(TAG, "activity was null");
+                        return;
+                    }
+                    activity.finish();
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Error in onActivityResult: "+e, e);
                 showMsg("We had an error! " + e.getMessage());
@@ -183,9 +219,17 @@ public class InAppShellHepler {
     protected void processIAP(String jsonWPayInitRequest) {
         Log.d(TAG, "processIAP: " + jsonWPayInitRequest);
 
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         try {
-            WPayInitRequest wPayInitRequest = gson.fromJson(jsonWPayInitRequest, WPayInitRequest.class);
-            //jacksonMapper.readValue(jsonWPayInitRequest, WPayInitRequest.class);
+            WPayInitRequest wPayInitRequest = InAppUtil.makeGson().fromJson(jsonWPayInitRequest, WPayInitRequest.class);
+
+            InAppShellTxnIdCallback inAppShellTxnIdCallback = new InAppShellTxnIdCallback(jsInterface);
+            WibmoSDK.setInAppTxnIdCallback(inAppShellTxnIdCallback);
 
             WibmoSDK.startForInApp(activity, wPayInitRequest);
         } catch (Exception e) {
@@ -195,6 +239,14 @@ public class InAppShellHepler {
     }
 
     protected void openUrl(String url) {
+        Log.d(TAG, "url: "+url);
+
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
+
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(url));
@@ -207,7 +259,13 @@ public class InAppShellHepler {
 
     @SuppressLint("NewApi")
     public void showMsg(String msg) {
-        Log.d(TAG, msg);
+        Log.d(TAG, "showMsg: "+msg);
+
+        Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
 
         AlertDialog.Builder builder = null;
 
@@ -225,7 +283,7 @@ public class InAppShellHepler {
 
         builder.setCancelable(false);
         builder.setMessage(msg);
-        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.label_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -247,6 +305,12 @@ public class InAppShellHepler {
     private Handler handler = new Handler();
     protected void showToast(final String msg) {
         Log.i(TAG, "Show Toast: " + msg);
+
+        final Activity activity = activityWR.get();
+        if(activity==null) {
+            Log.e(TAG, "activity was null");
+            return;
+        }
 
         handler.post(new Runnable() {
             @Override
@@ -290,19 +354,23 @@ public class InAppShellHepler {
     }
 
     public WebView getWebView() {
+        WebView webView = webViewWR.get();
+        if(webView==null) {
+            Log.e(TAG, "webView was null");
+        }
         return webView;
     }
 
     public void setWebView(WebView webView) {
-        this.webView = webView;
+        webViewWR = new WeakReference<WebView>(webView);
     }
 
     public Activity getActivity() {
-        return activity;
+        return activityWR.get();
     }
 
     public void setActivity(Activity activity) {
-        this.activity = activity;
+        activityWR = new WeakReference<Activity>(activity);
     }
 
 }

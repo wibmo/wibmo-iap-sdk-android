@@ -60,10 +60,12 @@
 -keep class com.enstage.wibmo.sdk.inapp.InAppBrowserActivity$* {
   *;
 }
+-keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface {
+  *;
+}
 -keep class com.enstage.wibmo.util.** { *; }
--keep class com.fasterxml.jackson.** { *; }
 
 -dontwarn com.squareup.okhttp.**
--dontwarn com.fasterxml.jackson.databind.**
+-dontwarn okhttp3.**
 -dontwarn okio.**
 #------ WIBMO -----
