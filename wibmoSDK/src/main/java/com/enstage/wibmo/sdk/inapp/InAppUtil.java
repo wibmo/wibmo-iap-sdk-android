@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -49,11 +50,22 @@ public class InAppUtil {
     public static final String EXTRA_KEY_MER_TXN_ID = "MerTxnId";
     public static final String EXTRA_KEY_MER_APP_DATA = "MerAppData";
 
+    //for SDK use only
+    public static final String EXTRA_KEY_BIN_USED = "BinUsed";
+    public static final String EXTRA_KEY_BREADCRUMB = "BreadCrumb";
+
+    public static final String BREADCRUMB_InAppInitActivity = "0";
+    public static final String BREADCRUMB_InAppBrowserActivity = "1";
+
     private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();//new Gson();
 
     public static Gson makeGson() {
         return gson;
     }
+
+
+    private static String lastBinUsed;
+    private static StringBuilder breadCrumb = new StringBuilder(10);
 
     public static DeviceInfo makeDeviceInfo(Activity activity, String sdkVersion) {
         DeviceInfo deviceInfo = new DeviceInfo();
@@ -226,5 +238,29 @@ public class InAppUtil {
         } else {
             return false;
         }
+    }
+
+    public static String getLastBinUsed() {
+        return lastBinUsed;
+    }
+
+    public static void setLastBinUsed(String lastBinUsed) {
+        InAppUtil.lastBinUsed = lastBinUsed;
+    }
+
+    public static StringBuilder getBreadCrumb() {
+        return breadCrumb;
+    }
+
+    public static void clearBreadCrumb() {
+        InAppUtil.breadCrumb.setLength(0);
+    }
+
+    public static void addBreadCrumb(String breadCrumb) {
+        InAppUtil.breadCrumb.append(breadCrumb).append(':');
+    }
+
+    public static void appendBreadCrumb(String breadCrumb) {
+        InAppUtil.breadCrumb.append(breadCrumb);
     }
 }

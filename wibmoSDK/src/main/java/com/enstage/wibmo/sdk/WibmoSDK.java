@@ -85,6 +85,9 @@ public class WibmoSDK {
             throw new IllegalArgumentException("W2faInitRequest passed was null");
         }
 
+        InAppUtil.clearBreadCrumb();
+        InAppUtil.setLastBinUsed(null);
+
         Intent intent = new Intent(activity, InAppInitActivity.class);
         intent.putExtra("W2faInitRequest", w2faInitRequest);
         activity.startActivityForResult(intent, REQUEST_CODE_IAP_2FA);
@@ -98,6 +101,9 @@ public class WibmoSDK {
         if(wPayInitRequest==null) {
             throw new IllegalArgumentException("WPayInitRequest passed was null");
         }
+
+        InAppUtil.clearBreadCrumb();
+        InAppUtil.setLastBinUsed(null);
 
         Intent intent = new Intent(activity, InAppInitActivity.class);
         intent.putExtra("WPayInitRequest", wPayInitRequest);

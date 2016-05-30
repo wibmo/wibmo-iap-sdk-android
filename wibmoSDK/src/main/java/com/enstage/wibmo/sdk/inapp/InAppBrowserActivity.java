@@ -84,6 +84,7 @@ public class InAppBrowserActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         context = (Context) this;
+        InAppUtil.addBreadCrumb(InAppUtil.BREADCRUMB_InAppBrowserActivity);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {

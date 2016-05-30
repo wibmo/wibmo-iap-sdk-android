@@ -75,6 +75,8 @@ public class InAppInitActivity extends Activity {
         Log.v(TAG, "OnCreate");
         activity = this;
 
+        InAppUtil.addBreadCrumb(InAppUtil.BREADCRUMB_InAppInitActivity);
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
 
@@ -382,7 +384,21 @@ public class InAppInitActivity extends Activity {
             return;
         }
 
+
+        String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+        if(breadCrumb!=null) {
+            InAppUtil.appendBreadCrumb(breadCrumb);
+        }
+        InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
+        Log.d(TAG, "BreadCrumb: "+InAppUtil.getBreadCrumb());
+        Log.d(TAG, "BinUsed: "+InAppUtil.getLastBinUsed());
+        InAppUtil.clearBreadCrumb();
+        InAppUtil.setLastBinUsed(null);
+        data.removeExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+        data.removeExtra(InAppUtil.EXTRA_KEY_BIN_USED);
+
         setResult(resultCode, data);
+
         finish();
     }
 
@@ -620,7 +636,7 @@ public class InAppInitActivity extends Activity {
 
         @Override
         protected void onPostExecute(Void result) {
-            Log.v(TAG, "pl wait.. done");
+            Log.v(TAG, "pl wait.. done.. "+showError);
 
             if (showError) {
                 askRetryOnError(lastError);
@@ -631,7 +647,8 @@ public class InAppInitActivity extends Activity {
     }
 
     private void askRetryOnError(final String lastError) {
-        String msg = getString(R.string.msg_internet_issue);
+        Log.i(TAG, "askRetryOnError: "+lastError);
+        String msg = getString(R.string.msg_servers_issue);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(msg)
