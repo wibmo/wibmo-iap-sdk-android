@@ -384,18 +384,19 @@ public class InAppInitActivity extends Activity {
             return;
         }
 
-
-        String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
-        if(breadCrumb!=null) {
-            InAppUtil.appendBreadCrumb(breadCrumb);
+        if(data!=null) {
+            String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+            if (breadCrumb != null) {
+                InAppUtil.appendBreadCrumb(breadCrumb);
+            }
+            InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
+            Log.d(TAG, "BreadCrumb: " + InAppUtil.getBreadCrumb());
+            Log.d(TAG, "BinUsed: " + InAppUtil.getLastBinUsed());
+            InAppUtil.clearBreadCrumb();
+            InAppUtil.setLastBinUsed(null);
+            data.removeExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+            data.removeExtra(InAppUtil.EXTRA_KEY_BIN_USED);
         }
-        InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
-        Log.d(TAG, "BreadCrumb: "+InAppUtil.getBreadCrumb());
-        Log.d(TAG, "BinUsed: "+InAppUtil.getLastBinUsed());
-        InAppUtil.clearBreadCrumb();
-        InAppUtil.setLastBinUsed(null);
-        data.removeExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
-        data.removeExtra(InAppUtil.EXTRA_KEY_BIN_USED);
 
         setResult(resultCode, data);
 
