@@ -198,11 +198,12 @@ public class InAppBrowserActivity extends Activity {
                 }
 
                 String url = view.getUrl();
-
-                if(isViewSmall && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly())==-1) {
-                    changeSizeToFull();
-                } else if(isViewSmall==false && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly())!=-1) {
-                    changeSizeToSmall();
+                if(url!=null) {
+                    if (isViewSmall && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly()) == -1) {
+                        changeSizeToFull();
+                    } else if (isViewSmall == false && url.indexOf(WibmoSDKConfig.getWibmoNwDomainOnly()) != -1) {
+                        changeSizeToSmall();
+                    }
                 }
             }
             @Override
@@ -344,6 +345,13 @@ public class InAppBrowserActivity extends Activity {
         }
         webView.addJavascriptInterface(new MyJavaScriptInterface(), "WibmoSDK");
         //webView.clearCache(true);
+
+        if(savedInstanceState!=null) {
+            if(savedInstanceState.getBoolean("wasSaved", false)) {
+                Log.i(TAG, "was restored activity.. lets stop here");
+                return;
+            }
+        }
 
         if(w2faInitResponse!=null) {
             webView.postUrl(w2faInitResponse.getWebUrl(), "a=b".getBytes());
@@ -618,5 +626,13 @@ public class InAppBrowserActivity extends Activity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("wasSaved", true);
     }
 }
