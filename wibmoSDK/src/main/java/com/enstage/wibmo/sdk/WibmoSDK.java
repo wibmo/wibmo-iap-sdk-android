@@ -84,6 +84,10 @@ public class WibmoSDK {
         if(w2faInitRequest==null) {
             throw new IllegalArgumentException("W2faInitRequest passed was null");
         }
+        if(w2faInitRequest.getTxnType()==null) {
+            Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to W2fa");
+            w2faInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_W2FA);
+        }
 
         InAppUtil.clearBreadCrumb();
         InAppUtil.setLastBinUsed(null);
@@ -100,6 +104,11 @@ public class WibmoSDK {
         }
         if(wPayInitRequest==null) {
             throw new IllegalArgumentException("WPayInitRequest passed was null");
+        }
+
+        if(wPayInitRequest.getTxnType()==null) {
+            Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to IAPv2");
+            wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);
         }
 
         InAppUtil.clearBreadCrumb();
