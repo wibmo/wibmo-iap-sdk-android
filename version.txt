@@ -1,4 +1,14 @@
 
+Version 1.4.2 (Dt: 18 Mar 2016) - Akshath
+------------------
+# Upgraded buildTools 23.0.1 => 23.0.3
+! bug fix for low memory phones
+# Upgraded 3 party libs
+    gson 2.6.1 => 2.6.2
+    okhttp 3.2.0 => 3.3.1
+
+
+
 Version 1.4.1 (Dt: 18 Mar 2016) - Akshath
 ------------------
 ! Removed Dummy Trust Manager and Dummy Host Verifier
