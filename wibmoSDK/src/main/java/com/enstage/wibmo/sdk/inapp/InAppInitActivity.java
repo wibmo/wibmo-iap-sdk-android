@@ -153,10 +153,18 @@ public class InAppInitActivity extends Activity {
             }
         }
 
+        if(savedInstanceState!=null) {
+            if(savedInstanceState.getBoolean("wasSaved", false)) {
+                Log.i(TAG, "was restored activity.. lets stop here");
+                return;
+            }
+        }
+
         doIAPStuff();
     }
 
     private void doIAPStuff() {
+        Log.v(TAG, "doIAPStuff");
         if(InAppUtil.isWibmoInstalled(this)) {
             startInAppReadinessCheck(this);
         } else {
@@ -228,6 +236,7 @@ public class InAppInitActivity extends Activity {
 
     public static void startInAppFlowInBrowser(Activity activity,
            W2faInitRequest w2faInitRequest, W2faInitResponse w2faInitResponse) {
+        Log.v(TAG, "startInAppFlowInBrowser");
         Intent intent = new Intent(activity, InAppBrowserActivity.class);
         intent.putExtra("W2faInitRequest", w2faInitRequest);
         intent.putExtra("W2faInitResponse", w2faInitResponse);
@@ -236,6 +245,7 @@ public class InAppInitActivity extends Activity {
 
     public static void startInAppFlowInBrowser(Activity activity,
             WPayInitRequest wPayInitRequest, WPayInitResponse wPayInitResponse) {
+        Log.v(TAG, "startInAppFlowInBrowser");
         Intent intent = new Intent(activity, InAppBrowserActivity.class);
         intent.putExtra("WPayInitRequest", wPayInitRequest);
         intent.putExtra("WPayInitResponse", wPayInitResponse);
@@ -244,6 +254,7 @@ public class InAppInitActivity extends Activity {
 
     public static void startInAppFlowInApp(Activity activity,
                W2faInitRequest w2faInitRequest, W2faInitResponse w2faInitResponse) {
+        Log.v(TAG, "startInAppFlowInApp");
         Intent intent = new Intent(WibmoSDK.getWibmoIntentActionPackage()+".InApp");
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("W2faInitRequest", w2faInitRequest);
@@ -269,6 +280,7 @@ public class InAppInitActivity extends Activity {
 
     public static void startInAppFlowInApp(Activity activity,
               WPayInitRequest wPayInitRequest, WPayInitResponse wPayInitResponse) {
+        Log.v(TAG, "startInAppFlowInApp");
         Intent intent = new Intent(WibmoSDK.getWibmoIntentActionPackage()+".InApp");
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("WPayInitRequest", wPayInitRequest);
@@ -408,7 +420,7 @@ public class InAppInitActivity extends Activity {
         final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(
-                activity.getString(R.string.confirm_iap_cancel))
+                activity.getString(R.string.confirm_cancel))
                 .setCancelable(false)
                 .setPositiveButton(
                 activity.getString(R.string.label_yes),
@@ -694,5 +706,14 @@ public class InAppInitActivity extends Activity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("wasSaved", true);
     }
 }
