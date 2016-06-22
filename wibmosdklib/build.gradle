@@ -1,4 +1,15 @@
 apply plugin: 'java'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+/*
+allprojects {
+    apply plugin: 'java'
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+*/
+
 //apply plugin: 'maven'
 //apply plugin: 'com.jfrog.bintray'
 
@@ -6,12 +17,9 @@ apply plugin: 'java'
 version = "1.1.5"               // This is the library version used when deploying the artifact
 group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 dependencies {
-    compile 'com.google.code.gson:gson:2.6.1'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.okhttp3:okhttp:3.3.1'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
