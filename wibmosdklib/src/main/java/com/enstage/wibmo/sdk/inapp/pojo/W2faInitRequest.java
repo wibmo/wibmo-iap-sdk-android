@@ -25,6 +25,8 @@ import java.io.Serializable;
 public class W2faInitRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	public static final String version = "2";//iapv2
+
 	private MerchantInfo merchantInfo;
 	private TransactionInfo transactionInfo;
 	private CustomerInfo customerInfo;

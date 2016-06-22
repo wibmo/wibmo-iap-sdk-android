@@ -350,6 +350,7 @@ public class InAppShellHepler {
     }
 
     public void setResponseUrl(String responseUrl) {
+        Log.v(TAG, "setResponseUrl: "+responseUrl);
         this.responseUrl = responseUrl;
     }
 

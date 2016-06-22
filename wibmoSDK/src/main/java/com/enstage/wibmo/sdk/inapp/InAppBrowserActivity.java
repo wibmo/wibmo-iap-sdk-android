@@ -539,7 +539,7 @@ public class InAppBrowserActivity extends Activity {
         final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(
-                activity.getString(R.string.confirm_iap_cancel))
+                activity.getString(R.string.confirm_cancel))
                 .setPositiveButton(
                         activity.getString(R.string.label_yes),
                         new DialogInterface.OnClickListener() {
