@@ -2,10 +2,10 @@ apply plugin: 'com.android.library'
 
 ext {
     bintrayRepo = 'maven'
-    bintrayName = 'wibmo-iap-sdk-android'
+    bintrayName = 'wibmo-iap-sdk'
 
     publishedGroupId = 'com.wibmo.iap.sdk'
-    libraryName = 'wibmo-iap-sdk-android'
+    libraryName = 'wibmo-iap-sdk'
     artifact = 'wibmo-iap-sdk'
 
     libraryDescription = 'Wibmo IAP Android SDK is library to enable native apps do in-app payment with cards and wibmo wallets. This SDK will also support one step payments.'

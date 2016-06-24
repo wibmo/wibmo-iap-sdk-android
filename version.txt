@@ -6,7 +6,9 @@ Version 1.4.2 (Dt: 18 Mar 2016) - Akshath
 # Upgraded 3 party libs
     gson 2.6.1 => 2.6.2
     okhttp 3.2.0 => 3.3.1
-
+# renamed wibmoSDK => wibmo-iap-sdk
++ added support for maven
+  compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:1.4.2'
 
 
 Version 1.4.1 (Dt: 18 Mar 2016) - Akshath

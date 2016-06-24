@@ -55,6 +55,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':wibmoSDK')
+    compile project(':wibmo-iap-sdk')
     //compile 'com.wibmo.iap.sdk:wibmoSDK:1.1.5@aar'
 }
