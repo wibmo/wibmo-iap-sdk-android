@@ -34,9 +34,6 @@ import java.io.*; // needed only for main() method.
  *
  * @author Kevin Kelley (kelley@ruralnet.net)
  * @version 1.3
- * @date 06 August 1998
- * @modified 14 February 2000
- * @modified 22 September 2000
  */
 public class Base64 {
 

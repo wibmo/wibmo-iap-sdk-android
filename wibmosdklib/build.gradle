@@ -2,20 +2,29 @@ apply plugin: 'java'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-/*
-allprojects {
-    apply plugin: 'java'
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'wibmosdklib'
+
+    publishedGroupId = 'com.wibmo.iap.sdk'
+    libraryName = 'wibmosdklib'
+    artifact = 'wibmosdklib'
+
+    libraryDescription = 'Wibmo IAP Android SDK java lib.'
+
+    siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
+    gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
+
+    libraryVersion = '1.4.2'
+
+    developerId = 'akshath'
+    developerName = 'Akshathkumar Shetty'
+    developerEmail = 'akshath.shetty@wibmo.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
 }
-*/
-
-//apply plugin: 'maven'
-//apply plugin: 'com.jfrog.bintray'
-
-//maven stuff
-version = "1.1.5"               // This is the library version used when deploying the artifact
-group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
 
 dependencies {
     compile 'com.google.code.gson:gson:2.6.2'
@@ -24,7 +33,19 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+// Place it at the end of the file
+apply from: './../installv1.gradle'
+apply from: './../bintrayv1.gradle'
+
 /*
+// Old style
+//apply plugin: 'maven'
+//apply plugin: 'com.jfrog.bintray'
+
+//maven stuff
+//version = "1.1.5"               // This is the library version used when deploying the artifact
+//group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
+
 //maven stuff
 def siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'      // Homepage URL of the library
 def gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'   // Git repository URL
