@@ -245,7 +245,6 @@ public class WibmoSDK {
     }
     /**
      * @deprecated use setWibmoIntentActionPackage
-     * @return
      */
     public static void setWibmoPackage(String wibmoPackage) {
         setWibmoIntentActionPackage(wibmoPackage);

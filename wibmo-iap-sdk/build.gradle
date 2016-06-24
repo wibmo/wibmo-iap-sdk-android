@@ -1,13 +1,28 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'com.github.dcendents.android-maven'
-//apply plugin: 'com.jfrog.bintray'
 
-//maven stuff
-version = "1.4.1"               // This is the library version used when deploying the artifact
-group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'wibmo-iap-sdk-android'
 
-//causes issues with pom placement
-//project.archivesBaseName = "wibmo-iap-sdk-android"
+    publishedGroupId = 'com.wibmo.iap.sdk'
+    libraryName = 'wibmo-iap-sdk-android'
+    artifact = 'wibmo-iap-sdk'
+
+    libraryDescription = 'Wibmo IAP Android SDK is library to enable native apps do in-app payment with cards and wibmo wallets. This SDK will also support one step payments.'
+
+    siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
+    gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
+
+    libraryVersion = '1.4.2'
+
+    developerId = 'akshath'
+    developerName = 'Akshathkumar Shetty'
+    developerEmail = 'akshath.shetty@wibmo.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 
 android {
     compileSdkVersion 23
@@ -17,8 +32,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
-        versionCode 10401
-        versionName '1.4.1'
+        versionCode 10402
+        versionName '1.4.2'
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
@@ -55,7 +70,22 @@ dependencies {
 
 }
 
+// Place it at the end of the file
+apply from: './../installv1.gradle'
+apply from: './../bintrayv1.gradle'
+
 /*
+// Old style
+//apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.jfrog.bintray'
+
+//maven stuff
+//version = "1.4.1"               // This is the library version used when deploying the artifact
+//group = "com.wibmo.iap.sdk"     // Maven Group ID for the artifact
+
+//causes issues with pom placement
+//project.archivesBaseName = "wibmo-iap-sdk-android"
+
 //maven stuff
 def siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'      // Homepage URL of the library
 def gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'   // Git repository URL
