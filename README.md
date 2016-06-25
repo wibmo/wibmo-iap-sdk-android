@@ -1,4 +1,3 @@
-# wibmo-iap-sdk-android
 Wibmo IAP SDK for Android
 =====
 
@@ -6,9 +5,7 @@ Wibmo IAP Android SDK is library to enable native apps do in-app payment with ca
 
 Download
 --------
-You can download a jar from GitHub's [releases page][1].
-
-Or use Gradle:
+You can use Gradle:
 
 ```gradle
 repositories {
