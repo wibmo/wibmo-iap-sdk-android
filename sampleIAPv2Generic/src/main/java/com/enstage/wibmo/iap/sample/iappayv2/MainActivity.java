@@ -104,9 +104,9 @@ public class MainActivity extends ActionBarActivity {
         final Context context = getApplicationContext();
         Thread t = new Thread() {
             public void run() {
-                //comment next two statement for prod setup
-                WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
-                WibmoSDKConfig.setWibmoDomain("https://wallet.pc.enstage-sas.com");
+                //uncomment next two statement for staging setup
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
+                //WibmoSDKConfig.setWibmoDomain("https://api.pc.enstage-sas.com");
 
                 WibmoSDK.init(context);
             }
@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity {
         customerInfo.setCustEmail("customer@somemail.com");//change this to user's values if available for better ux
         customerInfo.setCustName("Customer Name");//change this to user's values if available for better ux
         customerInfo.setCustDob("20011231");//change this to user's values if available for better ux
-        customerInfo.setCustMobile("9123412346");//change this to user's values if available for better ux
+        customerInfo.setCustMobile("9123412347");//change this to user's values if available for better ux
 
         /*
         //..pass card saved if available

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '23.0.3'
 
     defaultConfig {
         applicationId "com.enstage.wibmo.iap.sample.iappayv2.taxi"
@@ -10,6 +10,11 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
+        }
     }
     buildTypes {
         release {
@@ -25,6 +30,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
 
-    //compile project(':wibmo-iap-sdk')
-    compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
+    compile project(':wibmo-iap-sdk')
+    //compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }
