@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +37,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Cache;
 import okhttp3.MediaType;
@@ -83,12 +85,22 @@ public class HttpUtil {
                 cache = new Cache(cacheDirectory, HTTP_CACHE_SIZE);
                 makeSSLSocketFactory(context);
 
+                X509TrustManager trustManagerX509 = null;
+                if(trustManager!=null) {
+                    trustManagerX509 = (X509TrustManager) trustManager[0];
+                }
+
                 OkHttpClient.Builder builder = new OkHttpClient.Builder()
                         .cache(cache)
                         .connectTimeout(30, TimeUnit.SECONDS)
                         .writeTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(90, TimeUnit.SECONDS)
-                        .sslSocketFactory(sslSocketFactory);
+                        .readTimeout(90, TimeUnit.SECONDS);
+
+                if(trustManagerX509!=null) {
+                    builder.sslSocketFactory(sslSocketFactory, trustManagerX509);
+                } else {
+                    builder.sslSocketFactory(sslSocketFactory);
+                }
 
                 if(WibmoSDKConfig.isTestMode()) {
                     makeHostnameVerifier();
@@ -107,11 +119,12 @@ public class HttpUtil {
 
     public static String postData(String posturl, byte postData[], boolean useCache,
                                   MediaType mediaType) throws Exception {
-        return postData(posturl, postData, useCache, mediaType, null);
+        return postData(posturl, postData, useCache, mediaType, null, null);
     }
 
     public static String postData(String posturl, byte postData[], boolean useCache,
-                                  MediaType mediaType, Map<String,String> headers) throws Exception {
+                                  MediaType mediaType,
+                                  Map<String,String> reqHeaders, Map<String,List<String>> resHeaders) throws Exception {
         String data = new String(postData, "utf-8");
         int i = data.indexOf("p=");
         int j = data.indexOf("&", i);
@@ -125,12 +138,13 @@ public class HttpUtil {
 
         Log.i(TAG, "op: " + method + " @ " + posturl);
 
-        return postDataUseOkHttp(posturl, postData, useCache, mediaType, headers);
+        return postDataUseOkHttp(posturl, postData, useCache, mediaType, reqHeaders, resHeaders);
     }
 
 
     private static String postDataUseOkHttp(String posturl, byte postData[],
-                                            boolean useCache, MediaType mediaType, Map<String,String> headers) throws Exception {
+                                            boolean useCache, MediaType mediaType,
+                                            Map<String,String> reqHeaders, Map<String,List<String>> resHeaders) throws Exception {
         URL url;
         long stime = System.currentTimeMillis();
         try {
@@ -145,12 +159,12 @@ public class HttpUtil {
             }
             builder.post(body);
 
-            if(headers!=null) {
-                Iterator<String> iterator = headers.keySet().iterator();
+            if(reqHeaders!=null) {
+                Iterator<String> iterator = reqHeaders.keySet().iterator();
                 String headerKey = null;
                 while(iterator.hasNext()) {
                     headerKey = iterator.next();
-                    builder.addHeader(headerKey, headers.get(headerKey));
+                    builder.addHeader(headerKey, reqHeaders.get(headerKey));
                 }
             }
 
@@ -168,6 +182,10 @@ public class HttpUtil {
                 Log.e(TAG, "Url was: "+posturl.toString());
                 Log.e(TAG, "HTTP response: "+res.message()+"; "+res.body().string());
                 return null;
+            }
+
+            if(resHeaders!=null){
+                resHeaders.putAll(res.headers().toMultimap());
             }
 
             return res.body().string();
@@ -188,6 +206,7 @@ public class HttpUtil {
                             R.raw.trust_wsdk_bks_star_ens_uat, ("pa"+"ssw"+"ord").toCharArray());
                 } else {
                     Log.v(TAG, "using default null trust manager");
+                    trustManager = SSLUtil.loadTrustManagerDefault(context);
                 }
             }
 
