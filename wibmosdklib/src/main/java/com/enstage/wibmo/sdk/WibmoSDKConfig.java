@@ -24,13 +24,7 @@ public class WibmoSDKConfig {
     //will trust dummy certificate
     private static boolean testMode = false;
 
-    private static String wibmoDomain = "https://www.wibmo.com";
-
-    private static String init2FAPostUrl = wibmoDomain + "/v1/w2fa/init";
-    private static String initPayPostUrl = wibmoDomain + "/v1/wPay/init";
-
-    private static String statusIAPPostUrl = wibmoDomain + "/v1/wPay/status/sdk/";
-
+    private static String wibmoDomain = "https://api.wibmo.com";
 
     public static void setWibmoDomain(String wibmoDomain) {
         WibmoSDKConfig.wibmoDomain = wibmoDomain;
@@ -41,15 +35,13 @@ public class WibmoSDKConfig {
             throw new IllegalArgumentException("Domain can not end with /");
         }
 
-        if(wibmoDomain.equals("https://www.wibmo.com")==false && wibmoDomain.equals("https://beta.wibmo.com")==false) {
+        if(wibmoDomain.equals("https://api.wibmo.com")==false &&
+                wibmoDomain.equals("https://www.wibmo.com")==false && wibmoDomain.equals("https://beta.wibmo.com")==false
+                && wibmoDomain.equals("https://beta-api.wibmo.com")==false) {
             testMode = true;
         } else {
             testMode = false;
         }
-
-        init2FAPostUrl = wibmoDomain + "/v1/w2fa/init";
-        initPayPostUrl = wibmoDomain + "/v1/wPay/init";
-        setStatusIAPPostUrl(wibmoDomain + "/v1/wPay/status/sdk/");
     }
 
     public static boolean isTestMode() {
@@ -60,22 +52,6 @@ public class WibmoSDKConfig {
         testMode = flag;
     }
 
-    public static String getInit2FAPostUrl() {
-        return init2FAPostUrl;
-    }
-
-    public static void setInit2FAPostUrl(String init2FAPostUrl) {
-        WibmoSDKConfig.init2FAPostUrl = init2FAPostUrl;
-    }
-
-    public static String getInitPayPostUrl() {
-        return initPayPostUrl;
-    }
-
-    public static void setInitPayPostUrl(String initPayPostUrl) {
-        WibmoSDKConfig.initPayPostUrl = initPayPostUrl;
-    }
-
     public static String getWibmoDomain() {
         return wibmoDomain;
     }
@@ -83,13 +59,5 @@ public class WibmoSDKConfig {
     public static String getWibmoNwDomainOnly() {
         int i = wibmoDomain.indexOf(".");
         return wibmoDomain.substring(i+1);//wibmo.com
-    }
-
-    public static String getStatusIAPPostUrl() {
-        return statusIAPPostUrl;
-    }
-
-    public static void setStatusIAPPostUrl(String statusIAPPostUrl) {
-        WibmoSDKConfig.statusIAPPostUrl = statusIAPPostUrl;
     }
 }

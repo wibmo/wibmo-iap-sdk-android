@@ -53,6 +53,10 @@ public class InAppUtil {
     //for SDK use only
     public static final String EXTRA_KEY_BIN_USED = "BinUsed";
     public static final String EXTRA_KEY_BREADCRUMB = "BreadCrumb";
+    public static final String EXTRA_KEY_ITP_PASSED = "ITPPassed";
+    public static final String EXTRA_KEY_PROGRAM_ID = "ProgramId";
+    public static final String EXTRA_KEY_PC_AC_NUMBER = "PcAccountNumber";
+    public static final String EXTRA_KEY_USERNAME = "Username";
 
     public static final String BREADCRUMB_InAppInitActivity = "0";
     public static final String BREADCRUMB_InAppBrowserActivity = "1";
@@ -67,17 +71,20 @@ public class InAppUtil {
     private static String lastBinUsed;
     private static StringBuilder breadCrumb = new StringBuilder(10);
 
-    public static DeviceInfo makeDeviceInfo(Activity activity, String sdkVersion) {
+    private static String restrictToProgram;
+    private static String preferredProgram;
+
+    public static DeviceInfo makeDeviceInfo(Context context, String sdkVersion) {
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.setAppInstalled(isWibmoInstalled(activity));
+        deviceInfo.setAppInstalled(isWibmoInstalled(context));
 
-        if (WibmoSDKPermissionUtil.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE)
+        if (WibmoSDKPermissionUtil.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE)
                 == PackageManager.PERMISSION_GRANTED) {
-            deviceInfo.setDeviceID(PhoneInfo.getInstance(activity).getDeviceID());
+            deviceInfo.setDeviceID(PhoneInfo.getInstance(context).getDeviceID());
 
-            deviceInfo.setDeviceMake(PhoneInfo.getInstance(activity).getPhoneMaker());
-            deviceInfo.setDeviceModel(PhoneInfo.getInstance(activity).getPhoneModel());
-            deviceInfo.setOsVersion(PhoneInfo.getInstance(activity).getAndroidVersion());
+            deviceInfo.setDeviceMake(PhoneInfo.getInstance(context).getPhoneMaker());
+            deviceInfo.setDeviceModel(PhoneInfo.getInstance(context).getPhoneModel());
+            deviceInfo.setOsVersion(PhoneInfo.getInstance(context).getAndroidVersion());
         }
         deviceInfo.setDeviceIDType(3);//mobile
         deviceInfo.setDeviceType(3);//mobile
@@ -89,8 +96,8 @@ public class InAppUtil {
         return deviceInfo;
     }
 
-    public static boolean isWibmoInstalled(Activity activity) {
-        boolean flag = WibmoSDK.isWibmoIAPIntentAppAvailable(activity, WibmoSDK.getWibmoIntentActionPackage());
+    public static boolean isWibmoInstalled(Context context) {
+        boolean flag = WibmoSDK.isWibmoIAPIntentAppAvailable(context, WibmoSDK.getWibmoIntentActionPackage());
         if (flag==false) {
             Log.d(TAG, "Wibmo IAP supported app not installed!");
             //Exception e = new Exception("I am here");
@@ -248,8 +255,8 @@ public class InAppUtil {
         InAppUtil.lastBinUsed = lastBinUsed;
     }
 
-    public static StringBuilder getBreadCrumb() {
-        return breadCrumb;
+    public static String getBreadCrumb() {
+        return breadCrumb.toString();
     }
 
     public static void clearBreadCrumb() {
@@ -262,5 +269,21 @@ public class InAppUtil {
 
     public static void appendBreadCrumb(String breadCrumb) {
         InAppUtil.breadCrumb.append(breadCrumb);
+    }
+
+    public static String getRestrictToProgram() {
+        return restrictToProgram;
+    }
+
+    public static void setRestrictToProgram(String restrictToProgram) {
+        InAppUtil.restrictToProgram = restrictToProgram;
+    }
+
+    public static String getPreferredProgram() {
+        return preferredProgram;
+    }
+
+    public static void setPreferredProgram(String preferredProgram) {
+        InAppUtil.preferredProgram = preferredProgram;
     }
 }

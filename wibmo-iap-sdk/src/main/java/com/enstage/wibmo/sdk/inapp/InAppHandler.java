@@ -23,12 +23,15 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
+import com.enstage.wibmo.util.AnalyticalUtil;
 import com.enstage.wibmo.util.HttpUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,27 +40,31 @@ import java.util.Map;
 public class InAppHandler {
     private static final String TAG = InAppHandler.class.getSimpleName();
 
-    //private static ObjectMapper jacksonMapper = new ObjectMapper();
     private static Gson gson = InAppUtil.makeGson();
 
     public static W2faInitResponse init2FA(W2faInitRequest request) throws Exception {
         try {
-            Log.d(TAG, "init");
-            String posturl = WibmoSDKConfig.getInit2FAPostUrl();
+            Log.d(TAG, "init2FA");
+            String posturl = WibmoSDKConfig.getWibmoDomain() + "/v2/"+
+                    request.getMerchantInfo().getMerCountryCode().toLowerCase()+
+                    "/txn/iap/w2fa/init";
 
-            String postData = gson.toJson(request); //request.toJSON();
+            String postData = gson.toJson(request);
             //Log.v(TAG, "postData: "+postData);
+
+            Map<String,List<String>> resHeaders = new HashMap<>(10);
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
-                    false, HttpUtil.JSON, null);
+                    false, HttpUtil.JSON, null, resHeaders);
             //Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do init2FA!");
             }
 
-            //return jacksonMapper.readValue(rawres, W2faInitResponse.class);
+            manageResHeadersForInit(resHeaders);
+
             return gson.fromJson(rawres, W2faInitResponse.class);
         } catch (Exception e) {
             Log.e(TAG, "Error: "+e, e);
@@ -67,22 +74,27 @@ public class InAppHandler {
 
     public static WPayInitResponse initPay(WPayInitRequest request) throws Exception {
         try {
-            Log.d(TAG, "init");
-            String posturl = WibmoSDKConfig.getInitPayPostUrl();
+            Log.d(TAG, "initPay");
+            String posturl = WibmoSDKConfig.getWibmoDomain() + "/v2/"+
+                    request.getMerchantInfo().getMerCountryCode().toLowerCase()+
+                    "/txn/iap/wpay/init";
 
-            String postData = gson.toJson(request); //request.toJSON();
-            Log.v(TAG, "postData: "+postData);
+            String postData = gson.toJson(request);
+            //Log.v(TAG, "postData: "+postData);
+
+            Map<String,List<String>> resHeaders = new HashMap<>(10);
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
-                    false, HttpUtil.JSON, null);
-            Log.v(TAG, "rawres: "+rawres);
+                    false, HttpUtil.JSON, null, resHeaders);
+            //Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do initPay!");
             }
 
-            //return jacksonMapper.readValue(rawres, WPayInitResponse.class);
+            manageResHeadersForInit(resHeaders);
+
             return gson.fromJson(rawres, WPayInitResponse.class);
         } catch (Exception e) {
             Log.e(TAG, "Error: "+e, e);
@@ -90,27 +102,43 @@ public class InAppHandler {
         }
     }
 
+    private static void manageResHeadersForInit(Map<String,List<String>> resHeaders) {
+        //Log.v(TAG, "resHeaders: "+resHeaders);
+
+        if(resHeaders.get("aa_k1")!=null) {
+            AnalyticalUtil.setmToken(resHeaders.get("aa_k1").get(0));
+        }
+        if(resHeaders.get("preferred_program")!=null) {
+            InAppUtil.setPreferredProgram(resHeaders.get("preferred_program").get(0));
+        }
+        if(resHeaders.get("restrict_to_program")!=null) {
+            InAppUtil.setRestrictToProgram(resHeaders.get("restrict_to_program").get(0));
+        }
+    }
+
     public static IAPaymentStatusResponse checkIAPStatus(W2faInitRequest request, W2faInitResponse response) throws Exception {
         try {
-            Log.d(TAG, "checkIAPStatus");
-            String posturl = WibmoSDKConfig.getStatusIAPPostUrl() + response.getWibmoTxnId();
+            //Log.d(TAG, "checkIAPStatus");
 
-            String postData = gson.toJson(request); //request.toJSON();
-            Log.v(TAG, "postData: "+postData);
+            String posturl = WibmoSDKConfig.getWibmoDomain() + "/v2/"+
+                    request.getMerchantInfo().getMerCountryCode().toLowerCase()+
+                    "/txn/iap/wpay/status/sdk/"+response.getWibmoTxnId();
+
+            String postData = gson.toJson(request);
+            //Log.v(TAG, "postData: "+postData);
 
             Map<String, String> headers = new Hashtable<>();
             headers.put("X-IAP-Token", response.getWibmoTxnToken());
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
-                    false, HttpUtil.JSON, headers);
-            Log.v(TAG, "rawres: "+rawres);
+                    false, HttpUtil.JSON, headers, null);
+            //Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do checkIAPStatus!");
             }
 
-            //return jacksonMapper.readValue(rawres, WPayInitResponse.class);
             return gson.fromJson(rawres, IAPaymentStatusResponse.class);
         } catch (Exception e) {
             Log.e(TAG, "Error: "+e, e);

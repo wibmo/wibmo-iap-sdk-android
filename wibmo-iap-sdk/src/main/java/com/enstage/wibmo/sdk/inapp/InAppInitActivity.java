@@ -27,6 +27,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,10 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
+import com.enstage.wibmo.util.AnalyticalUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by akshath on 17/10/14.
@@ -68,6 +73,9 @@ public class InAppInitActivity extends Activity {
 
     private AsyncTask asyncTask = null;
 
+    private Map<String, Object> extraDataReporting;
+    private boolean isReTry;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +84,7 @@ public class InAppInitActivity extends Activity {
         activity = this;
 
         InAppUtil.addBreadCrumb(InAppUtil.BREADCRUMB_InAppInitActivity);
+        isReTry = false;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -228,7 +237,6 @@ public class InAppInitActivity extends Activity {
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, REQUEST_CODE_IAP_READY);
     }
@@ -271,9 +279,7 @@ public class InAppInitActivity extends Activity {
             intent.setPackage(readyPackage);
         }
 
-
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, WibmoSDK.REQUEST_CODE_IAP_2FA);
     }
@@ -298,7 +304,6 @@ public class InAppInitActivity extends Activity {
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //causes to iap to be cancelled when app returned by icon launch
 
         activity.startActivityForResult(intent, WibmoSDK.REQUEST_CODE_IAP_PAY);
     }
@@ -390,29 +395,137 @@ public class InAppInitActivity extends Activity {
                 Log.v(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
                 Log.v(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
                 Log.v(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
+
+                extraDataReporting = new HashMap<>(8);
+                extraDataReporting.put("WalletPackage", readyPackage);
+                extraDataReporting.put("WalletVersionCode", data.getStringExtra("AppVersionCode"));
+            } else {
+                extraDataReporting = null;
             }
             startIAP();
 
             return;
         }
 
+        if(resultCode != Activity.RESULT_OK) {
+            if(requestCode== WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode== WibmoSDK.REQUEST_CODE_IAP_2FA) {
+                boolean isChargeLater = false;
+
+                if(wPayInitRequest!=null) {
+                    isChargeLater = wPayInitRequest.getTransactionInfo().isChargeLater();
+                } else if(w2faInitRequest!=null) {
+                    isChargeLater = w2faInitRequest.getTransactionInfo().isChargeLater();
+                }
+
+                if(isChargeLater) {
+                    if(data!=null && data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED)!=null) {
+                        Log.d(TAG, "result is not ok for iap and 2fa .. lets ask if retry");
+
+                        String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+                        if (breadCrumb != null) {
+                            InAppUtil.appendBreadCrumb(breadCrumb);
+                            InAppUtil.appendBreadCrumb("R:");//re-try
+                        }
+
+                        confirmIAPRetry(requestCode, resultCode, data);
+                        return;
+                    }
+                }
+            }
+        }
+
+        processOnActivityResult(requestCode, resultCode, data);
+    }
+
+    private void processOnActivityResult(int requestCode, int resultCode, Intent data) {
         if(data!=null) {
             String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
             if (breadCrumb != null) {
                 InAppUtil.appendBreadCrumb(breadCrumb);
             }
             InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
+
+            if(extraDataReporting==null) {
+                extraDataReporting = new HashMap<>(6);
+            }
+            extraDataReporting.put("BreadCrumb", InAppUtil.getBreadCrumb());
+            extraDataReporting.put("BinUsed", InAppUtil.getLastBinUsed());
+            extraDataReporting.put("ITPPassed", data.getStringExtra(InAppUtil.EXTRA_KEY_ITP_PASSED));
+            extraDataReporting.put("CustProgramId", data.getStringExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID));
+            extraDataReporting.put("PcAccountNumber", data.getStringExtra(InAppUtil.EXTRA_KEY_PC_AC_NUMBER));
+            extraDataReporting.put("Username", data.getStringExtra(InAppUtil.EXTRA_KEY_USERNAME));
+            extraDataReporting.put("SdkReTry", isReTry);
+
+
             Log.d(TAG, "BreadCrumb: " + InAppUtil.getBreadCrumb());
             Log.d(TAG, "BinUsed: " + InAppUtil.getLastBinUsed());
+            Log.d(TAG, "ITPPassed: " + data.getStringExtra(InAppUtil.EXTRA_KEY_ITP_PASSED));
+            Log.d(TAG, "CustProgramId: " + data.getStringExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID));
+            Log.d(TAG, "Username: " + data.getStringExtra(InAppUtil.EXTRA_KEY_USERNAME));
+
             InAppUtil.clearBreadCrumb();
             InAppUtil.setLastBinUsed(null);
             data.removeExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
             data.removeExtra(InAppUtil.EXTRA_KEY_BIN_USED);
+            data.removeExtra(InAppUtil.EXTRA_KEY_ITP_PASSED);
+            data.removeExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID);
+            data.removeExtra(InAppUtil.EXTRA_KEY_PC_AC_NUMBER);
+            data.removeExtra(InAppUtil.EXTRA_KEY_USERNAME);
         }
 
         setResult(resultCode, data);
 
+        if(wPayInitRequest!=null) {
+            AnalyticalUtil.logTxn(activity.getApplicationContext(), extraDataReporting,
+                    wPayInitRequest, wPayInitResponse, requestCode, resultCode, data);
+        } else {
+            AnalyticalUtil.logTxn(activity.getApplicationContext(), extraDataReporting,
+                    w2faInitRequest, w2faInitResponse, requestCode, resultCode, data);
+        }
+
         finish();
+    }
+
+    public void confirmIAPRetry(final int requestCode, final int resultCode, final Intent data) {
+        final Activity activity = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(
+                activity.getString(R.string.confirm_retry))
+                .setCancelable(false)
+                .setPositiveButton(
+                        activity.getString(R.string.label_yes),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                isReTry = true;
+                                startIAP();
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(R.string.label_no),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(
+                                    DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                                if (dialog != null) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, "Error: " + e);
+                                    }
+                                }
+                                processOnActivityResult(requestCode, resultCode, data);
+                            }
+                        });
+
+        Dialog dialog = builder.create();
+        try {
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e, e);
+
+            processOnActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
