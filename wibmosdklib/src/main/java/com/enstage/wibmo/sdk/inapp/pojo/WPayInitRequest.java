@@ -20,7 +20,7 @@ package com.enstage.wibmo.sdk.inapp.pojo;
  */
 public class WPayInitRequest extends W2faInitRequest {
     private static final long serialVersionUID = 1L;
-
+    /*
     private boolean performAuthorization = true;
 
     @Deprecated
@@ -32,4 +32,5 @@ public class WPayInitRequest extends W2faInitRequest {
     public void setPerformAuthorization(boolean performAuthorization) {
         this.performAuthorization = performAuthorization;
     }
+    */
 }

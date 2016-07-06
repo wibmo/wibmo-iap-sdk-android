@@ -40,7 +40,7 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "1.4.2";
+    public static final String VERSION = "2.0.0";
 
     public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
@@ -158,14 +158,14 @@ public class WibmoSDK {
     }
 
 
-	public static boolean isWibmoIAPIntentAppAvailable(Activity activity, String wibmoPackage) {
+	public static boolean isWibmoIAPIntentAppAvailable(Context context, String wibmoPackage) {
         //com.enstage.wibmo.sdk.inapp.main.InApp
         String intentAction = wibmoPackage+".InApp";
         Log.v(TAG, "intentAction: "+intentAction);
         Intent intent = new Intent(intentAction);
         //intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-		PackageManager pm = activity.getApplicationContext().getPackageManager();
+		PackageManager pm = context.getPackageManager();
 		List<ResolveInfo> availableApps = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
         Log.v(TAG, "availableApps: "+availableApps.size());
 

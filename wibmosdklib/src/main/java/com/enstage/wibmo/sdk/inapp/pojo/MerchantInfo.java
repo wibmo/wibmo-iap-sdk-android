@@ -29,6 +29,7 @@ public class MerchantInfo  implements Serializable {
 	private String merId;
 	private String merCountryCode;
 	private String merAppId;
+	private String merProgramId;
 
 
 	public String getMerAppId() {
@@ -64,4 +65,12 @@ public class MerchantInfo  implements Serializable {
     public void setMerName(String merName) {
         this.merName = merName;
     }
+
+	public String getMerProgramId() {
+		return merProgramId;
+	}
+
+	public void setMerProgramId(String merProgramId) {
+		this.merProgramId = merProgramId;
+	}
 }

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Handler;
@@ -128,6 +129,12 @@ public class InAppBrowserActivity extends Activity {
 
         webView.setWebViewClient(new WebViewClient() {
             boolean stopCalled = false;
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Log.i(TAG, "onPageStarted: ->" + url+"<-");
+            }
 
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 if(WibmoSDKConfig.isTestMode()) {
