@@ -1,4 +1,13 @@
 
+
+Version 2.0.0 (Dt: 06 Jul 2016) - Akshath
+------------------
+# Upgraded SDK to REST system
+# Added support for X509TrustManager in okhttp
++ IAP SDK: added support to retry IAP with different card if auth fails (charge later must be true)
++ IAP SDK: updated theme to inherit from Theme.AppCompat.Light.NoActionBar
+
+
 Version 1.4.2 (Dt: 18 Mar 2016) - Akshath
 ------------------
 # Upgraded buildTools 23.0.1 => 23.0.3
