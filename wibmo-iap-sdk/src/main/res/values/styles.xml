@@ -1,6 +1,7 @@
 <resources>
 
-
+    <style name="WibmoSDKTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
 
     <style name="WibmoFontLabel" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">fill_parent</item>
@@ -53,7 +54,7 @@
     </style>
     -->
 
-    <style name="Wibmo.Transparent" parent="android:Theme">
+    <style name="Wibmo.Transparent" parent="WibmoSDKTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
