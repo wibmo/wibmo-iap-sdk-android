@@ -3,6 +3,7 @@
     <string name="title_sdk_inapp">Wibmo IAP</string>
     <string name="start_qco_call">Pay with Wibmo</string>
     <string name="confirm_cancel">Are you sure you want to cancel?</string>
+    <string name="confirm_retry">Your card authentication has failed. Would you like to re-try the transaction again with a different card?</string>
     <string name="label_yes">Yes</string>
     <string name="label_no">No</string>
 
