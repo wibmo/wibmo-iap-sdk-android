@@ -49,6 +49,10 @@ Depending on your proguard config and usage, you may need to include the followi
 #------ WIBMO -----
 ```
 
+Support
+-------
+Wibmo is a tech company. All our engineers handle support too. So can drop us an email on merchant@wibmo.com and expect a response from the dev responsible for the android SDK.
+
 License
 -------
 
