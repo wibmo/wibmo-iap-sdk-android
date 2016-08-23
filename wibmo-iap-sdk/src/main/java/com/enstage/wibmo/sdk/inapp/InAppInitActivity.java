@@ -45,6 +45,7 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.enstage.wibmo.util.AnalyticalUtil;
+import com.enstage.wibmo.util.PreventDoubleClick;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -193,18 +194,18 @@ public class InAppInitActivity extends Activity {
     private void startIAP() {
         if (w2faInitRequest != null) {
             w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
-
             w2faInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
 
             asyncTask = new Init2FAReqTask().execute(w2faInitRequest);
+            return;
         }
 
         if (wPayInitRequest != null) {
             wPayInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
-
             wPayInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
 
             asyncTask = new InitPayReqTask().execute(wPayInitRequest);
+            return;
         }
     }
 
@@ -647,7 +648,6 @@ public class InAppInitActivity extends Activity {
                 Toast.LENGTH_LONG);
         toast.show();
     }
-
 
     private class Init2FAReqTask extends AsyncTask<W2faInitRequest, Void, Void> {
         private boolean showError = false;

@@ -327,7 +327,7 @@ public class InAppBrowserActivity extends Activity {
             @SuppressWarnings("unused")
             public void toast(String msg) {
                 Log.d(TAG, "alert: " + msg);
-                showToast(msg);
+                InAppUtil.showToast(activity, msg);
             }
 
             @android.webkit.JavascriptInterface
@@ -611,29 +611,11 @@ public class InAppBrowserActivity extends Activity {
             alert.show();
         } catch(Throwable e) {
             Log.e(TAG, "error: " + e, e);
-            showToast(msg);
+            InAppUtil.showToast(this, msg);
         }
     }
 
-    private Handler handler = new Handler();
-    protected void showToast(final String msg) {
-        Log.i(TAG, "Show Toast: " + msg);
 
-        final Activity activity = this;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast toast = Toast.makeText(activity, msg, Toast.LENGTH_LONG);
-                View view = toast.getView();
-
-                try {
-                    toast.show();
-                } catch(Throwable e) {
-                    Log.e(TAG, "error: " + e, e);
-                }
-            }
-        });
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

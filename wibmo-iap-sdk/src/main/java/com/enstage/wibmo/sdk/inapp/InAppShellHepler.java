@@ -312,6 +312,11 @@ public class InAppShellHepler {
             return;
         }
 
+        if(msg==null) {
+            Log.e(TAG, "msg was null");
+            return;
+        }
+
         handler.post(new Runnable() {
             @Override
             public void run() {

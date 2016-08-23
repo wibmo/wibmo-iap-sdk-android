@@ -148,6 +148,7 @@ public class AnalyticalUtil {
             if(w2faInitResponse.getMerchantInfo()!=null) {
                 data.put("MerName", w2faInitResponse.getMerchantInfo().getMerName());
                 data.put("MerProgramId", w2faInitResponse.getMerchantInfo().getMerProgramId());
+                data.put("MerId", w2faInitResponse.getMerchantInfo().getMerId());
             }
         }
 

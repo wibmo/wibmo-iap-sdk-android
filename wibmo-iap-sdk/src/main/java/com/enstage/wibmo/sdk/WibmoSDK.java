@@ -35,12 +35,13 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayResponse;
 import com.enstage.wibmo.util.HttpUtil;
+import com.enstage.wibmo.util.PreventDoubleClick;
 
 import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.0.1";
 
     public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
@@ -52,8 +53,11 @@ public class WibmoSDK {
     public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
     public static final int REQUEST_CODE_IAP_2FA  = 0x0000605f; // Only use bottom 16 bits - 24671
     public static final int REQUEST_CODE_IAP_PAY  = 0x00006060; // Only use bottom 16 bits - 24672
+    public static final int REQUEST_CODE_LOGIN  = 0x00006061; // Only use bottom 16 bits - 24672
 
-	public static final String DEFAULT_TITLE = "Install Wibmo Wallet?";
+    public static final int PDC_RESET_DELAY = 4*1000; //4 sec
+
+    public static final String DEFAULT_TITLE = "Install Wibmo Wallet?";
 	public static final String DEFAULT_MESSAGE =
 		"This application requires Wibmo Wallet. Would you like to install it?";
 	public static final String DEFAULT_YES = "Yes";
@@ -67,8 +71,8 @@ public class WibmoSDK {
     public static final String PAYMENT_TYPE_ALL = "*";
     public static final String PAYMENT_TYPE_NONE = "w.ds.pt.none";
     public static final String PAYMENT_TYPE_WALLET_CARD = "w.ds.pt.card_wallet";
-    //public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
-    //public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
+    public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
+    public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
 
     public static final String TRANSACTION_TYPE_W2FA = "W2fa";
     public static final String TRANSACTION_TYPE_WPAY = "WPay";
@@ -77,46 +81,89 @@ public class WibmoSDK {
 
     private static InAppTxnIdCallback inAppTxnIdCallback;
 
+    private final static PreventDoubleClick pdc = new PreventDoubleClick();
+
     public static void startForInApp(Activity activity, W2faInitRequest w2faInitRequest) {
-        if(activity==null) {
-            throw new IllegalArgumentException("Activity passed was null");
-        }
-        if(w2faInitRequest==null) {
-            throw new IllegalArgumentException("W2faInitRequest passed was null");
-        }
-        if(w2faInitRequest.getTxnType()==null) {
-            Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to W2fa");
-            w2faInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_W2FA);
+        Log.i(TAG, "Called startForInApp W2faInitRequest");
+
+        if(pdc.check(activity)==false) {
+            return;
         }
 
-        InAppUtil.clearBreadCrumb();
-        InAppUtil.setLastBinUsed(null);
+        try {
+            if (activity == null) {
+                throw new IllegalArgumentException("Activity passed was null");
+            }
+            if (w2faInitRequest == null) {
+                throw new IllegalArgumentException("W2faInitRequest passed was null");
+            }
+            if (w2faInitRequest.getTxnType() == null) {
+                Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to W2fa");
+                w2faInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_W2FA);
+            }
 
-        Intent intent = new Intent(activity, InAppInitActivity.class);
-        intent.putExtra("W2faInitRequest", w2faInitRequest);
-        activity.startActivityForResult(intent, REQUEST_CODE_IAP_2FA);
+            InAppUtil.clearBreadCrumb();
+            InAppUtil.setLastBinUsed(null);
+
+            Intent intent = new Intent(activity, InAppInitActivity.class);
+            intent.putExtra("W2faInitRequest", w2faInitRequest);
+            activity.startActivityForResult(intent, REQUEST_CODE_IAP_2FA);
+        } finally {
+            Thread t = new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(PDC_RESET_DELAY);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    pdc.reset();
+                }
+            };
+            t.setDaemon(true);
+            t.start();
+        }
     }
 
     public static void startForInApp(Activity activity, WPayInitRequest wPayInitRequest) {
-        Log.i(TAG, "Called startForInApp");
-        if(activity==null) {
-            throw new IllegalArgumentException("Activity passed was null");
-        }
-        if(wPayInitRequest==null) {
-            throw new IllegalArgumentException("WPayInitRequest passed was null");
+        Log.i(TAG, "Called startForInApp WPayInitRequest");
+
+        if(pdc.check(activity)==false) {
+            return;
         }
 
-        if(wPayInitRequest.getTxnType()==null) {
-            Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to IAPv2");
-            wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);
+        try {
+            if (activity == null) {
+                throw new IllegalArgumentException("Activity passed was null");
+            }
+            if (wPayInitRequest == null) {
+                throw new IllegalArgumentException("WPayInitRequest passed was null");
+            }
+
+            if (wPayInitRequest.getTxnType() == null) {
+                Log.w(TAG, "TxnType not set! will set to WPay.. pl migrate to IAPv2");
+                wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);
+            }
+
+            InAppUtil.clearBreadCrumb();
+            InAppUtil.setLastBinUsed(null);
+
+            Intent intent = new Intent(activity, InAppInitActivity.class);
+            intent.putExtra("WPayInitRequest", wPayInitRequest);
+            activity.startActivityForResult(intent, REQUEST_CODE_IAP_PAY);
+        }  finally {
+            Thread t = new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(PDC_RESET_DELAY);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    pdc.reset();
+                }
+            };
+            t.setDaemon(true);
+            t.start();
         }
-
-        InAppUtil.clearBreadCrumb();
-        InAppUtil.setLastBinUsed(null);
-
-        Intent intent = new Intent(activity, InAppInitActivity.class);
-        intent.putExtra("WPayInitRequest", wPayInitRequest);
-        activity.startActivityForResult(intent, REQUEST_CODE_IAP_PAY);
     }
 
     public static W2faResponse processInAppResponseW2fa(Intent data) {

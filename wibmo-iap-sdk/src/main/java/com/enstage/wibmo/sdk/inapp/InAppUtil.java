@@ -25,7 +25,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -285,5 +288,24 @@ public class InAppUtil {
 
     public static void setPreferredProgram(String preferredProgram) {
         InAppUtil.preferredProgram = preferredProgram;
+    }
+
+    public static void showToast(final Activity activity, final String msg) {
+        Log.i(TAG, "Show Toast: " + msg);
+
+        if(activity==null) {
+            return;
+        }
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Toast toast = Toast.makeText(activity, msg, Toast.LENGTH_LONG);
+                    toast.show();
+                } catch(Throwable e) {
+                    Log.e(TAG, "error: " + e, e);
+                }
+            }
+        });
     }
 }
