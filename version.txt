@@ -3,6 +3,8 @@ Version 2.0.1 (Dt: 23 Aug 2016) - Akshath
 ------------------
 # Added support to prevent double call to WibmoSDK.startForInApp() method
   (due to user double press of pay button in client apps)
+# Upgraded 3 party libs
+    okhttp 3.3.1 => 3.4.1
 
 Version 2.0.0 (Dt: 06 Jul 2016) - Akshath
 ------------------
