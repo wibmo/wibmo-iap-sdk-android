@@ -21,11 +21,9 @@ public class PreventDoubleClick {
     }
 
     public boolean check(Activity activity) {
-        // preventing double, using threshold of
         long etime = SystemClock.elapsedRealtime() - lastClickTime;
         if (etime < 1000){
             Log.w(TAG, "pdc stopped req 1");
-            InAppUtil.showToast(activity, activity.getString(R.string.lable_please_wait));
             return false;
         } else if (etime < TIME_TO_WAIT){
             Log.w(TAG, "pdc stopped req 2");
@@ -33,7 +31,6 @@ public class PreventDoubleClick {
             return false;
         }
         lastClickTime = SystemClock.elapsedRealtime();
-        //preventing double, using threshold of
 
         return true;
     }
