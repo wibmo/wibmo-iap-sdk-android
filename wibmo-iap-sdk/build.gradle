@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
     gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
 
-    libraryVersion = '2.0.1'
+    libraryVersion = '2.0.2'
 
     developerId = 'akshath'
     developerName = 'Akshathkumar Shetty'

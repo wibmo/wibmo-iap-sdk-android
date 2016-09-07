@@ -41,7 +41,7 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "2.0.1";
+    public static final String VERSION = "2.0.2";
 
     public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
