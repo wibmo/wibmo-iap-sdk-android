@@ -1,4 +1,13 @@
 
+
+Version 2.0.3 (Dt: 14 Sep 2016) - Akshath
+------------------
+# Downgraded android support libs from 24.2.0 => 23.4.0
+# Downgraded Compile SDK & Target SDK from  24 => 23
+# Downgraded Build tool version from 24.0.2 => 23.0.3
+# Downgrade reason: java.lang.IllegalStateException: Fragment for some merchants
+
+
 Version 2.0.2 (Dt: 06 Sep 2016) - Akshath
 ------------------
 # Upgraded android support libs from 23.4.0 => 24.2.0
