@@ -55,19 +55,10 @@
 
 
 #------ WIBMO -----
--keep class com.enstage.wibmo.sdk.** { *; }
+-keep class com.enstage.wibmo.sdk.inapp.WibmoSDK { *; }
 -keepclassmembers class com.enstage.wibmo.sdk.inapp.pojo.** { *; }
--keep class com.enstage.wibmo.sdk.inapp.InAppBrowserActivity$* {
-  *;
-}
--keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface {
-  *;
-}
--keep class com.enstage.wibmo.util.** { *; }
--keep class com.fasterxml.jackson.** { *; }
-
--dontwarn com.squareup.okhttp.**
--dontwarn com.fasterxml.jackson.databind.**
+-keep class com.enstage.wibmo.sdk.inapp.InAppBrowserActivity$* { *; }
+-keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface { *; }
+-dontwarn okhttp3.**
 -dontwarn okio.**
--dontwarn android.test.**
 #------ WIBMO -----
