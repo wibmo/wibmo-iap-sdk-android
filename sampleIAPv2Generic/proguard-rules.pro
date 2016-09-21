@@ -56,6 +56,7 @@
 
 #------ WIBMO -----
 -keep class com.enstage.wibmo.sdk.inapp.WibmoSDK { *; }
+-keep class com.enstage.wibmo.sdk.inapp.pojo.** { *; }
 -keepclassmembers class com.enstage.wibmo.sdk.inapp.pojo.** { *; }
 -keep class com.enstage.wibmo.sdk.inapp.InAppBrowserActivity$* { *; }
 -keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface { *; }
