@@ -200,7 +200,9 @@ public class InAppInitActivity extends Activity {
     }
 
     private void startIAP() {
-        InAppCancelReasonHelper.loadReasonIfReq(getApplicationContext());
+        if(WibmoSDKConfig.isPromptAbortReason()) {
+            InAppCancelReasonHelper.loadReasonIfReq(getApplicationContext());
+        }
 
         if (w2faInitRequest != null) {
             w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
