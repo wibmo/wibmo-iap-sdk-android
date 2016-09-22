@@ -79,6 +79,11 @@ public class InAppBrowserActivity extends Activity {
     private boolean resultSet;
     private boolean isViewSmall = true;
 
+    //tracking
+    private String lastUrl;
+    private StringBuilder comments = new StringBuilder();
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,9 +139,17 @@ public class InAppBrowserActivity extends Activity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 Log.i(TAG, "onPageStarted: ->" + url+"<-");
+                lastUrl = url;
+                if(lastUrl!=null) {
+                    int i = lastUrl.indexOf("?");
+                    if(i!=-1) {
+                        lastUrl = lastUrl.substring(0, i);
+                    }
+                }
             }
 
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                comments.append("bad certificate : ").append(error.toString());
                 if(WibmoSDKConfig.isTestMode()) {
                     Log.w(TAG, "We have bad certificate.. but this is test mode so okay");
                     Toast.makeText(activity, "Test Mode!! We have bad certificate.. but this is test mode so okay",
@@ -152,7 +165,7 @@ public class InAppBrowserActivity extends Activity {
             public void onReceivedError(WebView view, int errorCode,
                                         String description, String failingUrl) {
                 Log.e(TAG, "errorCode: "+errorCode+"; description: " + description + "; " + failingUrl);
-
+                comments.append("onReceivedError : ").append(description);
                 InAppUtil.manageWebViewOnError(activity, webView, errorCode, description, failingUrl, null);
             }
 
@@ -471,6 +484,9 @@ public class InAppBrowserActivity extends Activity {
             resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
         }
 
+        resultData.putExtra(InAppUtil.EXTRA_KEY_LAST_URL, lastUrl);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_COMMENTS, comments.toString());
+
         setResult(Activity.RESULT_CANCELED, resultData);
         finish();
     }
@@ -496,6 +512,9 @@ public class InAppBrowserActivity extends Activity {
             resultData.putExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID, wPayInitResponse.getTransactionInfo().getMerTxnId());
             resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
         }
+
+        resultData.putExtra(InAppUtil.EXTRA_KEY_LAST_URL, lastUrl);
+        resultData.putExtra(InAppUtil.EXTRA_KEY_COMMENTS, comments.toString());
 
         setResult(Activity.RESULT_CANCELED, resultData);
         finish();
@@ -545,7 +564,7 @@ public class InAppBrowserActivity extends Activity {
             _notifyCompletion();
         } else {
             Log.v(TAG, "resultSet was false");
-            sendAbort();
+            sendAbort(WibmoSDK.RES_CODE_FAILURE_USER_ABORT, "sdk browser - back press");
         }
     }
 
