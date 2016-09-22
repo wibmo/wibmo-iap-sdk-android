@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +35,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -77,12 +79,18 @@ public class InAppInitActivity extends Activity {
     private Map<String, Object> extraDataReporting;
     private boolean isReTry;
 
+    private String abortReasonCode;
+    private String abortReasonName;
+
+    private long startTime;
+    private long endTime;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG, "OnCreate");
         activity = this;
+        startTime = System.currentTimeMillis();
 
         InAppUtil.addBreadCrumb(InAppUtil.BREADCRUMB_InAppInitActivity);
         isReTry = false;
@@ -109,8 +117,8 @@ public class InAppInitActivity extends Activity {
             }
         }
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setProgressBarIndeterminateVisibility(false);
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //setProgressBarIndeterminateVisibility(false);
 
         LayoutInflater inflator = getLayoutInflater();
         view = inflator.inflate(R.layout.activity_inapp_init, null, false);
@@ -192,6 +200,8 @@ public class InAppInitActivity extends Activity {
     }
 
     private void startIAP() {
+        InAppCancelReasonHelper.loadReasonIfReq(getApplicationContext());
+
         if (w2faInitRequest != null) {
             w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
             w2faInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
@@ -321,6 +331,17 @@ public class InAppInitActivity extends Activity {
         Intent resultData = new Intent();
         resultData.putExtra(InAppUtil.EXTRA_KEY_RES_CODE, resCode);
         resultData.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, resDesc);
+
+        addTransactionInfoToDataInCaseMissing(resultData);
+        setResult(Activity.RESULT_CANCELED, resultData);
+        finish();
+    }
+
+    private void addTransactionInfoToDataInCaseMissing(Intent resultData) {
+        if(resultData==null || resultData.getStringExtra(InAppUtil.EXTRA_KEY_MER_TXN_ID)!=null) {
+            return;
+        }
+
         if(w2faInitResponse!=null) {
             resultData.putExtra(InAppUtil.EXTRA_KEY_WIBMO_TXN_ID, w2faInitResponse.getWibmoTxnId());
             if(w2faInitResponse.getTransactionInfo()!=null) {
@@ -334,8 +355,6 @@ public class InAppInitActivity extends Activity {
                 resultData.putExtra(InAppUtil.EXTRA_KEY_MER_APP_DATA, wPayInitResponse.getTransactionInfo().getMerAppData());
             }
         }
-        setResult(Activity.RESULT_CANCELED, resultData);
-        finish();
     }
 
     private void sendFailure(String resCode, String resDesc) {
@@ -379,6 +398,10 @@ public class InAppInitActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode== WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode== WibmoSDK.REQUEST_CODE_IAP_2FA) {
+            addTransactionInfoToDataInCaseMissing(data);
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d(TAG, "onActivityResult~ requestCode: " + requestCode + "; resultCode: " + resultCode);
@@ -432,6 +455,20 @@ public class InAppInitActivity extends Activity {
                         return;
                     }
                 }
+
+                String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                if(WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
+                    InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
+                        @Override
+                        public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
+                            abortReasonCode = aReasonCode;
+                            abortReasonName = aReasonName;
+
+                            processOnActivityResult(requestCode, resultCode, data);
+                        }
+                    });
+                    return;
+                }
             }
         }
 
@@ -447,7 +484,7 @@ public class InAppInitActivity extends Activity {
             InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
 
             if(extraDataReporting==null) {
-                extraDataReporting = new HashMap<>(6);
+                extraDataReporting = new HashMap<>(9);
             }
             extraDataReporting.put("BreadCrumb", InAppUtil.getBreadCrumb());
             extraDataReporting.put("BinUsed", InAppUtil.getLastBinUsed());
@@ -456,7 +493,13 @@ public class InAppInitActivity extends Activity {
             extraDataReporting.put("PcAccountNumber", data.getStringExtra(InAppUtil.EXTRA_KEY_PC_AC_NUMBER));
             extraDataReporting.put("Username", data.getStringExtra(InAppUtil.EXTRA_KEY_USERNAME));
             extraDataReporting.put("SdkReTry", isReTry);
+            extraDataReporting.put("LastURL", data.getStringExtra(InAppUtil.EXTRA_KEY_LAST_URL));
+            extraDataReporting.put("Comments", data.getStringExtra(InAppUtil.EXTRA_KEY_COMMENTS));
 
+            if(abortReasonName!=null && abortReasonCode!=null) {
+                extraDataReporting.put("abortReasonCode", abortReasonCode);
+                extraDataReporting.put("abortReasonName", abortReasonName);
+            }
 
             Log.d(TAG, "BreadCrumb: " + InAppUtil.getBreadCrumb());
             Log.d(TAG, "BinUsed: " + InAppUtil.getLastBinUsed());
@@ -472,9 +515,15 @@ public class InAppInitActivity extends Activity {
             data.removeExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID);
             data.removeExtra(InAppUtil.EXTRA_KEY_PC_AC_NUMBER);
             data.removeExtra(InAppUtil.EXTRA_KEY_USERNAME);
+            data.removeExtra(InAppUtil.EXTRA_KEY_LAST_URL);
+            data.removeExtra(InAppUtil.EXTRA_KEY_COMMENTS);
         }
 
         setResult(resultCode, data);
+        endTime = System.currentTimeMillis();
+
+        long timeTaken = endTime - startTime;
+        extraDataReporting.put("TimeTakenMs", timeTaken);
 
         if(wPayInitRequest!=null) {
             AnalyticalUtil.logTxn(activity.getApplicationContext(), extraDataReporting,

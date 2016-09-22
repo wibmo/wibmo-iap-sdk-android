@@ -25,4 +25,33 @@
 
     <string name="error_generic_try_after_st">Sorry, we had an error. Please try after some time.</string>
 
+    <string name="title_abort_reason">Reason for cancelling?</string>
+
+    <string-array name="default_abort_reason_code">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="default_abort_reason_desc">
+        <item>Changed my mind</item>
+        <item>Just checking out</item>
+        <item>Don\'t have card to use</item>
+        <item>Card which I have is not supported</item>
+        <item>Page not rendered/slow</item>
+        <item>Faced technical issue/error</item>
+        <item>Low balance in wallet</item>
+        <item>My internet was bad</item>
+        <item>Other</item>
+    </string-array>
+
+    <string name="sub_title_abort_reason">Let us know the reason, so we can improve.</string>
+
+    <integer name="days_valid_for_caching_IAP_cancel_codes">15</integer>
 </resources>
