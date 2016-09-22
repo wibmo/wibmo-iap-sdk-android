@@ -22,7 +22,6 @@ import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -145,10 +144,9 @@ public class HttpUtil {
     private static String postDataUseOkHttp(String posturl, byte postData[],
                                             boolean useCache, MediaType mediaType,
                                             Map<String,String> reqHeaders, Map<String,List<String>> resHeaders) throws Exception {
-        URL url;
         long stime = System.currentTimeMillis();
         try {
-            url = new URL(posturl);
+            URL url = new URL(posturl);
 
             RequestBody body = RequestBody.create(mediaType, postData);
 
@@ -186,6 +184,41 @@ public class HttpUtil {
 
             if(resHeaders!=null){
                 resHeaders.putAll(res.headers().toMultimap());
+            }
+
+            return res.body().string();
+        } finally {
+            long etime = System.currentTimeMillis();
+            Log.i(TAG, "time dif: "+(etime-stime));
+        }
+    }
+
+    public static String getDataUseOkHttp(Context mContext, String geturl, boolean useCache) throws Exception {
+        Log.v(TAG, "getDataUseOkHttp: "+geturl);
+        long stime = System.currentTimeMillis();
+        try {
+            URL url = new URL(geturl);
+
+            Request.Builder builder = new Request.Builder();
+            builder.url(url);
+            if(useCache==false) {
+                builder.addHeader("Cache-Control", "no-cache");
+            }
+            Request request = builder.build();
+
+            if(okhttpinit==false) {
+                Log.w(TAG, "WibmoSDK okhttpinit was false;");
+                init(mContext);
+            }
+
+            Response res = client.newCall(request).execute();
+
+            // Read the response.
+            if (res.code() != HttpURLConnection.HTTP_OK && res.code() != HttpURLConnection.HTTP_MOVED_TEMP) {
+                Log.e(TAG, "Bad res code: "+res.code());
+                Log.e(TAG, "Url was: "+geturl.toString());
+                Log.e(TAG, "HTTP response: "+res.message());
+                return null;
             }
 
             return res.body().string();
