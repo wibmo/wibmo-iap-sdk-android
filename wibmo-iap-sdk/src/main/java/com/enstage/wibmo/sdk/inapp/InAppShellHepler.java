@@ -172,8 +172,8 @@ public class InAppShellHepler {
                 resCode = "--";
                 resDesc = "data was null";
             } else {
-                resCode = data.getStringExtra("ResCode");
-                resDesc = data.getStringExtra("ResDesc");
+                resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                resDesc = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC);
             }
 
             Log.i(TAG, "resCode: " + resCode+"; ResDesc: "+resDesc);
