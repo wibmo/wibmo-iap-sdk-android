@@ -23,6 +23,7 @@ public class WibmoSDKConfig {
 
     //will trust dummy certificate
     private static boolean testMode = false;
+    private static boolean promptAbortReason = true;
 
     private static String wibmoDomain = "https://api.wibmo.com";
 
@@ -59,5 +60,13 @@ public class WibmoSDKConfig {
     public static String getWibmoNwDomainOnly() {
         int i = wibmoDomain.indexOf(".");
         return wibmoDomain.substring(i+1);//wibmo.com
+    }
+
+    public static boolean isPromptAbortReason() {
+        return promptAbortReason;
+    }
+
+    public static void setPromptAbortReason(boolean promptAbortReason) {
+        WibmoSDKConfig.promptAbortReason = promptAbortReason;
     }
 }
