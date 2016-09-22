@@ -66,7 +66,7 @@ public class InAppCancelReasonHelper {
 
             String rawres = HttpUtil.getDataUseOkHttp(applicationContext, posturl, false);
             if (rawres == null) {
-                Log.e(TAG, "Error: Response is null.");
+                //Log.e(TAG, "Error: Response is null.");
                 return null;
             }
 
