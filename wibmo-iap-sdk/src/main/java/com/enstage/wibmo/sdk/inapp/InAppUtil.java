@@ -33,11 +33,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.enstage.wibmo.sdk.R;
 import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.inapp.pojo.DeviceInfo;
+import com.enstage.wibmo.sdk.inapp.pojo.InAppCancelReason;
 import com.enstage.wibmo.util.PhoneInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.ArrayList;
 
 /**
  * Created by akshath on 24/10/14.
@@ -60,6 +64,8 @@ public class InAppUtil {
     public static final String EXTRA_KEY_PROGRAM_ID = "ProgramId";
     public static final String EXTRA_KEY_PC_AC_NUMBER = "PcAccountNumber";
     public static final String EXTRA_KEY_USERNAME = "Username";
+    public static final String EXTRA_KEY_LAST_URL = "LastURL";
+    public static final String EXTRA_KEY_COMMENTS = "Comments";
 
     public static final String BREADCRUMB_InAppInitActivity = "0";
     public static final String BREADCRUMB_InAppBrowserActivity = "1";
@@ -307,5 +313,67 @@ public class InAppUtil {
                 }
             }
         });
+    }
+
+    public static void askReasonForAbort(final Activity activity, final int requestCode, final int resultCode,
+                                         final Intent data,  final AbortReasonCallback abortReasonCallback) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        try {
+            ArrayList<InAppCancelReason> myList = InAppCancelReasonHelper.getReasonsForIAPCancelData();
+            if(myList==null || myList.isEmpty()) {
+                String abortReasonCode[] = activity.getResources().getStringArray(R.array.default_abort_reason_code);
+                String abortReasonDesc[] = activity.getResources().getStringArray(R.array.default_abort_reason_desc);
+
+                myList = new ArrayList<>(abortReasonCode.length);
+                for(int i=0;i<abortReasonCode.length;i++) {
+                    myList.add(new InAppCancelReason(abortReasonCode[i], abortReasonDesc[i]));
+                }
+            }
+            final ArrayList<InAppCancelReason> reasonsForIAPCancelData = myList;
+
+            ArrayList cancelDescList = new ArrayList(reasonsForIAPCancelData.size());
+            for (int i = 0; i < reasonsForIAPCancelData.size(); i++) {
+                cancelDescList.add(reasonsForIAPCancelData.get(i).getLabel());
+            }
+            CharSequence[] cancelDesc = (CharSequence[]) cancelDescList.toArray(new CharSequence[cancelDescList.size()]);
+
+            builder.setTitle(R.string.title_abort_reason)
+                    .setSingleChoiceItems(cancelDesc, -1,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Log.w(TAG, "setSingleChoiceItems id: " + which);
+
+                                    Log.w(TAG, "getCheckedItemPosition: " + which);
+                                    if (which == -1) {//not selected
+                                        Log.w(TAG, "select reason!");
+                                        InAppUtil.showToast(activity, activity.getString(R.string.sub_title_abort_reason));
+                                        askReasonForAbort(activity, requestCode, resultCode, data, abortReasonCallback);
+                                        return;
+                                    }
+
+                                    String abortReasonCode = reasonsForIAPCancelData.get(which).getId();
+                                    String abortReasonName = reasonsForIAPCancelData.get(which).getLabel();
+
+                                    Log.i(TAG, "abortReasonCode : " + abortReasonCode);
+                                    Log.i(TAG, "abortReasonName : " + abortReasonName);
+
+                                    dialog.dismiss();
+
+                                    abortReasonCallback.onSelection(activity.getApplicationContext(), requestCode, resultCode, data,
+                                            abortReasonCode, abortReasonName);
+                                }
+                            });
+
+            Dialog dialog = builder.create();
+            dialog.setCancelable(false);
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: " + e);
+
+            abortReasonCallback.onSelection(activity.getApplicationContext(), requestCode, resultCode, data,
+                    null, null);
+        }
     }
 }
