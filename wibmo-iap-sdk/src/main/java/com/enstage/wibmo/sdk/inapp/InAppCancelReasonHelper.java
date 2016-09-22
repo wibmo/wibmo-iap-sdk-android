@@ -65,8 +65,8 @@ public class InAppCancelReasonHelper {
             String posturl =  WibmoSDKConfig.getWibmoDomain() + "/v2/in/user/abortMessages";
 
             String rawres = HttpUtil.getDataUseOkHttp(applicationContext, posturl, false);
-            if (rawres == null) {
-                //Log.e(TAG, "Error: Response is null.");
+            if (rawres == null || rawres.trim().isEmpty()) {
+                //Log.e(TAG, "Error: Response is null or empty");
                 return null;
             }
 
@@ -79,7 +79,7 @@ public class InAppCancelReasonHelper {
             InAppCancelReasonHelper.saveIAPCancelCodesToDisk(applicationContext, cancelReasonList);
 
             return cancelReasonList;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Error: "+e, e);
         }
         return null;
@@ -96,7 +96,7 @@ public class InAppCancelReasonHelper {
             oos.writeObject(cancelCode);
 
             setReasonInDiskFlag(context, true);
-        } catch(IOException e) {
+        } catch(Throwable e) {
             Log.e(TAG, "Error: "+e,e);
         } finally {
             if(oos!=null) {
@@ -123,7 +123,7 @@ public class InAppCancelReasonHelper {
             }
 
             return (ArrayList<InAppCancelReason>) ois.readObject();
-        } catch(Exception e) {
+        } catch(Throwable e) {
             Log.e(TAG, "Error: "+e, e);
         } finally {
             if(ois!=null) {
