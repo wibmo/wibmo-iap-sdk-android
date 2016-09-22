@@ -3,6 +3,8 @@ Version 2.0.4 (Dt: ?? Sep 2016) - Akshath
 ------------------
 + Added support to track InAppBrowser errors
 + Added support to capture abort reasons
+! Bug fix for for passing back app data and txn ids in case of aborts
+
 
 Version 2.0.3 (Dt: 14 Sep 2016) - Akshath
 ------------------
