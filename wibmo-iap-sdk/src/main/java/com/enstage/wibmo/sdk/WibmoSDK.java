@@ -53,7 +53,8 @@ public class WibmoSDK {
     public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
     public static final int REQUEST_CODE_IAP_2FA  = 0x0000605f; // Only use bottom 16 bits - 24671
     public static final int REQUEST_CODE_IAP_PAY  = 0x00006060; // Only use bottom 16 bits - 24672
-    public static final int REQUEST_CODE_LOGIN  = 0x00006061; // Only use bottom 16 bits - 24672
+    public static final int REQUEST_CODE_LOGIN  = 0x00006061; // Only use bottom 16 bits - 24673
+    public static final int REQUEST_CODE_SET_USER_NAME = 0x00006062; // Only use bottom 16 bits - 24674
 
     public static final int PDC_RESET_DELAY = 4*1000; //4 sec
 
