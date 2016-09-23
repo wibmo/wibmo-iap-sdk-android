@@ -458,21 +458,21 @@ public class InAppInitActivity extends Activity {
                     }
                 }
 
-                String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
-                if(WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
-                    if(WibmoSDKConfig.isPromptAbortReason()) {
-                        InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
-                            @Override
-                            public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
-                                abortReasonCode = aReasonCode;
-                                abortReasonName = aReasonName;
+                if(data!=null) {
+                    String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                    if (WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
+                        if (WibmoSDKConfig.isPromptAbortReason()) {
+                            InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
+                                @Override
+                                public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
+                                    abortReasonCode = aReasonCode;
+                                    abortReasonName = aReasonName;
 
-                                processOnActivityResult(requestCode, resultCode, data);
-                            }
-                        });
-                        return;
-                    } else {
-                        processOnActivityResult(requestCode, resultCode, data);
+                                    processOnActivityResult(requestCode, resultCode, data);
+                                }
+                            });
+                            return;
+                        }
                     }
                 }
             }
