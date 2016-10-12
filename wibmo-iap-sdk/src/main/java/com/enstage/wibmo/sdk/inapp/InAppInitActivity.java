@@ -447,12 +447,6 @@ public class InAppInitActivity extends Activity {
                     if(data!=null && data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED)!=null) {
                         Log.d(TAG, "result is not ok for iap and 2fa .. lets ask if retry");
 
-                        String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
-                        if (breadCrumb != null) {
-                            InAppUtil.appendBreadCrumb(breadCrumb);
-                            InAppUtil.appendBreadCrumb("R:");//re-try
-                        }
-
                         confirmIAPRetry(requestCode, resultCode, data);
                         return;
                     }
@@ -554,6 +548,13 @@ public class InAppInitActivity extends Activity {
                             public void onClick(
                                     DialogInterface dialog, int id) {
                                 isReTry = true;
+
+                                String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
+                                if (breadCrumb != null) {
+                                    InAppUtil.appendBreadCrumb(breadCrumb);
+                                    InAppUtil.appendBreadCrumb("R:");//re-try
+                                }
+
                                 startIAP();
                             }
                         })
