@@ -23,7 +23,7 @@ public class WibmoSDKConfig {
 
     //will trust dummy certificate
     private static boolean testMode = false;
-    private static boolean promptAbortReason = true;
+    private static boolean promptAbortReason = false;
 
     private static String wibmoDomain = "https://api.wibmo.com";
 
