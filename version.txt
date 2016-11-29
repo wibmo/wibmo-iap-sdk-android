@@ -1,5 +1,5 @@
 
-Version 2.0.5 (Dt: ?? Oct 2016) - Akshath
+Version 2.0.5 (Dt: 29 Nov 2016) - Akshath
 ------------------
 + Added support to capture abort reasons
 
