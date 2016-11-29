@@ -28,14 +28,11 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +44,6 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.enstage.wibmo.util.AnalyticalUtil;
-import com.enstage.wibmo.util.PreventDoubleClick;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -571,6 +567,23 @@ public class InAppInitActivity extends Activity {
                                         Log.e(TAG, "Error: " + e);
                                     }
                                 }
+
+                                String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                                if (WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
+                                    if (WibmoSDKConfig.isPromptAbortReason()) {
+                                        InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
+                                            @Override
+                                            public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
+                                                abortReasonCode = aReasonCode;
+                                                abortReasonName = aReasonName;
+
+                                                processOnActivityResult(requestCode, resultCode, data);
+                                            }
+                                        });
+                                        return;
+                                    }
+                                }
+
                                 processOnActivityResult(requestCode, resultCode, data);
                             }
                         });
