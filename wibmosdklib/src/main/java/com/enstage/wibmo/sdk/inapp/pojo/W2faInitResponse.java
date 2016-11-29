@@ -32,6 +32,8 @@ public class W2faInitResponse extends GenericResponse {
     private String webUrl;
     private String msgHash;
 
+    private boolean onusCardRequired;
+
     public String getWibmoTxnId() {
         return wibmoTxnId;
     }
@@ -94,5 +96,13 @@ public class W2faInitResponse extends GenericResponse {
 
     public void setTransactionInfo(TransactionInfo transactionInfo) {
         this.transactionInfo = transactionInfo;
+    }
+
+    public boolean isOnusCardRequired() {
+        return onusCardRequired;
+    }
+
+    public void setOnusCardRequired(boolean onusCardRequired) {
+        this.onusCardRequired = onusCardRequired;
     }
 }

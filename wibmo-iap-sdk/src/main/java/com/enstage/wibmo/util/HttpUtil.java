@@ -262,4 +262,11 @@ public class HttpUtil {
         sslSocketFactory = _sslSocketFactory;
     }
 
+    public static TrustManager[] getTrustManager() {
+        return trustManager;
+    }
+
+    public static void setTrustManager(TrustManager[] trustManager) {
+        HttpUtil.trustManager = trustManager;
+    }
 }
