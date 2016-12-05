@@ -1,4 +1,10 @@
 
+
+Version 2.0.6 (Dt: 29 Nov 2016) - Akshath
+------------------
+! Bug fix for webview onReceivedSslError to prompt in case of ssl errors
+# Upgraded okhttp 3.4.1 => 3.5.0
+
 Version 2.0.5 (Dt: 29 Nov 2016) - Akshath
 ------------------
 + Added support to capture abort reasons
