@@ -115,7 +115,9 @@ public class InAppShellJavaScriptInterface {
         inAppShellHepler.getWebView().post(new Runnable() {
             @Override
             public void run() {
-                inAppShellHepler.getWebView().loadUrl(stringBuilder.toString());
+                if(inAppShellHepler.getWebView()!=null) {
+                    inAppShellHepler.getWebView().loadUrl(stringBuilder.toString());
+                }
             }
         });
     }

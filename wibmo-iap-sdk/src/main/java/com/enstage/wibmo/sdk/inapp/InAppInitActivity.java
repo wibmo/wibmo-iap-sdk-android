@@ -513,6 +513,10 @@ public class InAppInitActivity extends Activity {
             data.removeExtra(InAppUtil.EXTRA_KEY_USERNAME);
             data.removeExtra(InAppUtil.EXTRA_KEY_LAST_URL);
             data.removeExtra(InAppUtil.EXTRA_KEY_COMMENTS);
+        } else {
+            if(extraDataReporting==null) {
+                extraDataReporting = new HashMap<>(1);
+            }
         }
 
         setResult(resultCode, data);
