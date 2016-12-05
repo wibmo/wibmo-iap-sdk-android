@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
     gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
 
-    libraryVersion = '2.0.5'
+    libraryVersion = '2.0.6'
 
     developerId = 'wibmo'
     developerName = 'Wibmo Inc'
@@ -32,8 +32,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
-        versionCode 20005
-        versionName '2.0.5'
+        versionCode 20006
+        versionName '2.0.6'
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
