@@ -52,6 +52,7 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.enstage.wibmo.sdk.R;
+import com.enstage.wibmo.util.SSLUtil;
 
 /**
  * Created by akshath on 20/10/14.
@@ -84,12 +85,14 @@ public class InAppBrowserActivity extends Activity {
     private StringBuilder comments = new StringBuilder();
 
 
+    private Activity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         context = (Context) this;
+        activity = this;
         InAppUtil.addBreadCrumb(InAppUtil.BREADCRUMB_InAppBrowserActivity);
 
         Bundle extras = getIntent().getExtras();
@@ -148,7 +151,7 @@ public class InAppBrowserActivity extends Activity {
                 }
             }
 
-            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
                 comments.append("bad certificate : ").append(error.toString());
                 if(WibmoSDKConfig.isTestMode()) {
                     Log.w(TAG, "We have bad certificate.. but this is test mode so okay");
@@ -156,9 +159,7 @@ public class InAppBrowserActivity extends Activity {
                             Toast.LENGTH_SHORT).show();
                     handler.proceed(); // Ignore SSL certificate errors
                 } else {
-                    Log.w(TAG, "We have bad certificate.. but this is not test!! will abort");
-                    Toast.makeText(activity, "We have bad certificate.. will abort!!", Toast.LENGTH_LONG);
-                    handler.cancel();
+                    InAppUtil.manageWebViewReceivedSslError(activity, view, handler, error);
                 }
             }
 

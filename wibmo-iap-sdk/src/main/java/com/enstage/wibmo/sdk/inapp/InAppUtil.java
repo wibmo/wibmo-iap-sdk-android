@@ -25,10 +25,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.SslError;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -136,6 +139,57 @@ public class InAppUtil {
             Log.i(TAG, "N/W Type: " + activeNetworkInfo.getTypeName());
         }
         return activeNetworkInfo;
+    }
+
+    public static void manageWebViewReceivedSslError(final Activity activity, WebView view, final SslErrorHandler handler, SslError error) {
+        try {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            String message = "SSL Certificate error.";
+            switch (error.getPrimaryError()) {
+                case SslError.SSL_UNTRUSTED://3
+                    message = "The certificate authority is not trusted.";
+                    break;
+                case SslError.SSL_EXPIRED://1
+                    message = "The certificate has expired.";
+                    break;
+                case SslError.SSL_IDMISMATCH://2
+                    message = "The certificate Hostname mismatch.";
+                    break;
+                case SslError.SSL_NOTYETVALID://0
+                    message = "The certificate is not yet valid.";
+                    break;
+                case SslError.SSL_INVALID://5
+                    handler.proceed();//BUG in WebView :( just a work around.. we get "primary error: 5"
+                    return;
+            }
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                message += " Url: " + error.getUrl() + ".";
+            }
+            message += " Do you want to continue anyway?";
+
+            builder.setTitle("SSL Certificate Error");
+            builder.setMessage(message);
+            builder.setPositiveButton(activity.getString(R.string.label_continue), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handler.proceed();
+                }
+            });
+            builder.setNegativeButton(activity.getString(R.string.label_cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handler.cancel();
+                    activity.finish();
+                }
+            });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+        } catch (Throwable e) {
+            Log.e(TAG, "Error: "+e, e);
+            if(handler!=null) {
+                handler.proceed();
+            }
+        }
     }
 
     public static void manageWebViewOnError(final Activity activity, final WebView webView,
