@@ -74,6 +74,7 @@ public class WibmoSDK {
     public static final String PAYMENT_TYPE_WALLET_CARD = "w.ds.pt.card_wallet";
     public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
     public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
+    public static final String PAYMENT_TYPE_RUPAY_CARD = "w.ds.pt.card_rupay";
 
     public static final String TRANSACTION_TYPE_W2FA = "W2fa";
     public static final String TRANSACTION_TYPE_WPAY = "WPay";
