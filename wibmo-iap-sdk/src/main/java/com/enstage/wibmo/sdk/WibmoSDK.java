@@ -334,4 +334,12 @@ public class WibmoSDK {
     public static void setInAppTxnIdCallback(InAppTxnIdCallback inAppTxnIdCallback) {
         WibmoSDK.inAppTxnIdCallback = inAppTxnIdCallback;
     }
+
+    public static void checkForPVStatus(final Activity activity) {
+        Log.d(TAG, "start PVC Check");
+        Intent intent = new Intent(activity, InAppInitActivity.class);
+        intent.putExtra("checkPVStatus", true);
+        activity.startActivityForResult(intent, InAppInitActivity.REQUEST_CODE_IAP_READY);
+    }
+
 }
