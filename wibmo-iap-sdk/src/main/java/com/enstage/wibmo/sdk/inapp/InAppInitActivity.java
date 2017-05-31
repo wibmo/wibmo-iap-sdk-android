@@ -69,6 +69,7 @@ public class InAppInitActivity extends Activity {
 
     private boolean isAppReady;
     private static String readyPackage;
+    private boolean isCheckAppDetails;
 
     private AsyncTask asyncTask = null;
 
@@ -102,78 +103,82 @@ public class InAppInitActivity extends Activity {
             //reset
             w2faInitResponse = null;
             wPayInitResponse = null;
+            isCheckAppDetails = extras.getBoolean("checkPVStatus", false);
 
-
-            if (w2faInitRequest != null || wPayInitRequest!=null) {
-                qrMsg = "InApp payment";
-            } else {
-                Log.e(TAG, "W2faInitRequest and wPayInitRequest was null!");
-                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - W2faInitRequest and wPayInitRequest was null!");
-                return;
+            if (isCheckAppDetails == false) {
+                if (w2faInitRequest != null || wPayInitRequest != null) {
+                    qrMsg = "InApp payment";
+                } else {
+                    Log.e(TAG, "W2faInitRequest and wPayInitRequest was null!");
+                    sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - W2faInitRequest and wPayInitRequest was null!");
+                    return;
+                }
             }
         }
 
-        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        //setProgressBarIndeterminateVisibility(false);
+        if(isCheckAppDetails == false) {
 
-        LayoutInflater inflator = getLayoutInflater();
-        view = inflator.inflate(R.layout.activity_inapp_init, null, false);
-        view.startAnimation(AnimationUtils.loadAnimation(this,
-                android.R.anim.slide_in_left));
-        setContentView(view);
+            //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+            //setProgressBarIndeterminateVisibility(false);
 
-        TextView text = (TextView) findViewById(R.id.text);
-        text.setText(qrMsg);
+            LayoutInflater inflator = getLayoutInflater();
+            view = inflator.inflate(R.layout.activity_inapp_init, null, false);
+            view.startAnimation(AnimationUtils.loadAnimation(this,
+                    android.R.anim.slide_in_left));
+            setContentView(view);
 
-        mainView = (View) findViewById(R.id.main_view);
+            TextView text = (TextView) findViewById(R.id.text);
+            text.setText(qrMsg);
+
+            mainView = (View) findViewById(R.id.main_view);
 
 
-        final Activity activity = this;
+            final Activity activity = this;
 
-        Button abortButton = (Button) findViewById(R.id.abort_button);
-        abortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelIAP();
-                sendAbort();
+            Button abortButton = (Button) findViewById(R.id.abort_button);
+            abortButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    cancelIAP();
+                    sendAbort();
+                }
+            });
+
+
+            if (WibmoSDK.IS_PHONE_STATE_PERMISSION_REQ) {
+                if (WibmoSDKPermissionUtil.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "Permission not granted! READ_PHONE_STATE");
+
+                    WibmoSDKPermissionUtil.showRequestPermissionRationalel(activity,
+                            getString(R.string.wibmosdk_phone_state_permission_rationale),
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    ActivityCompat.requestPermissions(activity,
+                                            new String[]{Manifest.permission.READ_PHONE_STATE},
+                                            WibmoSDKPermissionUtil.REQUEST_CODE_ASK_PERMISSION_PHONE_STATE);
+                                }
+                            },
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
+                                    sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - no permission ph state");
+                                }
+                            });
+
+                    return;//we need this so can;t go on
+                }
             }
-        });
 
-
-        if(WibmoSDK.IS_PHONE_STATE_PERMISSION_REQ) {
-            if (WibmoSDKPermissionUtil.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                Log.w(TAG, "Permission not granted! READ_PHONE_STATE");
-
-                WibmoSDKPermissionUtil.showRequestPermissionRationalel(activity,
-                        getString(R.string.wibmosdk_phone_state_permission_rationale),
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                ActivityCompat.requestPermissions(activity,
-                                        new String[]{Manifest.permission.READ_PHONE_STATE},
-                                        WibmoSDKPermissionUtil.REQUEST_CODE_ASK_PERMISSION_PHONE_STATE);
-                            }
-                        },
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                WibmoSDKPermissionUtil.showPermissionMissingUI(activity, getString(R.string.wibmosdk_phone_state_permission_missing_msg));
-                                sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - no permission ph state");
-                            }
-                        });
-
-                return;//we need this so can;t go on
+            if (savedInstanceState != null) {
+                if (savedInstanceState.getBoolean("wasSaved", false)) {
+                    Log.i(TAG, "was restored activity.. lets stop here");
+                    return;
+                }
             }
         }
-
-        if(savedInstanceState!=null) {
-            if(savedInstanceState.getBoolean("wasSaved", false)) {
-                Log.i(TAG, "was restored activity.. lets stop here");
-                return;
-            }
-        }
-
         doIAPStuff();
     }
 
@@ -182,9 +187,16 @@ public class InAppInitActivity extends Activity {
         if(InAppUtil.isWibmoInstalled(this)) {
             startInAppReadinessCheck(this);
         } else {
-            isAppReady = false;
-
-            startIAP();
+            if(isCheckAppDetails == false) {
+                isAppReady = false;
+                startIAP();
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra("isPhoneVerified", false);
+                intent.putExtra("isAppInstalled", false);
+                setResult(REQUEST_CODE_IAP_READY, intent);
+                finish();
+            }
         }
     }
 
@@ -396,6 +408,7 @@ public class InAppInitActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult: "+requestCode);
         if(requestCode== WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode== WibmoSDK.REQUEST_CODE_IAP_2FA) {
             addTransactionInfoToDataInCaseMissing(data);
         }
@@ -411,17 +424,29 @@ public class InAppInitActivity extends Activity {
                 isAppReady = false;
             }
             Log.d(TAG, "isAppReady: "+isAppReady);
+
+            if(isCheckAppDetails) {
+                if(isAppReady) {
+                    setResult(Activity.RESULT_OK, data);
+                } else {
+                    setResult(Activity.RESULT_CANCELED, data);
+                }
+                finish();
+                return;
+            }
+
             if(data!=null) {
                 readyPackage = data.getStringExtra("Package");
-                Log.v(TAG, "readyPackage: " + readyPackage);
-                Log.v(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
-                Log.v(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
-                Log.v(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
+                Log.d(TAG, "readyPackage: " + readyPackage);
+                Log.d(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
+                Log.d(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
+                Log.d(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
 
                 extraDataReporting = new HashMap<>(8);
                 extraDataReporting.put("WalletPackage", readyPackage);
                 extraDataReporting.put("WalletVersionCode", data.getStringExtra("AppVersionCode"));
             } else {
+                Log.d(TAG, "Data is NUll");
                 extraDataReporting = null;
             }
             startIAP();
