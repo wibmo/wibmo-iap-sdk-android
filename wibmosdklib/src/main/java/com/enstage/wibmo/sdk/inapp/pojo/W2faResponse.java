@@ -26,6 +26,10 @@ public class W2faResponse extends GenericResponse {
     private String merAppData = "";
     private String merTxnId;
 
+    private boolean isBillingAddressAllowed;
+    private boolean isShippingAddressAllowed;
+    private boolean collectEmail;
+
     public String getMsgHash() {
         return msgHash;
     }
@@ -64,5 +68,29 @@ public class W2faResponse extends GenericResponse {
 
     public void setMerTxnId(String merTxnId) {
         this.merTxnId = merTxnId;
+    }
+
+    public boolean isBillingAddressAllowed() {
+        return isBillingAddressAllowed;
+    }
+
+    public void setBillingAddressAllowed(boolean billingAddressAllowed) {
+        isBillingAddressAllowed = billingAddressAllowed;
+    }
+
+    public boolean isShippingAddressAllowed() {
+        return isShippingAddressAllowed;
+    }
+
+    public void setShippingAddressAllowed(boolean shippingAddressAllowed) {
+        isShippingAddressAllowed = shippingAddressAllowed;
+    }
+
+    public boolean isCollectEmail() {
+        return collectEmail;
+    }
+
+    public void setCollectEmail(boolean collectEmail) {
+        this.collectEmail = collectEmail;
     }
 }

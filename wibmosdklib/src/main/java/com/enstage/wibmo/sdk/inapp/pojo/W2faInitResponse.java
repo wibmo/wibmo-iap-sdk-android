@@ -30,9 +30,12 @@ public class W2faInitResponse extends GenericResponse {
     private String wibmoTxnId;
     private String wibmoTxnToken;
     private String webUrl;
-    private String msgHash;
 
+    private String msgHash;
     private boolean onusCardRequired;
+    private boolean isBillingAddressAllowed;
+    private boolean isShippingAddressAllowed;
+    private boolean collectEmail;
 
     public String getWibmoTxnId() {
         return wibmoTxnId;
@@ -104,5 +107,29 @@ public class W2faInitResponse extends GenericResponse {
 
     public void setOnusCardRequired(boolean onusCardRequired) {
         this.onusCardRequired = onusCardRequired;
+    }
+
+    public boolean isBillingAddressAllowed() {
+        return isBillingAddressAllowed;
+    }
+
+    public void setBillingAddressAllowed(boolean billingAddressAllowed) {
+        isBillingAddressAllowed = billingAddressAllowed;
+    }
+
+    public boolean isShippingAddressAllowed() {
+        return isShippingAddressAllowed;
+    }
+
+    public void setShippingAddressAllowed(boolean shippingAddressAllowed) {
+        isShippingAddressAllowed = shippingAddressAllowed;
+    }
+
+    public boolean isCollectEmail() {
+        return collectEmail;
+    }
+
+    public void setCollectEmail(boolean collectEmail) {
+        this.collectEmail = collectEmail;
     }
 }

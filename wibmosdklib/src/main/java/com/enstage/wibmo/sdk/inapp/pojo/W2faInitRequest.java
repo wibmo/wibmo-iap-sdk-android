@@ -37,6 +37,10 @@ public class W2faInitRequest implements Serializable {
 	private CardInfo cardInfo;
 	private String txnType;
 
+	private boolean billingAddressRequired;
+	private boolean shippingAddressRequired;
+	private boolean profileRequired;
+
 	public MerchantInfo getMerchantInfo() {
 		return merchantInfo;
 	}
@@ -99,5 +103,29 @@ public class W2faInitRequest implements Serializable {
 
 	public void setMerchantReturnUrl(String merchantReturnUrl) {
 		this.merchantReturnUrl = merchantReturnUrl;
+	}
+
+	public boolean isBillingAddressRequired() {
+		return billingAddressRequired;
+	}
+
+	public void setBillingAddressRequired(boolean billingAddressRequired) {
+		this.billingAddressRequired = billingAddressRequired;
+	}
+
+	public boolean isShippingAddressRequired() {
+		return shippingAddressRequired;
+	}
+
+	public void setShippingAddressRequired(boolean shippingAddressRequired) {
+		this.shippingAddressRequired = shippingAddressRequired;
+	}
+
+	public boolean isProfileRequired() {
+		return profileRequired;
+	}
+
+	public void setProfileRequired(boolean profileRequired) {
+		this.profileRequired = profileRequired;
 	}
 }
