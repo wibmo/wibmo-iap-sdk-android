@@ -26,7 +26,6 @@ import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.enstage.wibmo.util.AnalyticalUtil;
 import com.enstage.wibmo.util.HttpUtil;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,6 +40,7 @@ public class InAppHandler {
     private static final String TAG = InAppHandler.class.getSimpleName();
 
     private static Gson gson = InAppUtil.makeGson();
+    private static boolean debug = false;
 
     public static W2faInitResponse init2FA(W2faInitRequest request) throws Exception {
         try {
@@ -50,14 +50,14 @@ public class InAppHandler {
                     "/txn/iap/w2fa/init";
 
             String postData = gson.toJson(request);
-            //Log.v(TAG, "postData: "+postData);
+            if(debug) Log.v(TAG, "postData: "+postData);
 
             Map<String,List<String>> resHeaders = new HashMap<>(10);
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
                     false, HttpUtil.JSON, null, resHeaders);
-            //Log.v(TAG, "rawres: "+rawres);
+            if(debug) Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do init2FA!");
@@ -80,14 +80,14 @@ public class InAppHandler {
                     "/txn/iap/wpay/init";
 
             String postData = gson.toJson(request);
-            //Log.v(TAG, "postData: "+postData);
+            if(debug) Log.v(TAG, "postData: "+postData);
 
             Map<String,List<String>> resHeaders = new HashMap<>(10);
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
                     false, HttpUtil.JSON, null, resHeaders);
-            //Log.v(TAG, "rawres: "+rawres);
+            if(debug) Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
                 throw new IOException("Unable to do initPay!");
