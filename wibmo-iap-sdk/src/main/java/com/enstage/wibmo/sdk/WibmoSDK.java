@@ -41,7 +41,7 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "2.1.0";
+    public static final String VERSION = "2.2.0";
 
     public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
@@ -49,6 +49,7 @@ public class WibmoSDK {
     public static final String RES_CODE_FAILURE_SYSTEM_ABORT = "205";
     public static final String RES_CODE_FAILURE_INTERNAL_ERROR = "051";
     public static final String RES_CODE_TOO_EARLY = "080";
+    public static final String RES_CODE_FAILURE_VELOCITY_LIMIT_REACHED = "082";
 
     public static final int REQUEST_CODE_MPOS = 0x0000c0be; // Only use bottom 16 bits - 49342
     public static final int REQUEST_CODE_IAP_2FA  = 0x0000605f; // Only use bottom 16 bits - 24671
