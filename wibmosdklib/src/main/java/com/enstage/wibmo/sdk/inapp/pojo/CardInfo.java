@@ -32,6 +32,8 @@ public class CardInfo implements Serializable {
     private String expiryYYYY;
     private String cardType;
     private String nameOnCard;
+    private String cardTokenRefNo;
+    private boolean isPassCardS2S;
 
     public String getCardId() {
         return cardId;
@@ -89,4 +91,19 @@ public class CardInfo implements Serializable {
         this.nameOnCard = nameOnCard;
     }
 
+    public String getCardTokenRefNo() {
+        return cardTokenRefNo;
+    }
+
+    public void setCardTokenRefNo(String cardTokenRefNo) {
+        this.cardTokenRefNo = cardTokenRefNo;
+    }
+
+    public boolean isPassCardS2S() {
+        return isPassCardS2S;
+    }
+
+    public void setPassCardS2S(boolean passCardS2S) {
+        isPassCardS2S = passCardS2S;
+    }
 }
