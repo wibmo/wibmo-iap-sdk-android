@@ -1,5 +1,5 @@
 
-Version 2.2.0 (Dt: 24 Oct 2017) - Nithya
+Version 2.2.0 (Dt: 26 Oct 2017) - Nithya
 ------------------
 # Upgraded Compile SDK from 23 => 25
 # Upgraded Target SDK from 23 => 25
