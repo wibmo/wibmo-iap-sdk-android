@@ -111,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
                 //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
                 //WibmoSDKConfig.setWibmoDomain("https://api.pc.enstage-sas.com");
 
+                //uncomment next two statement for dev setup
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.dev");
+                //WibmoSDKConfig.setWibmoDomain("https://api.pcdev.enstage-sas.com");
+
+                //uncomment next two statement for beta setup
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.main");
+                //WibmoSDKConfig.setWibmoDomain("https://beta-api.wibmo.com");
+
                 WibmoSDK.init(context);
             }
         };
@@ -135,6 +143,14 @@ public class MainActivity extends AppCompatActivity {
         MerchantHandler.setMerchantDomain("mytestserver.com"); //"mytestserver.com"
         //-
         /**/
+        /*
+        //Dev
+        String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
+        String merAppID = "MYAPPID"; //"MYAPPID";//change me
+        String merMerCountryCode = "IN";//change me if req
+        MerchantHandler.setMerchantDomain("mytestserver.com"); //"mytestserver.com"
+        //-
+        */
 
         wPayInitRequest = new WPayInitRequest();
         wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);

@@ -69,17 +69,33 @@ public class MainActivity extends ActionBarActivity {
             }
         };
         t.start();
+
+        logOutput("PID: "+android.os.Process.myPid());
+    }
+
+    private void logOutput(String s) {
+        outputView.setText(outputView.getText().toString().isEmpty()?s:outputView.getText()+"\n"+s);
     }
 
     private void processPayWithWibmo() {
+
         /*
-        //Prod
+        //Prod - Main Test
         String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
         String merAppID = "MYAPPID"; //"MYAPPID";//change me
         String merMerCountryCode = "IN";//change me if req
         MerchantHandler.setMerchantDomain("myprodserver.com"); //"myprodserver.com"
         //-
-        /**/
+        */
+
+        /*
+        //Prod Main 2nd Test
+        String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
+        String merAppID = "MYAPPID"; //"MYAPPID";//change me
+        String merMerCountryCode = "IN";//change me if req
+        MerchantHandler.setMerchantDomain("myprodserver.com"); //"myprodserver.com"
+        //-
+        */
 
         /**/
         //staging

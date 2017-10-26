@@ -108,10 +108,24 @@ public class MainActivity extends ActionBarActivity {
                 //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.staging");
                 //WibmoSDKConfig.setWibmoDomain("https://api.pc.enstage-sas.com");
 
+                //uncomment next two statement for dev setup
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.dev");
+                //WibmoSDKConfig.setWibmoDomain("https://api.pcdev.enstage-sas.com");
+
+                //uncomment next two statement for beta setup
+                //WibmoSDK.setWibmoIntentActionPackage("com.enstage.wibmo.sdk.inapp.main");
+                //WibmoSDKConfig.setWibmoDomain("https://beta-api.wibmo.com");
+
                 WibmoSDK.init(context);
             }
         };
         t.start();
+
+        logOutput("PID: "+android.os.Process.myPid());
+    }
+
+    private void logOutput(String s) {
+        outputMainView.setText(outputMainView.getText().toString().isEmpty()?s:outputMainView.getText()+"\n"+s);
     }
 
     private void processPayWithWibmo() {
@@ -133,6 +147,14 @@ public class MainActivity extends ActionBarActivity {
         //-
         /**/
 
+        /*
+        //Dev
+        String merID = "MYMERCHANTID"; //"MYMERCHANTID";//change me
+        String merAppID = "MYAPPID"; //"MYAPPID";//change me
+        String merMerCountryCode = "IN";//change me if req
+        MerchantHandler.setMerchantDomain("mytestserver.com"); //"mytestserver.com"
+        //-
+        */
 
         wPayInitRequest = new WPayInitRequest();
         wPayInitRequest.setTxnType(WibmoSDK.TRANSACTION_TYPE_WPAY);

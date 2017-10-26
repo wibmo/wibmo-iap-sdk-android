@@ -84,6 +84,8 @@ public class WibmoSDK {
 
     private static InAppTxnIdCallback inAppTxnIdCallback;
 
+    public static final int REQUEST_CODE_PROCEED_WEB_TXN = 101;//Browser based(clicked on skip in push ui page)
+
     private final static PreventDoubleClick pdc = new PreventDoubleClick();
 
     public static void startForInApp(Activity activity, W2faInitRequest w2faInitRequest) {
@@ -342,6 +344,7 @@ public class WibmoSDK {
         Intent intent = new Intent(activity, InAppInitActivity.class);
         intent.putExtra("checkPVStatus", true);
         activity.startActivityForResult(intent, InAppInitActivity.REQUEST_CODE_IAP_READY);
+
     }
 
 }
