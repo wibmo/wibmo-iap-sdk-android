@@ -81,6 +81,7 @@ public class InAppInitActivity extends Activity {
 
     private long startTime;
     private long endTime;
+    private boolean autoSubmitIAPTxn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,6 +100,7 @@ public class InAppInitActivity extends Activity {
                     .getSerializable("W2faInitRequest");
             wPayInitRequest = (WPayInitRequest) extras
                     .getSerializable("WPayInitRequest");
+            autoSubmitIAPTxn = extras.getBoolean("autoSubmitIAPTxn", false);
 
             //reset
             w2faInitResponse = null;
@@ -196,6 +198,7 @@ public class InAppInitActivity extends Activity {
                 intent.putExtra("isAppInstalled", false);
                 setResult(REQUEST_CODE_IAP_READY, intent);
                 finish();
+                return;
             }
         }
     }
@@ -307,12 +310,17 @@ public class InAppInitActivity extends Activity {
 
     public static void startInAppFlowInApp(Activity activity,
               WPayInitRequest wPayInitRequest, WPayInitResponse wPayInitResponse) {
+      startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse, false);
+    }
+
+    public static void startInAppFlowInApp(Activity activity, WPayInitRequest wPayInitRequest,
+                                           WPayInitResponse wPayInitResponse, boolean autoSubmitTxn) {
         Log.v(TAG, "startInAppFlowInApp");
         Intent intent = new Intent(WibmoSDK.getWibmoIntentActionPackage()+".InApp");
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("WPayInitRequest", wPayInitRequest);
         intent.putExtra("WPayInitResponse", wPayInitResponse);
-
+        intent.putExtra("autoSubmitIAPTxn", autoSubmitTxn);
         /*
         String targetAppPackage = WibmoSDK.getWibmoPackage();
         boolean flag = WibmoSDK.isPackageExisted(activity, targetAppPackage);
@@ -426,21 +434,17 @@ public class InAppInitActivity extends Activity {
             Log.d(TAG, "isAppReady: "+isAppReady);
 
             if(isCheckAppDetails) {
-                if(isAppReady) {
-                    setResult(Activity.RESULT_OK, data);
-                } else {
-                    setResult(Activity.RESULT_CANCELED, data);
-                }
+                setResult(resultCode, data);
                 finish();
                 return;
             }
 
             if(data!=null) {
                 readyPackage = data.getStringExtra("Package");
-                Log.d(TAG, "readyPackage: " + readyPackage);
-                Log.d(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
-                Log.d(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
-                Log.d(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
+                Log.v(TAG, "readyPackage: " + readyPackage);
+                Log.v(TAG, "UsernameSet: " + data.getStringExtra("UsernameSet"));
+                Log.v(TAG, "LoggedIn: " + data.getStringExtra("LoggedIn"));
+                Log.v(TAG, "AppVersionCode: " + data.getStringExtra("AppVersionCode"));//added in 2070400
 
                 extraDataReporting = new HashMap<>(8);
                 extraDataReporting.put("WalletPackage", readyPackage);
@@ -475,8 +479,11 @@ public class InAppInitActivity extends Activity {
 
                 if(data!=null) {
                     String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                    boolean isUserAbortCaptured = data.getBooleanExtra("isUserAbortCaptured", false);
+                    Log.v(TAG, "isUserAbortCaptured: "+isUserAbortCaptured);
+
                     if (WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
-                        if (WibmoSDKConfig.isPromptAbortReason()) {
+                        if (WibmoSDKConfig.isPromptAbortReason() && !isUserAbortCaptured) {
                             InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
                                 @Override
                                 public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
@@ -564,8 +571,21 @@ public class InAppInitActivity extends Activity {
     public void confirmIAPRetry(final int requestCode, final int resultCode, final Intent data) {
         final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(
-                activity.getString(R.string.confirm_retry))
+        String errorMessage;
+        String defaultErrorMsg = activity.getString(R.string.confirm_retry);
+        try {
+            String resCode = data.getExtras().getString(InAppUtil.EXTRA_KEY_RES_CODE);
+            if (resCode!=null && resCode.equalsIgnoreCase(WibmoSDK.RES_CODE_FAILURE_VELOCITY_LIMIT_REACHED)) {
+                String messageFromResult = data.getExtras().getString(InAppUtil.EXTRA_KEY_RES_DESC);
+                errorMessage = messageFromResult.substring(messageFromResult.indexOf("-")+2) + defaultErrorMsg.substring(defaultErrorMsg.indexOf(".")+1);
+            } else {
+                errorMessage = defaultErrorMsg;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error:" + e, e);
+            errorMessage = defaultErrorMsg;
+        }
+        builder.setMessage(errorMessage)
                 .setCancelable(false)
                 .setPositiveButton(
                         activity.getString(R.string.label_yes),
@@ -598,8 +618,9 @@ public class InAppInitActivity extends Activity {
                                 }
 
                                 String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
+                                boolean isUserAbortCaptured = data.getBooleanExtra("isUserAbortCaptured", false);
                                 if (WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
-                                    if (WibmoSDKConfig.isPromptAbortReason()) {
+                                    if (WibmoSDKConfig.isPromptAbortReason() && !isUserAbortCaptured) {
                                         InAppUtil.askReasonForAbort(activity, requestCode, resultCode, data, new AbortReasonCallback() {
                                             @Override
                                             public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
@@ -629,43 +650,7 @@ public class InAppInitActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        final Activity activity = this;
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(
-                activity.getString(R.string.confirm_cancel))
-                .setCancelable(false)
-                .setPositiveButton(
-                activity.getString(R.string.label_yes),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(
-                            DialogInterface dialog, int id) {
-                        sendAbort("sdk init - backpress");
-                    }
-                })
-                .setNegativeButton(
-                        activity.getString(R.string.label_no),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                                if (dialog != null) {
-                                    try {
-                                        dialog.dismiss();
-                                    } catch (IllegalArgumentException e) {
-                                        Log.e(TAG, "Error: " + e);
-                                    }
-                                }
-                            }
-                        });
-
-        Dialog dialog = builder.create();
-        try {
-            dialog.show();
-        } catch (Throwable e) {
-            Log.e(TAG, "Error: " + e, e);
-
-            sendAbort("sdk init - backpress");
-        }
+        //fix for jira id: 6499
     }
 
     @SuppressLint("NewApi")
@@ -730,7 +715,11 @@ public class InAppInitActivity extends Activity {
         Log.d(TAG, "Weburl: "+weburl);
 
         if(isAppReady) {
-            startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse);
+            if(autoSubmitIAPTxn) {
+                startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse, autoSubmitIAPTxn);
+            } else {
+                startInAppFlowInApp(activity, wPayInitRequest, wPayInitResponse);
+            }
         } else {
             startInAppFlowInBrowser(activity, wPayInitRequest, wPayInitResponse);
         }
