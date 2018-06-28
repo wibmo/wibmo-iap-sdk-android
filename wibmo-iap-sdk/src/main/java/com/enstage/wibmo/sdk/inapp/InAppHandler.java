@@ -15,6 +15,7 @@
  */
 package com.enstage.wibmo.sdk.inapp;
 
+import android.app.Activity;
 import android.util.Log;
 
 import com.enstage.wibmo.sdk.WibmoSDKConfig;
@@ -28,6 +29,7 @@ import com.enstage.wibmo.util.HttpUtil;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -142,6 +144,35 @@ public class InAppHandler {
             return gson.fromJson(rawres, IAPaymentStatusResponse.class);
         } catch (Exception e) {
             Log.e(TAG, "Error: "+e, e);
+            throw e;
+        }
+    }
+
+
+    public static String getPkgForIapRestrict(Activity mActivity, WPayInitRequest request, W2faInitResponse w2faInitResponse) throws Exception {
+        try {
+            String posturl = WibmoSDKConfig.getWibmoDomain() + "/" +
+                    request.getMerchantInfo().getMerCountryCode().toLowerCase() + "/" +
+                    "program/" + w2faInitResponse.getRestrictedProgram() + "/getPackageName?";
+
+            StringBuilder postsb = new StringBuilder();
+
+            postsb.append(URLEncoder.encode("osName", "UTF-8"));
+            postsb.append("=");
+
+            postsb.append(URLEncoder.encode(request.getDeviceInfo().getOsType(), "UTF-8"));
+
+            posturl = posturl+postsb.toString();
+
+            String output = HttpUtil.getDataUseOkHttp(mActivity, posturl, false);
+
+            if (output == null) {
+                throw new IOException("Unable to do initPay!");
+            }
+
+            return output.toString();
+        } catch (Exception e) {
+            Log.e(TAG, "Error: " + e, e);
             throw e;
         }
     }
