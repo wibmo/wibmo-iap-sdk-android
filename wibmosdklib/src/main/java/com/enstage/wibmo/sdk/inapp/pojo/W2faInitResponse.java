@@ -36,6 +36,7 @@ public class W2faInitResponse extends GenericResponse {
     private boolean isBillingAddressAllowed;
     private boolean isShippingAddressAllowed;
     private boolean collectEmail;
+    private String restrictedProgram;
 
     public String getWibmoTxnId() {
         return wibmoTxnId;
@@ -131,5 +132,13 @@ public class W2faInitResponse extends GenericResponse {
 
     public void setCollectEmail(boolean collectEmail) {
         this.collectEmail = collectEmail;
+    }
+
+    public String getRestrictedProgram() {
+        return restrictedProgram;
+    }
+
+    public void setRestrictedProgram(String restrictedProgram) {
+        this.restrictedProgram = restrictedProgram;
     }
 }
