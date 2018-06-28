@@ -48,6 +48,7 @@ public class WibmoSDK {
     public static final String RES_CODE_FAILURE_USER_ABORT = "204";
     public static final String RES_CODE_FAILURE_SYSTEM_ABORT = "205";
     public static final String RES_CODE_FAILURE_INTERNAL_ERROR = "051";
+    public static final String RES_CODE_FAILURE_TXN = "050";
     public static final String RES_CODE_TOO_EARLY = "080";
     public static final String RES_CODE_FAILURE_VELOCITY_LIMIT_REACHED = "082";
 
@@ -119,7 +120,7 @@ public class WibmoSDK {
                     try {
                         Thread.sleep(PDC_RESET_DELAY);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Error: "+e, e);
                     }
                     pdc.reset();
                 }
@@ -161,7 +162,7 @@ public class WibmoSDK {
                     try {
                         Thread.sleep(PDC_RESET_DELAY);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Error: "+e, e);
                     }
                     pdc.reset();
                 }

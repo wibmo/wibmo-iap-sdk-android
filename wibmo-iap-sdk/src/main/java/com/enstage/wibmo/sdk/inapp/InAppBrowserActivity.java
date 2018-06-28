@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
@@ -78,6 +77,7 @@ public class InAppBrowserActivity extends Activity {
 
     private boolean resultSet;
     private boolean isViewSmall = true;
+    private boolean isDebuggable = false; //make it false in prod
 
     //tracking
     private String lastUrl;
@@ -130,7 +130,11 @@ public class InAppBrowserActivity extends Activity {
 
         webView = (WebView) findViewById(R.id.webView);
         mainView = (FrameLayout) findViewById(R.id.layout_root);
-
+        if(isDebuggable) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                WebView.setWebContentsDebuggingEnabled(true);
+            }
+        }
 
         final Activity activity = this;
 
