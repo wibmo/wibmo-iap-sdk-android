@@ -233,7 +233,8 @@ public class HttpUtil {
             Log.d(TAG, "making makeSSLSocketFactory.. ");
             sslContext = SSLContext.getInstance("TLS");
             if (trustManager == null) {
-                if(WibmoSDKConfig.isTestMode()) {
+                if(false && WibmoSDKConfig.isTestMode()) {
+                    Log.v(TAG, "using default null trust manager");
                     Log.v(TAG, "Loading non uat trust cert..");
                     trustManager = SSLUtil.loadTrustManagerFromRawBks(context,
                             R.raw.trust_wsdk_bks_star_ens_uat, ("pa"+"ssw"+"ord").toCharArray());
