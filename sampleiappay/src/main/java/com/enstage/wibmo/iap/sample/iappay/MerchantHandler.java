@@ -22,7 +22,8 @@ public class MerchantHandler {
     private static String merchantDomain = "www.wibmo.com";
 
     public static WPayInitRequest generateMessageHash(WPayInitRequest req) throws Exception {
-        String posturl = "https://"+ getMerchantDomain() +"/testMerchant/generatewPayMessageHash.jsp";
+        //String posturl = "https://"+ getMerchantDomain() +"/testMerchant/generatewPayMessageHash.jsp";
+        String posturl = "https://"+ getMerchantDomain() +"/sampleTest/generatewPayMessageHash.jsp";
         //String posturl = "https://localhost/app/generatewPayMessageHash";
 
         StringBuilder postsb = new StringBuilder();

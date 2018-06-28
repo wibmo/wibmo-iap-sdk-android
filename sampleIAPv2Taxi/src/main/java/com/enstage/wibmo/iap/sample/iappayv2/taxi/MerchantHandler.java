@@ -23,7 +23,8 @@ public class MerchantHandler {
     private static String txnDateYYYYMMDD;
 
     public static WPayInitRequest generateMessageHash(WPayInitRequest req) throws Exception {
-        String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/generateInitReqMessageHash.jsp";
+        //String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/generateInitReqMessageHash.jsp";
+        String posturl = "https://"+ getMerchantDomain() +"/sampleTest/taxi/generateInitReqMessageHash.jsp";
         //String posturl = "https://localhost/app/generatewPayMessageHash";
 
         StringBuilder postsb = new StringBuilder();
@@ -77,7 +78,8 @@ public class MerchantHandler {
     }
 
     public static String doStatusCheck(WPayInitRequest req, String wibmoTxnId) throws Exception {
-        String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/txnStatusv2.jsp";
+        //String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/txnStatusv2.jsp";
+        String posturl = "https://"+ getMerchantDomain() +"/sampleTest/taxi/txnStatusv2.jsp";
 
         StringBuilder postsb = new StringBuilder();
         postsb.append("merTxnId=").append(URLEncoder.encode(req.getTransactionInfo().getMerTxnId(), "utf-8"));
@@ -112,7 +114,8 @@ public class MerchantHandler {
     }
 
     public static String doCharge(WPayInitRequest req, String wibmoTxnId) throws Exception {
-        String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/chargev2.jsp";
+        //String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/taxi/chargev2.jsp";
+        String posturl = "https://"+ getMerchantDomain() +"/sampleTest/taxi/chargev2.jsp";
 
         StringBuilder postsb = new StringBuilder();
         postsb.append("merTxnId=").append(URLEncoder.encode(req.getTransactionInfo().getMerTxnId(), "utf-8"));

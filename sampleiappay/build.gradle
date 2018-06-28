@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -47,10 +47,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def file = output.outputFile
-                    output.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+            android.applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${variant.name}-${variant.versionName}.apk"
                 }
             }
         }
@@ -60,6 +59,12 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':wibmo-iap-sdk')
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+
+    api project(':wibmo-iap-sdk')
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     //compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }

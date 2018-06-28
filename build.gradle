@@ -3,13 +3,14 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:3.0.1'
 
         //maven stuff
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
 
@@ -18,5 +19,6 @@ allprojects {
         jcenter()
 
         //maven { url "https://dl.bintray.com/wibmo/maven" }
+        google()
     }
 }
