@@ -18,11 +18,13 @@ package com.enstage.wibmo.sdk.inapp;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -247,10 +249,20 @@ public class InAppShellHepler {
             return;
         }
 
+        if (TextUtils.isEmpty(url)) return;
+
+        Uri uri = Uri.parse(url);
+        if (uri.getScheme() == null) {
+            Log.i(TAG, "openURL() scheme is null, appending default scheme");
+            uri = Uri.parse("http://" + url);
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(url));
             activity.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.w(TAG, "openURL() failed to open URL", e);
+            showToast(getActivity().getResources().getString(R.string.label_url_failed));
         } catch (Exception e) {
             Log.e(TAG, "Error: "+e,e);
             showMsg("We had an error in request! "+e.getMessage());
