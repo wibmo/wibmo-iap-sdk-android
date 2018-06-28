@@ -40,6 +40,7 @@ public class W2faInitRequest implements Serializable {
 	private boolean billingAddressRequired;
 	private boolean shippingAddressRequired;
 	private boolean profileRequired;
+	private boolean promptPromoCode;
 
 	public MerchantInfo getMerchantInfo() {
 		return merchantInfo;
@@ -127,5 +128,13 @@ public class W2faInitRequest implements Serializable {
 
 	public void setProfileRequired(boolean profileRequired) {
 		this.profileRequired = profileRequired;
+	}
+
+	public boolean isPromptPromoCode() {
+		return promptPromoCode;
+	}
+
+	public void setPromptPromoCode(boolean promptPromoCode) {
+		this.promptPromoCode = promptPromoCode;
 	}
 }
