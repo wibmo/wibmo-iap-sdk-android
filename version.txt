@@ -1,4 +1,13 @@
 
+
+Version 2.3.0 (Dt: 28 Jun 2018) - Nithya
+------------------
+# Removed custom trust for dev and uat env
+# Support to Restrict IAP program
+# Upgraded okhttp 3.5.0=>3.8.1
+# Upgraded Build tool version from 25.3.1 => 26.0.2
+# Upgraded android support libs from 25.3.1 => 25.4.0
+
 Version 2.2.0 (Dt: 26 Oct 2017) - Nithya
 ------------------
 # Upgraded Compile SDK from 23 => 25
