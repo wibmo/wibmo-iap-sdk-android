@@ -23,10 +23,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +49,8 @@ import com.enstage.wibmo.util.AnalyticalUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.enstage.wibmo.sdk.inapp.InAppHandler.getPkgForIapRestrict;
 
 /**
  * Created by akshath on 17/10/14.
@@ -82,6 +86,7 @@ public class InAppInitActivity extends Activity {
     private long startTime;
     private long endTime;
     private boolean autoSubmitIAPTxn;
+    private SharedPreferences preferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,11 +117,15 @@ public class InAppInitActivity extends Activity {
                     qrMsg = "InApp payment";
                 } else {
                     Log.e(TAG, "W2faInitRequest and wPayInitRequest was null!");
+                    //add event if needed
                     sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - W2faInitRequest and wPayInitRequest was null!");
                     return;
                 }
             }
         }
+
+        preferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
 
         if(isCheckAppDetails == false) {
 
@@ -186,9 +195,6 @@ public class InAppInitActivity extends Activity {
 
     private void doIAPStuff() {
         Log.v(TAG, "doIAPStuff");
-        if(InAppUtil.isWibmoInstalled(this)) {
-            startInAppReadinessCheck(this);
-        } else {
             if(isCheckAppDetails == false) {
                 isAppReady = false;
                 startIAP();
@@ -200,7 +206,6 @@ public class InAppInitActivity extends Activity {
                 finish();
                 return;
             }
-        }
     }
 
     private void cancelIAP() {
@@ -218,7 +223,6 @@ public class InAppInitActivity extends Activity {
         if (w2faInitRequest != null) {
             w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
             w2faInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
-
             asyncTask = new Init2FAReqTask().execute(w2faInitRequest);
             return;
         }
@@ -226,7 +230,6 @@ public class InAppInitActivity extends Activity {
         if (wPayInitRequest != null) {
             wPayInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
             wPayInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
-
             asyncTask = new InitPayReqTask().execute(wPayInitRequest);
             return;
         }
@@ -248,23 +251,180 @@ public class InAppInitActivity extends Activity {
         }
     }
 
-    public static void startInAppReadinessCheck(Activity activity) {
-        Log.d(TAG, "startInAppReadinessCheck");
+    public void startInAppReadinessCheck(WPayInitResponse wPayInitResponse, W2faInitResponse w2faInitResponse) {
 
-        String targetAppPackage = WibmoSDK.getWibmoIntentActionPackage();
+        String restrictToProgram = preferences.getString("restrictToProgram", null);
 
-        Intent intent = new Intent(targetAppPackage+".ReadinessChecker");
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (wPayInitResponse != null) {
+            if(restrictToProgram != null && restrictToProgram.isEmpty() == false){
+                setIAPPackageToRestrict(restrictToProgram);
+            } else if(wPayInitResponse.getRestrictedProgram() != null && wPayInitResponse.getRestrictedProgram().isEmpty() == false) {
+                setIAPPackageToRestrict(wPayInitResponse.getRestrictedProgram());
+            } else {
+                goToWibmoProgram(getActivity());
+            }
 
-        if(WibmoSDK.getWibmoAppPackage()!=null) {
-            intent.setPackage(WibmoSDK.getWibmoAppPackage());
+        } else if (w2faInitResponse != null) {
+            if(restrictToProgram != null && restrictToProgram.isEmpty() == false){
+                setIAPPackageToRestrict(restrictToProgram);
+            } else if(w2faInitResponse.getRestrictedProgram() != null && w2faInitResponse.getRestrictedProgram().isEmpty() == false) {
+                setIAPPackageToRestrict(w2faInitResponse.getRestrictedProgram());
+            } else {
+                goToWibmoProgram(getActivity());
+            }
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        activity.startActivityForResult(intent, REQUEST_CODE_IAP_READY);
+        return;
     }
 
+    private void setIAPPackageToRestrict(String program){
+
+        String progVersion = activity.getResources().getString(R.string.prog_ver_main);
+
+        if(WibmoSDK.getWibmoIntentActionPackage().contains(activity.getResources().getString(R.string.prog_ver_staging))) {
+            progVersion = activity.getResources().getString(R.string.prog_ver_staging);
+        } else if(WibmoSDK.getWibmoIntentActionPackage().contains(activity.getResources().getString(R.string.prog_ver_qa))) {
+            progVersion = activity.getResources().getString(R.string.prog_ver_qa);
+            WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.qa_pkg));
+        } else if(WibmoSDK.getWibmoIntentActionPackage().contains(activity.getResources().getString(R.string.prog_ver_dev))){
+            progVersion = activity.getResources().getString(R.string.prog_ver_dev);
+            WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.dev_pkg));
+        }
+
+        switch (program) {
+
+            case "6019":
+                if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_main))) {
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.payzapp_pkg));
+                } else if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_staging))){
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.payzapp_pkg_staging));
+                }
+
+                goToWibmoProgram(activity);
+                break;
+
+            case "6022":
+                if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_main))) {
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.payapt_pkg));
+                } else if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_staging))){
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.payapt_pkg_staging));
+                }
+
+                goToWibmoProgram(activity);
+                break;
+
+            case "6005":
+                if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_main))) {
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.fay_pkg));
+                } else if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_staging))){
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.fay_pkg_staging));
+                }
+
+                goToWibmoProgram(activity);
+                break;
+
+            case "6008":
+                if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_main))) {
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.mclip_pkg));
+                } else if(progVersion.equals(activity.getResources().getString(R.string.prog_ver_staging))){
+                    WibmoSDK.setWibmoAppPackage(activity.getResources().getString(R.string.mclip_pkg_staging));
+                }
+
+                goToWibmoProgram(activity);
+                break;
+
+            default:
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                String packageName = sharedPref.getString(program, null);
+
+                if(packageName!=null){
+                    WibmoSDK.setWibmoAppPackage(packageName);
+                    goToWibmoProgram(activity);
+                    break;
+                } else{
+                    asyncTask = new GetPackageNameToRestrictPgm(program).execute();
+                    break;
+                }
+        }
+        return;
+    }
+
+    private class GetPackageNameToRestrictPgm extends AsyncTask<Void, Void, Void> {
+        private boolean showError = false;
+        private String lastError;
+        private String packageName;
+        private String program;
+
+        public GetPackageNameToRestrictPgm(String program) {
+            this.program = program;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+
+                wPayInitResponse = InAppHandler.initPay(wPayInitRequest);
+
+                if (wPayInitResponse.getRestrictedProgram() != null) {
+                    Thread t = new Thread() {
+                        public void run() {
+                            try {
+                                packageName = getPkgForIapRestrict(activity, wPayInitRequest, wPayInitResponse);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error: "+e, e);
+                            }
+                        }
+                    };
+                    t.setName("InAppTxnIdCallback");
+                    t.start();
+                }
+
+            } catch (Exception ex) {
+                Log.e(TAG, "Error: " + ex, ex);
+                lastError = ex.toString();
+                showError = true;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.v(TAG, "onPreExecute pl wait.. start");
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.v(TAG, "onPostExecute pl wait.. done");
+
+            if (showError) {
+                askRetryOnError(lastError);
+            } else {
+                SharedPreferences sharedPref = activity.getSharedPreferences(program, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(program, packageName);
+                editor.commit();
+
+                WibmoSDK.setWibmoAppPackage(packageName);
+                goToWibmoProgram(activity);
+            }
+        }
+    }
+
+    public static void goToWibmoProgram(Activity activity){
+        String targetAppPackage = WibmoSDK.getWibmoIntentActionPackage();
+
+        Intent intent = new Intent(targetAppPackage + ".ReadinessChecker");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (WibmoSDK.getWibmoAppPackage() != null) {
+            intent.setPackage(WibmoSDK.getWibmoAppPackage());
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        try{
+            activity.startActivityForResult(intent, REQUEST_CODE_IAP_READY);
+        } catch (Exception e){
+            Log.e(TAG, "exception:"+e,e);
+        }
+    }
 
     public static void startInAppFlowInBrowser(Activity activity,
            W2faInitRequest w2faInitRequest, W2faInitResponse w2faInitResponse) {
@@ -453,8 +613,12 @@ public class InAppInitActivity extends Activity {
                 Log.d(TAG, "Data is NUll");
                 extraDataReporting = null;
             }
-            startIAP();
 
+            if(wPayInitResponse != null) {
+                processInitPayRes();
+            } else if(w2faInitResponse != null){
+                processInit2FARes();
+            }
             return;
         }
 
@@ -788,7 +952,12 @@ public class InAppInitActivity extends Activity {
             if (showError) {
                 askRetryOnError(lastError);
             } else {
-                processInit2FARes();
+                if(InAppUtil.isWibmoInstalled(getActivity())) {
+                    startInAppReadinessCheck(null, w2faInitResponse);
+                    return;
+                } else {
+                    processInit2FARes();
+                }
             }
         }
     }
@@ -812,7 +981,6 @@ public class InAppInitActivity extends Activity {
         protected Void doInBackground(WPayInitRequest... data) {
             try {
                 wPayInitResponse = InAppHandler.initPay(data[0]);
-                //Log.v(TAG, "wPayInitResponse  "+ (new Gson()).toJson(wPayInitResponse));
 
                 if(wPayInitResponse!=null
                         && WibmoSDK.RES_CODE_NO_ERROR.equals(wPayInitResponse.getResCode())
@@ -854,7 +1022,12 @@ public class InAppInitActivity extends Activity {
             if (showError) {
                 askRetryOnError(lastError);
             } else {
-                processInitPayRes();
+                if(InAppUtil.isWibmoInstalled(getActivity())) {
+                    startInAppReadinessCheck(wPayInitResponse, null);
+                    return;
+                } else {
+                    processInitPayRes();
+                }
             }
         }
     }
