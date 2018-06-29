@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
+  implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }
 ```
 
@@ -23,7 +23,7 @@ Or Maven:
 <dependency>
   <groupId>com.wibmo.iap.sdk</groupId>
   <artifactId>wibmo-iap-sdk</artifactId>
-  <version>2.2.0</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 

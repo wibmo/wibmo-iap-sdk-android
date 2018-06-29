@@ -64,5 +64,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
 
     api project(':wibmo-iap-sdk')
-    //compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
+    //implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }

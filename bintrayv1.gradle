@@ -5,6 +5,7 @@
 // gradle install
 // gradle bintrayUpload
 //
+// https://bintray.com/login
 
 apply plugin: 'com.jfrog.bintray'
 
