@@ -15,7 +15,7 @@ ext {
     siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
     gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
 
-    libraryVersion = '2.3.0'
+    libraryVersion = '2.3.2'
 
     developerId = 'wibmo'
     developerName = 'Wibmo Inc'
@@ -27,8 +27,8 @@ ext {
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson:2.6.2'
-    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

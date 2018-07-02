@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android'
     gitUrl = 'https://github.com/wibmo/wibmo-iap-sdk-android.git'
 
-    libraryVersion = '2.3.0'
+    libraryVersion = '2.3.2'
 
     developerId = 'wibmo'
     developerName = 'Wibmo Inc'
@@ -32,8 +32,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 25
 
-        versionCode 23000
-        versionName '2.3.0'
+        versionCode 23002
+        versionName '2.3.2'
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
@@ -57,18 +57,15 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:25.4.0'
-    implementation 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
 
-    implementation 'com.google.code.gson:gson:2.6.2'
-    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
-
-    api project(':wibmosdklib')
+    compile project(':wibmosdklib')
     //compile 'com.wibmo.iap.sdk:wibmosdklib:1.1.1'
 
     compile files('libs/wibmoMerchant.jar')
 
-    implementation 'com.github.castorflex.smoothprogressbar:library:1.1.0@aar'
+    compile 'com.github.castorflex.smoothprogressbar:library:1.1.0@aar'
 }
 
 apply from: './../installv1.gradle'

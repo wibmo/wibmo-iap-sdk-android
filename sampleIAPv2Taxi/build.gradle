@@ -27,11 +27,10 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:25.4.0'
-    implementation 'com.android.support:design:25.4.0'
-    implementation 'com.google.code.gson:gson:2.6.2'
-    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
 
-    api project(':wibmo-iap-sdk')
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:design:25.4.0'
+    //compile project(':wibmo-iap-sdk')
+    compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:2.3.2'
     //implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }

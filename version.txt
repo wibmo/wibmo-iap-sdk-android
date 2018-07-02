@@ -1,4 +1,7 @@
 
+Version 2.3.2 (Dt: 28 Jun 2018) - Nithya
+------------------
+# Changed the support of dependencies from implementation to compile.
 
 Version 2.3.0 (Dt: 28 Jun 2018) - Nithya
 ------------------
