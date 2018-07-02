@@ -13,11 +13,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
-  implementation 'com.android.support:appcompat-v7:25.4.0'
-  implementation 'com.google.code.gson:gson:2.6.2'
-  implementation 'com.squareup.okhttp3:okhttp:3.8.1'
-  implementation 'com.wibmo.iap.sdk:wibmosdklib:+'
+  compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }
 ```
 
@@ -27,7 +23,7 @@ Or Maven:
 <dependency>
   <groupId>com.wibmo.iap.sdk</groupId>
   <artifactId>wibmo-iap-sdk</artifactId>
-  <version>2.3.0</version>
+  <version>2.3.2</version>
 </dependency>
 ```
 
