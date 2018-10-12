@@ -74,5 +74,7 @@
     <string name="prog_ver_qa">.qa</string>
     <string name="prog_ver_dev">.dev</string>
     <string name="label_url_failed">Failed to open URL!</string>
+    <string name="lbl_mer_txn_id">Merchant Txn Id</string>
+    <string name="lbl_wibmo_txn_id">Wibmo Txn Id</string>
 
 </resources>

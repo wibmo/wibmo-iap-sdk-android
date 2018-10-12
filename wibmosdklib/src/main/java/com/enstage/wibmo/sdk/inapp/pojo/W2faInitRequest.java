@@ -30,6 +30,8 @@ public class W2faInitRequest implements Serializable {
 	private MerchantInfo merchantInfo;
 	private TransactionInfo transactionInfo;
 	private CustomerInfo customerInfo;
+	private CardFee cardFee;
+
 	private DeviceInfo deviceInfo;
 	private String msgHash;
 	private String merchantReturnUrl;
@@ -137,4 +139,13 @@ public class W2faInitRequest implements Serializable {
 	public void setPromptPromoCode(boolean promptPromoCode) {
 		this.promptPromoCode = promptPromoCode;
 	}
+
+	public CardFee getCardFee() {
+		return cardFee;
+	}
+
+	public void setCardFee(CardFee cardFee) {
+		this.cardFee = cardFee;
+	}
+
 }

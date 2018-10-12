@@ -1,3 +1,18 @@
+Version 2.4.0 (Dt: 8 Oct 2018) - Nithya
+------------------
+# Added support for Wibmo Analytics.
+# Restricting the IAP txn if merchant country code not passed in IAP SDK.
+# Support for TLS 1.1 in android ver 4.0
+# Changed the SDK's min ver from 10 to 14 to support Oreo upgrade
+# Changed the min SDK ver from 10 => 14.
+# Changed the compile and target sdk version from 25 => 26.
+# Changed the build tool version from 26.0.2 => 27.0.3
+# Upgraded android support libs from 25.4.0 => 26.1.0
+# Passing Abort Desc in IAP response
+
+Version 2.4.0 (Dt: 8 Oct 2018) - Sujay
+------------------
++ support for billdesk from IAP
 
 Version 2.3.2 (Dt: 28 Jun 2018) - Nithya
 ------------------

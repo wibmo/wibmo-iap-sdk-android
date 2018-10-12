@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -85,6 +86,15 @@ public class InAppUtil {
 
     private static String restrictToProgram;
     private static String preferredProgram;
+    private static String apiKeyForWA;
+    private static String apiUserForWA;
+    private static String prodNameForWA;
+    private static String postURLForWA;
+    public static final String PREFS_ANALYTICS_DATA = "WA_Data";
+    public static final String PREFS_WA_KEY = "WA_API_KEY";
+    public static final String PREFS_WA_USER = "WA_API_USER";
+    public static final String PREFS_WA_PROD_NAME = "WA_API_PNAME";
+    public static final String PREFS_WA_POST_URL = "WA_API_URL";
 
     public static DeviceInfo makeDeviceInfo(Context context, String sdkVersion) {
         DeviceInfo deviceInfo = new DeviceInfo();
@@ -429,5 +439,37 @@ public class InAppUtil {
             abortReasonCallback.onSelection(activity.getApplicationContext(), requestCode, resultCode, data,
                     null, null);
         }
+    }
+
+    public static String getApiKeyForWA() {
+        return apiKeyForWA;
+    }
+
+    public static void setApiKeyForWA(String apiKeyForWA) {
+        InAppUtil.apiKeyForWA = apiKeyForWA;
+    }
+
+    public static String getApiUserForWA() {
+        return apiUserForWA;
+    }
+
+    public static void setApiUserForWA(String apiUserForWA) {
+        InAppUtil.apiUserForWA = apiUserForWA;
+    }
+
+    public static String getProdNameForWA() {
+        return prodNameForWA;
+    }
+
+    public static void setProdNameForWA(String prodNameForWA) {
+        InAppUtil.prodNameForWA = prodNameForWA;
+    }
+
+    public static String getPostURLForWA() {
+        return postURLForWA;
+    }
+
+    public static void setPostURLForWA(String postURLForWA) {
+        InAppUtil.postURLForWA = postURLForWA;
     }
 }

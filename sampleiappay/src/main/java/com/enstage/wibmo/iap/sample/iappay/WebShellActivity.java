@@ -3,7 +3,7 @@ package com.enstage.wibmo.iap.sample.iappay;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +14,7 @@ import com.enstage.wibmo.sdk.WibmoSDK;
 import com.enstage.wibmo.sdk.inapp.InAppShellHepler;
 
 
-public class WebShellActivity extends ActionBarActivity {
+public class WebShellActivity extends AppCompatActivity {
     private static final String TAG = WebShellActivity.class.getSimpleName();
 
     private WebView webView;

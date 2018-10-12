@@ -62,4 +62,6 @@
 -keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface { *; }
 -dontwarn okhttp3.**
 -dontwarn okio.**
+# Analytics
+-keep class com.wibmo.analytics.**{ *;}
 #------ WIBMO -----

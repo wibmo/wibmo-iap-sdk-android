@@ -16,6 +16,7 @@
 package com.enstage.wibmo.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.enstage.wibmo.sdk.R;
@@ -233,11 +234,15 @@ public class HttpUtil {
             Log.d(TAG, "making makeSSLSocketFactory.. ");
             sslContext = SSLContext.getInstance("TLS");
             if (trustManager == null) {
-                if(false && WibmoSDKConfig.isTestMode()) {
-                    Log.v(TAG, "using default null trust manager");
-                    Log.v(TAG, "Loading non uat trust cert..");
-                    trustManager = SSLUtil.loadTrustManagerFromRawBks(context,
-                            R.raw.trust_wsdk_bks_star_ens_uat, ("pa"+"ssw"+"ord").toCharArray());
+                if(WibmoSDKConfig.isTestMode()) {
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                        Log.v(TAG, "Loading non uat trust cert..");
+                        trustManager = SSLUtil.loadTrustManagerFromRawBks(context,
+                                R.raw.trust_wsdk_bks_star_ens_uat, ("pa"+"ssw"+"ord").toCharArray());
+                    } else {
+                        Log.v(TAG, "using default null trust manager");
+                        trustManager = SSLUtil.loadTrustManagerDefault(context);
+                    }
                 } else {
                     Log.v(TAG, "using default null trust manager");
                     trustManager = SSLUtil.loadTrustManagerDefault(context);
@@ -250,7 +255,11 @@ public class HttpUtil {
 
         if (getSslSocketFactory() == null) {
             Log.d(TAG, "making getSocketFactory");
-            sslSocketFactory = sslContext.getSocketFactory();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                sslSocketFactory = sslContext.getSocketFactory();
+            } else {
+                sslSocketFactory = new TLSSocketFactory(sslContext);
+            }
             Log.d(TAG, "done getSocketFactory");
         }
     }

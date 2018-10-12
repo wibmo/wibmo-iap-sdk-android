@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -85,10 +86,12 @@ public class InAppHandler {
             if(debug) Log.v(TAG, "postData: "+postData);
 
             Map<String,List<String>> resHeaders = new HashMap<>(10);
+            Map<String, String> reqHeaders = new HashMap<>(10);
+            reqHeaders.put("X-SDK-Type", "Android");
 
             String rawres = HttpUtil.postData(posturl,
                     postData.getBytes(WibmoSDKConfig.CHARTSET),
-                    false, HttpUtil.JSON, null, resHeaders);
+                    false, HttpUtil.JSON, reqHeaders, resHeaders);
             if(debug) Log.v(TAG, "rawres: "+rawres);
 
             if (rawres == null) {
@@ -115,6 +118,19 @@ public class InAppHandler {
         }
         if(resHeaders.get("restrict_to_program")!=null) {
             InAppUtil.setRestrictToProgram(resHeaders.get("restrict_to_program").get(0));
+        }
+
+        if(resHeaders.get("wa-apikey")!=null) {
+            InAppUtil.setApiKeyForWA(resHeaders.get("wa-apikey").get(0));
+        }
+        if(resHeaders.get("wa-apiuser")!=null) {
+            InAppUtil.setApiUserForWA(resHeaders.get("wa-apiuser").get(0));
+        }
+        if(resHeaders.get("wa-productname")!=null) {
+            InAppUtil.setProdNameForWA(resHeaders.get("wa-productname").get(0));
+        }
+        if(resHeaders.get("wa-apiurl")!=null) {
+            InAppUtil.setPostURLForWA(resHeaders.get("wa-apiurl").get(0));
         }
     }
 

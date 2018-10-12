@@ -26,6 +26,7 @@ public class W2faInitResponse extends GenericResponse {
     private String registeredUas;
     private MerchantInfo merchantInfo;
     private TransactionInfo transactionInfo;
+    private CardFee cardFee;
 
     private String wibmoTxnId;
     private String wibmoTxnToken;
@@ -68,6 +69,14 @@ public class W2faInitResponse extends GenericResponse {
 
     public void setMsgHash(String msgHash) {
         this.msgHash = msgHash;
+    }
+
+    public CardFee getCardFee() {
+        return cardFee;
+    }
+
+    public void setCardFee(CardFee cardFee) {
+        this.cardFee = cardFee;
     }
 
     public MerchantInfo getMerchantInfo() {

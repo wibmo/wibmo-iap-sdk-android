@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import com.enstage.wibmo.sdk.WibmoSDK;
 
-import com.enstage.wibmo.sdk.WibmoSDKConfig;
 import com.enstage.wibmo.sdk.inapp.pojo.CustomerInfo;
 import com.enstage.wibmo.sdk.inapp.pojo.MerchantInfo;
 import com.enstage.wibmo.sdk.inapp.pojo.TransactionInfo;
@@ -24,7 +23,7 @@ import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayResponse;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private WPayInitRequest wPayInitRequest = null;

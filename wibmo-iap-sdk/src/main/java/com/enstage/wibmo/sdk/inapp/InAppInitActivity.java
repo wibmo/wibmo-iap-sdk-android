@@ -17,6 +17,7 @@ package com.enstage.wibmo.sdk.inapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,11 +47,25 @@ import com.enstage.wibmo.sdk.inapp.pojo.W2faInitResponse;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitRequest;
 import com.enstage.wibmo.sdk.inapp.pojo.WPayInitResponse;
 import com.enstage.wibmo.util.AnalyticalUtil;
+import com.enstage.wibmo.util.WibmoAnalyticsHelper;
+import com.wibmo.analytics.entiry.AnalyticsEvent;
+import com.wibmo.analytics.pojo.CustomerInfo;
+import com.wibmo.analytics.test.RestClientHelper;
 
+import org.w3c.dom.UserDataHandler;
+
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.enstage.wibmo.sdk.inapp.InAppHandler.getPkgForIapRestrict;
+import static com.enstage.wibmo.sdk.inapp.InAppUtil.PREFS_ANALYTICS_DATA;
+import static com.enstage.wibmo.sdk.inapp.InAppUtil.PREFS_WA_KEY;
+import static com.enstage.wibmo.sdk.inapp.InAppUtil.PREFS_WA_PROD_NAME;
+import static com.enstage.wibmo.sdk.inapp.InAppUtil.PREFS_WA_USER;
+import static com.enstage.wibmo.sdk.inapp.InAppUtil.PREFS_WA_POST_URL;
 
 /**
  * Created by akshath on 17/10/14.
@@ -87,6 +102,8 @@ public class InAppInitActivity extends Activity {
     private long endTime;
     private boolean autoSubmitIAPTxn;
     private SharedPreferences preferences;
+    private AnalyticsEvent wibmoAnalyticsEvent;
+    private boolean isNWConnectivityWeak;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,7 +134,7 @@ public class InAppInitActivity extends Activity {
                     qrMsg = "InApp payment";
                 } else {
                     Log.e(TAG, "W2faInitRequest and wPayInitRequest was null!");
-                    //add event if needed
+                    //add wibmoAnalyticsEvent if needed
                     sendAbort(WibmoSDK.RES_CODE_FAILURE_SYSTEM_ABORT, "sdk init - W2faInitRequest and wPayInitRequest was null!");
                     return;
                 }
@@ -127,7 +144,7 @@ public class InAppInitActivity extends Activity {
         preferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
-        if(isCheckAppDetails == false) {
+        if (isCheckAppDetails == false) {
 
             //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
             //setProgressBarIndeterminateVisibility(false);
@@ -190,26 +207,96 @@ public class InAppInitActivity extends Activity {
                 }
             }
         }
+        RestClientInitializer.initializeWibmoAnalytics();
+        if (getWAnalyticsApiKey(activity) != null) {
+            RestClientHelper.setServerDomain(getWAnalyticsPostUrl(activity));
+            RestClientHelper.setApiKey(getWAnalyticsApiKey(activity));
+            RestClientHelper.setApiUser(getWAnalyticsUser(activity));
+            RestClientHelper.setProductName(getWAnalyticsProdName(activity));
+        }
         doIAPStuff();
     }
 
     private void doIAPStuff() {
         Log.v(TAG, "doIAPStuff");
-            if(isCheckAppDetails == false) {
-                isAppReady = false;
-                startIAP();
-            } else {
-                Intent intent = new Intent();
-                intent.putExtra("isPhoneVerified", false);
-                intent.putExtra("isAppInstalled", false);
-                setResult(REQUEST_CODE_IAP_READY, intent);
-                finish();
-                return;
-            }
+        if (isCheckAppDetails == false) {
+            isAppReady = false;
+            startIAP();
+        } else {
+            Intent intent = new Intent();
+            intent.putExtra("isPhoneVerified", false);
+            intent.putExtra("isAppInstalled", false);
+            setResult(REQUEST_CODE_IAP_READY, intent);
+            finish();
+            return;
+        }
     }
 
     private void cancelIAP() {
         if(asyncTask!=null) {
+            wibmoAnalyticsEvent = new AnalyticsEvent();
+            wibmoAnalyticsEvent.setEventTxnId(UUID.randomUUID().toString());
+            wibmoAnalyticsEvent.setEventName(WibmoAnalyticsHelper.IAP_INIT);
+            Map<String, Object> extraDataReporting = new HashMap<>(20);
+
+            wibmoAnalyticsEvent.setDateTime(new Date());
+            wibmoAnalyticsEvent.setFunnelId(WibmoAnalyticsHelper.IAP_FUNNEL_ID);
+            wibmoAnalyticsEvent.setFunnelStepId(WibmoAnalyticsHelper.IAP_INIT_EVENT);
+            wibmoAnalyticsEvent.setIp("NA");
+
+            extraDataReporting.put("extraKey1", getString(R.string.lbl_mer_txn_id));
+            extraDataReporting.put("extraKey2", getString(R.string.lbl_wibmo_txn_id));
+            extraDataReporting.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+            HashMap<String, Object> nwInfoData = RestClientInitializer.getNetworkInfo(activity);
+            extraDataReporting.putAll(nwInfoData);
+
+            wibmoAnalyticsEvent.setComments("IAP-Init cancelled before getting the response.");
+            wibmoAnalyticsEvent.setExtraKey5("Android");
+            W2faInitRequest initRequest = null;
+            if(wPayInitRequest != null) {
+                initRequest = wPayInitRequest;
+            }
+            if(w2faInitRequest != null) {
+                initRequest = w2faInitRequest;
+            }
+            if(initRequest!=null) {
+                extraDataReporting.put("Requested MsgHash: ", initRequest.getMsgHash());
+                if(initRequest.getCustomerInfo() != null) {
+                    wibmoAnalyticsEvent.setCustomerInfo(WibmoAnalyticsHelper.makeCustomerInfo(initRequest.getCustomerInfo()));
+                }
+                if(initRequest.getMerchantInfo() != null) {
+                    wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(initRequest.getMerchantInfo()));
+                }
+                if(initRequest.getTransactionInfo() != null) {
+                    wibmoAnalyticsEvent.setExtraKey1(initRequest.getTransactionInfo().getMerTxnId());
+                    wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION+"|"+initRequest.getTransactionInfo().isChargeLater()+"|"+initRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+                    extraDataReporting.put("supportedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getSupportedPaymentType()));
+                    extraDataReporting.put("restrictedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getRestrictedPaymentType()));
+                    extraDataReporting.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+                } else {
+                    wibmoAnalyticsEvent.setExtraKey4(W2faInitRequest.version);
+                    extraDataReporting.put("extraKey4", "IAPVersion");
+                }
+
+                extraDataReporting.put("extraKey5", "SDKType");
+                wibmoAnalyticsEvent.setExtraKv(extraDataReporting);
+                createWAData(wibmoAnalyticsEvent, initRequest);
+            }
+
+            try {
+                wibmoAnalyticsEvent.setAppInfo(RestClientInitializer.makeAppInfo(initRequest));
+            } catch (Exception e) {
+                Log.e(TAG, "Error: "+e, e);
+            }
+            wibmoAnalyticsEvent.setStatus(false);
+
+            Log.v(TAG, "Goin to post event ");
+
+            if(getWAnalyticsApiKey(activity) != null) {
+                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+            } else {
+                WibmoAnalyticsHelper.setAnalyticsData(wibmoAnalyticsEvent);
+            }
             asyncTask.cancel(true);
             asyncTask = null;
         }
@@ -223,15 +310,109 @@ public class InAppInitActivity extends Activity {
         if (w2faInitRequest != null) {
             w2faInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
             w2faInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
-            asyncTask = new Init2FAReqTask().execute(w2faInitRequest);
+            postAnalyticsInitData(w2faInitRequest);
+            if(w2faInitRequest.getMerchantInfo() != null) {
+                if(w2faInitRequest.getMerchantInfo().getMerCountryCode() == null || w2faInitRequest.getMerchantInfo().getMerCountryCode().isEmpty()) {
+                    Intent data = new Intent();
+                    data.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "Country code not passed.");
+                    setResult(RESULT_CANCELED, data);
+                    finish();
+                } else {
+                    asyncTask = new Init2FAReqTask().execute(w2faInitRequest);
+                }
+            } else {
+                Intent data = new Intent();
+                data.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "Merchant info not passed.");
+                setResult(RESULT_CANCELED, data);
+                finish();
+            }
             return;
         }
 
         if (wPayInitRequest != null) {
             wPayInitRequest.setDeviceInfo(InAppUtil.makeDeviceInfo(activity, WibmoSDK.VERSION));
             wPayInitRequest.getDeviceInfo().setAppInstalled(isAppReady);
-            asyncTask = new InitPayReqTask().execute(wPayInitRequest);
+            postAnalyticsInitData(wPayInitRequest);
+            if(wPayInitRequest.getMerchantInfo() != null) {
+                if(wPayInitRequest.getMerchantInfo().getMerCountryCode() == null || wPayInitRequest.getMerchantInfo().getMerCountryCode().isEmpty()) {
+                    Intent data = new Intent();
+                    data.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "Country code not passed.");
+                    setResult(RESULT_CANCELED, data);
+                    finish();
+                } else {
+                    asyncTask = new InitPayReqTask().execute(wPayInitRequest);
+                }
+            } else {
+                Intent data = new Intent();
+                data.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, "Merchant info not passed.");
+                setResult(RESULT_CANCELED, data);
+                finish();
+            }
             return;
+        }
+    }
+
+    private void postAnalyticsInitData(W2faInitRequest initRequest) {
+        wibmoAnalyticsEvent = new AnalyticsEvent();
+        wibmoAnalyticsEvent.setEventTxnId(UUID.randomUUID().toString());
+        wibmoAnalyticsEvent.setEventName(WibmoAnalyticsHelper.IAP_INIT);
+        Map<String, Object> extraDataReporting = new HashMap<>(15);
+
+        if(initRequest!=null) {
+            extraDataReporting.put("Requested MsgHash: ", initRequest.getMsgHash());
+            if(initRequest.getCustomerInfo() != null) {
+                wibmoAnalyticsEvent.setCustomerInfo(WibmoAnalyticsHelper.makeCustomerInfo(initRequest.getCustomerInfo()));
+            }
+            if(initRequest.getMerchantInfo() != null) {
+                wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(initRequest.getMerchantInfo()));
+            }
+            if(initRequest.getTransactionInfo() != null) {
+                wibmoAnalyticsEvent.setExtraKey1(initRequest.getTransactionInfo().getMerTxnId());
+                wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION+"|"+initRequest.getTransactionInfo().isChargeLater()+"|"+initRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+                extraDataReporting.put("supportedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getSupportedPaymentType()));
+                extraDataReporting.put("restrictedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getRestrictedPaymentType()));
+                extraDataReporting.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+            } else {
+                wibmoAnalyticsEvent.setExtraKey4(W2faInitRequest.version);
+                extraDataReporting.put("extraKey4", "IAPVersion");
+            }
+
+            extraDataReporting.put("extraKey5", "SDKType");
+            createWAData(wibmoAnalyticsEvent, initRequest);
+        }
+
+        try {
+            wibmoAnalyticsEvent.setAppInfo(RestClientInitializer.makeAppInfo(initRequest));
+        } catch (Exception e) {
+            Log.e(TAG, "Error: "+e, e);
+        }
+        wibmoAnalyticsEvent.setDateTime(new Date());
+        wibmoAnalyticsEvent.setFunnelId(WibmoAnalyticsHelper.IAP_FUNNEL_ID);
+        wibmoAnalyticsEvent.setFunnelStepId(WibmoAnalyticsHelper.IAP_INIT_EVENT);
+        wibmoAnalyticsEvent.setIp("NA");
+        wibmoAnalyticsEvent.setExtraKey5("Android");
+
+        extraDataReporting.put("extraKey1", getString(R.string.lbl_mer_txn_id));
+        extraDataReporting.put("extraKey2", getString(R.string.lbl_wibmo_txn_id));
+        extraDataReporting.put("supportedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getSupportedPaymentType()));
+        extraDataReporting.put("restrictedPaymentType", Arrays.toString(initRequest.getTransactionInfo().getRestrictedPaymentType()));
+        HashMap<String, Object> nwInfoData = RestClientInitializer.getNetworkInfo(activity);
+        extraDataReporting.putAll(nwInfoData);
+        wibmoAnalyticsEvent.setExtraKv(extraDataReporting);
+
+        wibmoAnalyticsEvent.setStatus(false);
+        if(isNWConnectivityWeak) {
+            wibmoAnalyticsEvent.setComments("Poor N/W Connectivity.Going to retry again...");
+            isNWConnectivityWeak = false;
+        }
+        wibmoAnalyticsEvent.setIntermediate(true);
+
+        Log.i(TAG, "Goin to post event ");
+
+        if(getWAnalyticsApiKey(activity) != null) {
+            RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+        } else {
+            WibmoAnalyticsHelper.setAnalyticsData(wibmoAnalyticsEvent);
         }
     }
 
@@ -429,6 +610,50 @@ public class InAppInitActivity extends Activity {
     public static void startInAppFlowInBrowser(Activity activity,
            W2faInitRequest w2faInitRequest, W2faInitResponse w2faInitResponse) {
         Log.v(TAG, "startInAppFlowInBrowser");
+
+        AnalyticsEvent wibmoAnalyticsEvent = new AnalyticsEvent();
+        wibmoAnalyticsEvent.setEventTxnId(UUID.randomUUID().toString());
+        wibmoAnalyticsEvent.setEventName(WibmoAnalyticsHelper.IAP_WEB_CHECKOUT);
+
+        if(w2faInitRequest!=null) {
+            if(w2faInitRequest.getTransactionInfo() != null) {
+                wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION + "|" + w2faInitRequest.getTransactionInfo().isChargeLater() + "|" + w2faInitRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+                wibmoAnalyticsEvent.setCurrency(w2faInitRequest.getTransactionInfo().getTxnCurrency());
+                wibmoAnalyticsEvent.setAmount(Long.parseLong(w2faInitRequest.getTransactionInfo().getTxnAmount()));
+                wibmoAnalyticsEvent.setExtraKey1(w2faInitRequest.getTransactionInfo().getMerTxnId());
+            } if(w2faInitRequest.getCustomerInfo() != null) {
+                wibmoAnalyticsEvent.setCustomerInfo(WibmoAnalyticsHelper.makeCustomerInfo(w2faInitRequest.getCustomerInfo()));
+            }
+
+            try {
+                wibmoAnalyticsEvent.setCustomerInfo(RestClientInitializer.makeCustInfo(w2faInitRequest));
+                wibmoAnalyticsEvent.setMerchantInfo(RestClientInitializer.makeMerInfo(w2faInitRequest));
+                wibmoAnalyticsEvent.setAppInfo(RestClientInitializer.makeAppInfo(w2faInitRequest));
+            } catch (Exception e) {
+                Log.e(TAG, "Error: "+e, e);
+            }
+
+        }
+        if(w2faInitResponse != null) {
+            wibmoAnalyticsEvent.setExtraKey2(w2faInitResponse.getWibmoTxnId());
+            if(w2faInitResponse.getMerchantInfo() != null) {
+                wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(w2faInitResponse.getMerchantInfo()));
+            }
+        }
+        wibmoAnalyticsEvent.setStatus(true);
+        wibmoAnalyticsEvent.setDateTime(new Date());
+        wibmoAnalyticsEvent.setFunnelId(WibmoAnalyticsHelper.IAP_FUNNEL_ID);
+        wibmoAnalyticsEvent.setFunnelStepId(WibmoAnalyticsHelper.IAP_WEB_CHECKOUT_EVENT);
+        wibmoAnalyticsEvent.setIp("NA");
+        wibmoAnalyticsEvent.setExtraKey5("Android");
+        HashMap<String, String> extraDataForWA = new HashMap(10);
+        extraDataForWA.put("extraKey1", activity.getString(R.string.lbl_mer_txn_id));
+        extraDataForWA.put("extraKey2", activity.getString(R.string.lbl_wibmo_txn_id));
+        extraDataForWA.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+        extraDataForWA.put("extraKey5", "SDKType");
+
+        RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+
         Intent intent = new Intent(activity, InAppBrowserActivity.class);
         intent.putExtra("W2faInitRequest", w2faInitRequest);
         intent.putExtra("W2faInitResponse", w2faInitResponse);
@@ -438,6 +663,51 @@ public class InAppInitActivity extends Activity {
     public static void startInAppFlowInBrowser(Activity activity,
             WPayInitRequest wPayInitRequest, WPayInitResponse wPayInitResponse) {
         Log.v(TAG, "startInAppFlowInBrowser");
+
+        AnalyticsEvent wibmoAnalyticsEvent = new AnalyticsEvent();
+        wibmoAnalyticsEvent.setEventTxnId(UUID.randomUUID().toString());
+        wibmoAnalyticsEvent.setEventName(WibmoAnalyticsHelper.IAP_WEB_CHECKOUT);
+
+        if(wPayInitRequest!=null) {
+            if(wPayInitRequest.getTransactionInfo() != null) {
+                wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION + "|" + wPayInitRequest.getTransactionInfo().isChargeLater() + "|" + wPayInitRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+                wibmoAnalyticsEvent.setCurrency(wPayInitRequest.getTransactionInfo().getTxnCurrency());
+                wibmoAnalyticsEvent.setAmount(Long.parseLong(wPayInitRequest.getTransactionInfo().getTxnAmount()));
+                wibmoAnalyticsEvent.setExtraKey1(wPayInitRequest.getTransactionInfo().getMerTxnId());
+            } if(wPayInitRequest.getCustomerInfo() != null) {
+                wibmoAnalyticsEvent.setCustomerInfo(WibmoAnalyticsHelper.makeCustomerInfo(wPayInitRequest.getCustomerInfo()));
+            }
+
+            try {
+                wibmoAnalyticsEvent.setMerchantInfo(RestClientInitializer.makeMerInfo(wPayInitRequest));
+                wibmoAnalyticsEvent.setAppInfo(RestClientInitializer.makeAppInfo(wPayInitRequest));
+            } catch (Exception e) {
+                Log.v(TAG, "Error: "+e, e);
+            }
+
+        }
+        if(wPayInitResponse != null) {
+            wibmoAnalyticsEvent.setExtraKey2(wPayInitResponse.getWibmoTxnId());
+            if(wPayInitResponse.getMerchantInfo() != null) {
+                wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(wPayInitResponse.getMerchantInfo()));
+            }
+        }
+        wibmoAnalyticsEvent.setStatus(true);
+        wibmoAnalyticsEvent.setDateTime(new Date());
+        wibmoAnalyticsEvent.setFunnelId(WibmoAnalyticsHelper.IAP_FUNNEL_ID);
+        wibmoAnalyticsEvent.setFunnelStepId(WibmoAnalyticsHelper.IAP_WEB_CHECKOUT_EVENT);
+        wibmoAnalyticsEvent.setIp("NA");
+        HashMap extraDataForWA = new HashMap<>(10);
+        extraDataForWA.put("extraKey1", activity.getString(R.string.lbl_mer_txn_id));
+        extraDataForWA.put("extraKey2", activity.getString(R.string.lbl_wibmo_txn_id));
+        extraDataForWA.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+        extraDataForWA.put("extraKey5", "SDKType");
+        HashMap<String, Object> nwInfoData = RestClientInitializer.getNetworkInfo(activity);
+        extraDataForWA.putAll(nwInfoData);
+        wibmoAnalyticsEvent.setExtraKv(extraDataForWA);
+        wibmoAnalyticsEvent.setExtraKey5("Android");
+        RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+
         Intent intent = new Intent(activity, InAppBrowserActivity.class);
         intent.putExtra("WPayInitRequest", wPayInitRequest);
         intent.putExtra("WPayInitResponse", wPayInitResponse);
@@ -622,18 +892,72 @@ public class InAppInitActivity extends Activity {
             return;
         }
 
-        if(resultCode != Activity.RESULT_OK) {
-            if(requestCode== WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode== WibmoSDK.REQUEST_CODE_IAP_2FA) {
-                boolean isChargeLater = false;
+        boolean isChargeLater = false;
 
-                if(wPayInitRequest!=null) {
-                    isChargeLater = wPayInitRequest.getTransactionInfo().isChargeLater();
-                } else if(w2faInitRequest!=null) {
-                    isChargeLater = w2faInitRequest.getTransactionInfo().isChargeLater();
-                }
+        wibmoAnalyticsEvent = new AnalyticsEvent();
+        wibmoAnalyticsEvent.setEventTxnId(UUID.randomUUID().toString());
+        wibmoAnalyticsEvent.setEventName(WibmoAnalyticsHelper.IAP_APP_RESPONSE);
+        CustomerInfo customerInfo = new CustomerInfo();
 
-                if(isChargeLater) {
-                    if(data!=null && data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED)!=null) {
+        if(wPayInitRequest!=null) {
+            if(wPayInitRequest.getTransactionInfo() != null) {
+                isChargeLater = wPayInitRequest.getTransactionInfo().isChargeLater();
+                wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION + "|" + isChargeLater + "|" + wPayInitRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+            } if(wPayInitRequest.getCustomerInfo() != null) {
+                customerInfo.setCustomerName(wPayInitRequest.getCustomerInfo().getCustName());
+                customerInfo.setCustomerEmail(wPayInitRequest.getCustomerInfo().getCustEmail());
+            }
+            createWAData(wibmoAnalyticsEvent, wPayInitRequest);
+        } else if(w2faInitRequest!=null) {
+            if(w2faInitRequest.getTransactionInfo() != null) {
+                isChargeLater = w2faInitRequest.getTransactionInfo().isChargeLater();
+                wibmoAnalyticsEvent.setExtraKey4(WibmoSDK.VERSION + "|" + isChargeLater + "|" + w2faInitRequest.getTransactionInfo().isTxnAmtKnown()+"|"+W2faInitRequest.version);
+            } if(w2faInitRequest.getCustomerInfo() != null) {
+                customerInfo.setCustomerName(w2faInitRequest.getCustomerInfo().getCustName());
+                customerInfo.setCustomerEmail(w2faInitRequest.getCustomerInfo().getCustEmail());
+            }
+            createWAData(wibmoAnalyticsEvent, w2faInitRequest);
+        }
+
+        if(data != null) {
+            customerInfo.setCustomerMobile(data.getStringExtra(InAppUtil.EXTRA_KEY_USERNAME));
+            customerInfo.setCustomerId(data.getStringExtra(InAppUtil.EXTRA_KEY_PC_AC_NUMBER));
+        }
+        wibmoAnalyticsEvent.setCustomerInfo(customerInfo);
+
+        if(wPayInitResponse != null) {
+            wibmoAnalyticsEvent.setExtraKey2(wPayInitResponse.getWibmoTxnId());
+            if(wPayInitResponse.getMerchantInfo() != null) {
+                wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(wPayInitResponse.getMerchantInfo()));
+            }
+        } else if(w2faInitResponse != null) {
+            wibmoAnalyticsEvent.setExtraKey2(w2faInitResponse.getWibmoTxnId());
+            if(w2faInitResponse.getMerchantInfo() != null) {
+                wibmoAnalyticsEvent.setMerchantInfo(WibmoAnalyticsHelper.makeMerchantInfo(w2faInitResponse.getMerchantInfo()));
+            }
+        }
+
+        wibmoAnalyticsEvent.setDateTime(new Date());
+        wibmoAnalyticsEvent.setFunnelId(WibmoAnalyticsHelper.IAP_FUNNEL_ID);
+        wibmoAnalyticsEvent.setFunnelStepId(WibmoAnalyticsHelper.IAP_APP_RESPONSE_EVENT);
+        wibmoAnalyticsEvent.setIp("NA");
+        if(data != null) {
+            wibmoAnalyticsEvent.setProgramId(data.getStringExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID));
+            wibmoAnalyticsEvent.setBankId(data.getStringExtra(InAppUtil.EXTRA_KEY_PROGRAM_ID));
+        }
+
+        if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode == WibmoSDK.REQUEST_CODE_IAP_2FA) {
+            if (resultCode != Activity.RESULT_OK) {
+                wibmoAnalyticsEvent.setStatus(false);
+            } else {
+                wibmoAnalyticsEvent.setStatus(true);
+            }
+        }
+
+        if (resultCode != Activity.RESULT_OK) {
+            if (requestCode == WibmoSDK.REQUEST_CODE_IAP_PAY || requestCode == WibmoSDK.REQUEST_CODE_IAP_2FA) {
+                if (isChargeLater) {
+                    if (data != null && data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED) != null) {
                         Log.d(TAG, "result is not ok for iap and 2fa .. lets ask if retry");
 
                         confirmIAPRetry(requestCode, resultCode, data);
@@ -641,10 +965,10 @@ public class InAppInitActivity extends Activity {
                     }
                 }
 
-                if(data!=null) {
+                if (data != null) {
                     String resCode = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_CODE);
                     boolean isUserAbortCaptured = data.getBooleanExtra("isUserAbortCaptured", false);
-                    Log.v(TAG, "isUserAbortCaptured: "+isUserAbortCaptured);
+                    Log.v(TAG, "isUserAbortCaptured: " + isUserAbortCaptured);
 
                     if (WibmoSDK.RES_CODE_FAILURE_USER_ABORT.equals(resCode)) {
                         if (WibmoSDKConfig.isPromptAbortReason() && !isUserAbortCaptured) {
@@ -653,7 +977,8 @@ public class InAppInitActivity extends Activity {
                                 public void onSelection(Context context, int requestCode, int resultCode, Intent data, String aReasonCode, String aReasonName) {
                                     abortReasonCode = aReasonCode;
                                     abortReasonName = aReasonName;
-
+                                    String resDesc = data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC);
+                                    data.putExtra(InAppUtil.EXTRA_KEY_RES_DESC, resDesc + " - " + abortReasonName);
                                     processOnActivityResult(requestCode, resultCode, data);
                                 }
                             });
@@ -667,7 +992,23 @@ public class InAppInitActivity extends Activity {
         processOnActivityResult(requestCode, resultCode, data);
     }
 
+    private void createWAData(AnalyticsEvent wibmoEvent, W2faInitRequest initReq) {
+        try {
+            wibmoEvent.setCurrency(initReq.getTransactionInfo().getTxnCurrency());
+            wibmoEvent.setAmount(Long.parseLong(initReq.getTransactionInfo().getTxnAmount()));
+            wibmoEvent.setExtraKey1(initReq.getTransactionInfo().getMerTxnId());
+            wibmoEvent.setMerchantInfo(RestClientInitializer.makeMerInfo(initReq));
+            if(initReq.getDeviceInfo() != null) {
+                wibmoEvent.setAppInfo(RestClientInitializer.makeAppInfo(initReq));
+            }
+        } catch(Exception e) {
+            Log.e(TAG, "Error: "+e , e);
+        }
+    }
+
     private void processOnActivityResult(int requestCode, int resultCode, Intent data) {
+        HashMap<String, Object> extraDataForWA = new HashMap<>(15);
+
         if(data!=null) {
             String breadCrumb = data.getStringExtra(InAppUtil.EXTRA_KEY_BREADCRUMB);
             if (breadCrumb != null) {
@@ -676,7 +1017,7 @@ public class InAppInitActivity extends Activity {
             InAppUtil.setLastBinUsed(data.getStringExtra(InAppUtil.EXTRA_KEY_BIN_USED));
 
             if(extraDataReporting==null) {
-                extraDataReporting = new HashMap<>(9);
+                extraDataReporting = new HashMap<>(13);
             }
             extraDataReporting.put("BreadCrumb", InAppUtil.getBreadCrumb());
             extraDataReporting.put("BinUsed", InAppUtil.getLastBinUsed());
@@ -688,9 +1029,21 @@ public class InAppInitActivity extends Activity {
             extraDataReporting.put("LastURL", data.getStringExtra(InAppUtil.EXTRA_KEY_LAST_URL));
             extraDataReporting.put("Comments", data.getStringExtra(InAppUtil.EXTRA_KEY_COMMENTS));
 
+            wibmoAnalyticsEvent.setPanBin(InAppUtil.getLastBinUsed());
+            wibmoAnalyticsEvent.setComments(data.getStringExtra(InAppUtil.EXTRA_KEY_COMMENTS));
+            wibmoAnalyticsEvent.setStatusValue(data.getStringExtra(InAppUtil.EXTRA_KEY_RES_DESC));
+            wibmoAnalyticsEvent.setExtraKey5("Android");
+
+            extraDataForWA.put("BreadCrumb", InAppUtil.getBreadCrumb());
+            extraDataForWA.put("ITPPassed", data.getStringExtra(InAppUtil.EXTRA_KEY_ITP_PASSED));
+            extraDataForWA.put("SdkReTry", isReTry);
+            extraDataForWA.put("LastURL", data.getStringExtra(InAppUtil.EXTRA_KEY_LAST_URL));
+
             if(abortReasonName!=null && abortReasonCode!=null) {
                 extraDataReporting.put("abortReasonCode", abortReasonCode);
                 extraDataReporting.put("abortReasonName", abortReasonName);
+                extraDataForWA.put("abortReasonCode", abortReasonCode);
+                extraDataForWA.put("abortReasonName", abortReasonName);
             }
 
             Log.d(TAG, "BreadCrumb: " + InAppUtil.getBreadCrumb());
@@ -709,17 +1062,34 @@ public class InAppInitActivity extends Activity {
             data.removeExtra(InAppUtil.EXTRA_KEY_USERNAME);
             data.removeExtra(InAppUtil.EXTRA_KEY_LAST_URL);
             data.removeExtra(InAppUtil.EXTRA_KEY_COMMENTS);
+
         } else {
             if(extraDataReporting==null) {
-                extraDataReporting = new HashMap<>(1);
+                extraDataReporting = new HashMap<>(4);
             }
         }
+
 
         setResult(resultCode, data);
         endTime = System.currentTimeMillis();
 
         long timeTaken = endTime - startTime;
         extraDataReporting.put("TimeTakenMs", timeTaken);
+        extraDataForWA.put("TimeTakenMs", timeTaken);
+
+        Log.v(TAG, "wibmoAnalyticsEvent: "+wibmoAnalyticsEvent);
+        if(wibmoAnalyticsEvent != null) {
+            extraDataForWA.put("extraKey1", getString(R.string.lbl_mer_txn_id));
+            extraDataForWA.put("extraKey2", getString(R.string.lbl_wibmo_txn_id));
+            extraDataForWA.put("extraKey4", "SDKVer|ChargeLater|TxnAmtKnown|IAPVersion");
+            extraDataForWA.put("extraKey5", "SDKType");
+            HashMap<String, Object> nwInfoData = RestClientInitializer.getNetworkInfo(activity);
+            extraDataForWA.putAll(nwInfoData);
+            wibmoAnalyticsEvent.setExtraKv(extraDataForWA);
+            Log.v(TAG, "Goin to post event ");
+
+            RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+        }
 
         if(wPayInitRequest!=null) {
             AnalyticalUtil.logTxn(activity.getApplicationContext(), extraDataReporting,
@@ -875,6 +1245,7 @@ public class InAppInitActivity extends Activity {
             return;
         }
 
+
         String weburl = wPayInitResponse.getWebUrl();
         Log.d(TAG, "Weburl: "+weburl);
 
@@ -889,6 +1260,37 @@ public class InAppInitActivity extends Activity {
         }
         mainView.setVisibility(View.INVISIBLE);
     }
+
+    private void setAnalyticsData(Activity mActivity) {
+        SharedPreferences pref = mActivity.getSharedPreferences(PREFS_ANALYTICS_DATA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(PREFS_WA_KEY, InAppUtil.getApiKeyForWA());
+        editor.putString(PREFS_WA_USER, InAppUtil.getApiUserForWA());
+        editor.putString(PREFS_WA_PROD_NAME, InAppUtil.getProdNameForWA());
+        editor.putString(PREFS_WA_POST_URL, InAppUtil.getPostURLForWA());
+        editor.commit();
+    }
+
+    private String getWAnalyticsApiKey(Activity mActivity) {
+        SharedPreferences pref = mActivity.getSharedPreferences(PREFS_ANALYTICS_DATA, Context.MODE_PRIVATE);
+        return pref.getString(PREFS_WA_KEY, null);
+    }
+
+    private String getWAnalyticsUser(Activity mActivity) {
+        SharedPreferences pref = mActivity.getSharedPreferences(PREFS_ANALYTICS_DATA, Context.MODE_PRIVATE);
+        return pref.getString(PREFS_WA_USER, null);
+    }
+
+    private String getWAnalyticsProdName(Activity mActivity) {
+        SharedPreferences pref = mActivity.getSharedPreferences(PREFS_ANALYTICS_DATA, Context.MODE_PRIVATE);
+        return pref.getString(PREFS_WA_PROD_NAME, null);
+    }
+
+    private String getWAnalyticsPostUrl(Activity mActivity) {
+        SharedPreferences pref = mActivity.getSharedPreferences(PREFS_ANALYTICS_DATA, Context.MODE_PRIVATE);
+        return pref.getString(PREFS_WA_POST_URL, null);
+    }
+
 
     private void manageError(Throwable e) {
         if(e!=null) {
@@ -912,6 +1314,7 @@ public class InAppInitActivity extends Activity {
         @Override
         protected Void doInBackground(W2faInitRequest... data) {
             try {
+
                 w2faInitResponse = InAppHandler.init2FA(data[0]);
 
                 if(w2faInitResponse!=null && WibmoSDK.getInAppTxnIdCallback()!=null) {
@@ -937,8 +1340,13 @@ public class InAppInitActivity extends Activity {
                     t.setName("InAppTxnIdCallback");
                     t.start();
                 }
+
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
+                wibmoAnalyticsEvent.setStatus(false);
+                wibmoAnalyticsEvent.setIntermediate(false);
+                wibmoAnalyticsEvent.setStatusValue(ex.toString());
+                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
                 lastError = ex.toString();
                 showError = true;
             }
@@ -952,6 +1360,23 @@ public class InAppInitActivity extends Activity {
             if (showError) {
                 askRetryOnError(lastError);
             } else {
+                if(getWAnalyticsApiKey(activity) == null) {
+                    setAnalyticsData(activity);
+
+                    RestClientInitializer.initializeWibmoAnalytics(true);
+                    if (WibmoAnalyticsHelper.getAnalyticsData() != null) {
+                        for (int i = 0; i < WibmoAnalyticsHelper.getAnalyticsData().size(); i++) {
+                            AnalyticsEvent analyticsEvent = WibmoAnalyticsHelper.getAnalyticsData().get(i);
+                            if(analyticsEvent != null) {
+                                RestClientHelper.postEvent(analyticsEvent, "upsert");
+                            }
+                        }
+                        WibmoAnalyticsHelper.setAnalyticsData(null);
+                    }
+                }
+                wibmoAnalyticsEvent.setStatus(true);
+                wibmoAnalyticsEvent.setIntermediate(false);
+                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
                 if(InAppUtil.isWibmoInstalled(getActivity())) {
                     startInAppReadinessCheck(null, w2faInitResponse);
                     return;
@@ -1006,9 +1431,15 @@ public class InAppInitActivity extends Activity {
                     };
                     t.setName("InAppTxnIdCallback");
                     t.start();
+
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "Error: " + ex, ex);
+                wibmoAnalyticsEvent.setStatus(false);
+                wibmoAnalyticsEvent.setIntermediate(false);
+                wibmoAnalyticsEvent.setStatusValue(ex.toString());
+                Log.v(TAG, "Goin to post event ");
+                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
                 lastError = ex.toString();
                 showError = true;
             }
@@ -1022,7 +1453,26 @@ public class InAppInitActivity extends Activity {
             if (showError) {
                 askRetryOnError(lastError);
             } else {
-                if(InAppUtil.isWibmoInstalled(getActivity())) {
+                if (getWAnalyticsApiKey(activity) == null && InAppUtil.getApiKeyForWA() != null) {
+                    setAnalyticsData(activity);
+
+                    RestClientInitializer.initializeWibmoAnalytics(true);
+                    if (WibmoAnalyticsHelper.getAnalyticsData() != null) {
+                        for (int i = 0; i < WibmoAnalyticsHelper.getAnalyticsData().size(); i++) {
+                            AnalyticsEvent analyticsEvent = WibmoAnalyticsHelper.getAnalyticsData().get(i);
+                            if(analyticsEvent != null) {
+                                RestClientHelper.postEvent(analyticsEvent, "upsert");
+                            }
+                        }
+                        WibmoAnalyticsHelper.setAnalyticsData(null);
+                    }
+                }
+
+                wibmoAnalyticsEvent.setStatus(true);
+                wibmoAnalyticsEvent.setIntermediate(false);
+                Log.v(TAG, "Goin to post analytics data.. ");
+                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+                if (InAppUtil.isWibmoInstalled(getActivity())) {
                     startInAppReadinessCheck(wPayInitResponse, null);
                     return;
                 } else {
@@ -1043,6 +1493,7 @@ public class InAppInitActivity extends Activity {
                         activity.getString(R.string.label_try_again),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                isNWConnectivityWeak = true;
                                 startIAP();
                             }
                 })

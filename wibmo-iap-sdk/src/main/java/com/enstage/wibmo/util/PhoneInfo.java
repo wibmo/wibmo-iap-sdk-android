@@ -30,7 +30,7 @@ public class PhoneInfo extends PhoneInfoBase {
     private static PhoneInfo instance = null;
 
     public static PhoneInfo updateLocation(Context context, Location location) {
-        if(location==null) return null;
+        if (location == null) return null;
         getInstance(context);
 
         instance.setGpsAccuracy(location.getAccuracy());
@@ -42,8 +42,9 @@ public class PhoneInfo extends PhoneInfoBase {
         return instance;
     }
 
-    @SuppressLint("NewApi") public static PhoneInfo getInstance(Context context) {
-        if(instance!=null) return instance;
+    @SuppressLint("NewApi")
+    public static PhoneInfo getInstance(Context context) {
+        if (instance != null) return instance;
 
         TelephonyManager telephonyManager = (TelephonyManager)
                 context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -51,12 +52,12 @@ public class PhoneInfo extends PhoneInfoBase {
         instance = new PhoneInfo();
 
         //mask device id
-        if(telephonyManager.getDeviceId()!=null) {
-            instance.setDeviceID("tdid:"+mask(telephonyManager.getDeviceId()));
+        if (telephonyManager.getDeviceId() != null) {
+            instance.setDeviceID("tdid:" + mask(telephonyManager.getDeviceId()));
         } else {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                 //Log.d(TAG, "h/w serial: "+android.os.Build.SERIAL);
-                instance.setDeviceID("srnm:"+mask(android.os.Build.SERIAL));
+                instance.setDeviceID("srnm:" + mask(android.os.Build.SERIAL));
             }
         }
 

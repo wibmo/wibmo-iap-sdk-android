@@ -63,3 +63,8 @@
 -dontwarn okhttp3.**
 -dontwarn okio.**
 #------ WIBMO -----
+
+# wibmo analytics
+-keep class com.wibmo.analytics.**{
+     *;
+}

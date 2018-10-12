@@ -23,7 +23,7 @@ Or Maven:
 <dependency>
   <groupId>com.wibmo.iap.sdk</groupId>
   <artifactId>wibmo-iap-sdk</artifactId>
-  <version>2.3.2</version>
+  <version>2.4.0</version>
 </dependency>
 ```
 
@@ -40,6 +40,8 @@ Depending on your proguard config and usage, you may need to include the followi
 -keep class com.enstage.wibmo.sdk.inapp.InAppShellJavaScriptInterface { *; }
 -dontwarn okhttp3.**
 -dontwarn okio.**
+# Analytics
+-keep class com.wibmo.analytics.**{ *;}
 #------ WIBMO -----
 ```
 
