@@ -1,3 +1,14 @@
+Version 2.5.2 (Dt: 8 Jan 2021) - Sujay
+------------------
+# BuildToolVersion is removed
+# Compile Sdk updated to 29
+# Support for minSdk changed from 14 to 21
+# Target sdk updated from 26 to 28
+# JCB, Diner support for QR txn
++ Support for close wallet
+# Retry support in webview
+# Improved fetching device identifier.
+
 Version 2.4.0 (Dt: 8 Oct 2018) - Nithya
 ------------------
 # Added support for Wibmo Analytics.

@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "com.enstage.wibmo.iap.sample.iappayv2.taxi"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -28,9 +27,9 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
 
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support:appcompat-v7:28.0.0'
+    compile 'com.android.support:design:28.0.0'
     //compile project(':wibmo-iap-sdk')
-    compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
+    compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:2.5.2'
     //implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
 }

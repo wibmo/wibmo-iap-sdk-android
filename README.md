@@ -23,7 +23,7 @@ Or Maven:
 <dependency>
   <groupId>com.wibmo.iap.sdk</groupId>
   <artifactId>wibmo-iap-sdk</artifactId>
-  <version>2.4.0</version>
+  <version>2.5.2</version>
 </dependency>
 ```
 

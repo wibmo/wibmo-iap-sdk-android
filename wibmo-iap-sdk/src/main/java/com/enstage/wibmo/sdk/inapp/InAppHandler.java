@@ -28,6 +28,8 @@ import com.enstage.wibmo.util.AnalyticalUtil;
 import com.enstage.wibmo.util.HttpUtil;
 import com.google.gson.Gson;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -82,7 +84,12 @@ public class InAppHandler {
                     request.getMerchantInfo().getMerCountryCode().toLowerCase()+
                     "/txn/iap/wpay/init";
 
-            String postData = gson.toJson(request);
+            WPayInitRequest newWPayInitRequest = SerializationUtils.clone(request);
+            if((request.getCardInfo() != null) && (request.getCardInfo().isPassCardS2S() == false)){
+                newWPayInitRequest.setCardInfo(null);
+            }
+
+            String postData = gson.toJson(newWPayInitRequest);
             if(debug) Log.v(TAG, "postData: "+postData);
 
             Map<String,List<String>> resHeaders = new HashMap<>(10);

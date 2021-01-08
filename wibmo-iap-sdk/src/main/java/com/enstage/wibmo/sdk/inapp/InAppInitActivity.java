@@ -1346,7 +1346,11 @@ public class InAppInitActivity extends Activity {
                 wibmoAnalyticsEvent.setStatus(false);
                 wibmoAnalyticsEvent.setIntermediate(false);
                 wibmoAnalyticsEvent.setStatusValue(ex.toString());
-                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+                if(getWAnalyticsApiKey(activity) != null) {
+                    RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+                } else {
+                    WibmoAnalyticsHelper.setAnalyticsData(wibmoAnalyticsEvent);
+                }
                 lastError = ex.toString();
                 showError = true;
             }
@@ -1374,7 +1378,13 @@ public class InAppInitActivity extends Activity {
                         WibmoAnalyticsHelper.setAnalyticsData(null);
                     }
                 }
-                wibmoAnalyticsEvent.setStatus(true);
+                if(w2faInitResponse!=null
+                        && WibmoSDK.RES_CODE_NO_ERROR.equals(w2faInitResponse.getResCode())) {
+                    wibmoAnalyticsEvent.setStatus(true);
+                } else {
+                    wibmoAnalyticsEvent.setStatusValue(w2faInitResponse.getResCode()+"-"+w2faInitResponse.getResDesc());
+                    wibmoAnalyticsEvent.setStatus(false);
+                }
                 wibmoAnalyticsEvent.setIntermediate(false);
                 RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
                 if(InAppUtil.isWibmoInstalled(getActivity())) {
@@ -1438,8 +1448,11 @@ public class InAppInitActivity extends Activity {
                 wibmoAnalyticsEvent.setStatus(false);
                 wibmoAnalyticsEvent.setIntermediate(false);
                 wibmoAnalyticsEvent.setStatusValue(ex.toString());
-                Log.v(TAG, "Goin to post event ");
-                RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+                if(getWAnalyticsApiKey(activity) != null) {
+                    RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");
+                } else {
+                    WibmoAnalyticsHelper.setAnalyticsData(wibmoAnalyticsEvent);
+                }
                 lastError = ex.toString();
                 showError = true;
             }
@@ -1468,7 +1481,13 @@ public class InAppInitActivity extends Activity {
                     }
                 }
 
-                wibmoAnalyticsEvent.setStatus(true);
+                if(wPayInitResponse!=null
+                        && WibmoSDK.RES_CODE_NO_ERROR.equals(wPayInitResponse.getResCode())) {
+                    wibmoAnalyticsEvent.setStatus(true);
+                } else {
+                    wibmoAnalyticsEvent.setStatusValue(wPayInitResponse.getResCode()+"-"+wPayInitResponse.getResDesc());
+                    wibmoAnalyticsEvent.setStatus(false);
+                }
                 wibmoAnalyticsEvent.setIntermediate(false);
                 Log.v(TAG, "Goin to post analytics data.. ");
                 RestClientHelper.postEvent(wibmoAnalyticsEvent, "upsert");

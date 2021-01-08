@@ -150,4 +150,24 @@ public class W2faInitResponse extends GenericResponse {
     public void setRestrictedProgram(String restrictedProgram) {
         this.restrictedProgram = restrictedProgram;
     }
+
+    @Override
+    public String toString() {
+        return "W2faInitResponse{" +
+                "wibmoCustomer=" + wibmoCustomer +
+                ", registeredUas='" + registeredUas + '\'' +
+                ", merchantInfo=" + merchantInfo +
+                ", transactionInfo=" + transactionInfo +
+                ", cardFee=" + cardFee +
+                ", wibmoTxnId='" + wibmoTxnId + '\'' +
+                ", wibmoTxnToken='" + wibmoTxnToken + '\'' +
+                ", webUrl='" + webUrl + '\'' +
+                ", msgHash='" + msgHash + '\'' +
+                ", onusCardRequired=" + onusCardRequired +
+                ", isBillingAddressAllowed=" + isBillingAddressAllowed +
+                ", isShippingAddressAllowed=" + isShippingAddressAllowed +
+                ", collectEmail=" + collectEmail +
+                ", restrictedProgram='" + restrictedProgram + '\'' +
+                '}';
+    }
 }

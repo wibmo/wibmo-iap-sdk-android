@@ -44,6 +44,17 @@ public class W2faInitRequest implements Serializable {
 	private boolean profileRequired;
 	private boolean promptPromoCode;
 
+	public int getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	/*Category id for decoupled promo code changes*/
+	private int categoryId;
+
 	public MerchantInfo getMerchantInfo() {
 		return merchantInfo;
 	}

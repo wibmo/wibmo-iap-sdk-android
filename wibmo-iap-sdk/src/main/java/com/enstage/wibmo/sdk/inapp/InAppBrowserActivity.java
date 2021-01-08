@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -160,6 +161,19 @@ public class InAppBrowserActivity extends Activity {
                     }
                 }
             }
+
+            @Override
+            public void onFormResubmission(WebView view, Message dontResend, Message resend) {
+
+                boolean disableRetryOnWebviewPost = WibmoSDK.isRetryDisabledForWebviewPost();
+                if(disableRetryOnWebviewPost) {
+                    Log.i(TAG, "POST refresh not enabled!");
+                    return;
+                } else {
+                    resend.sendToTarget();
+                }
+            }
+
 
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
                 comments.append("bad certificate : ").append(error.toString());

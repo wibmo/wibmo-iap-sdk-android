@@ -218,7 +218,7 @@ public class InAppShellHepler {
     }//onActivityResult
 
 
-    protected void processIAP(String jsonWPayInitRequest) {
+    protected void processIAP(String jsonWPayInitRequest, String categoryId) {
         Log.d(TAG, "processIAP: " + jsonWPayInitRequest);
 
         Activity activity = activityWR.get();
@@ -232,6 +232,14 @@ public class InAppShellHepler {
 
             InAppShellTxnIdCallback inAppShellTxnIdCallback = new InAppShellTxnIdCallback(jsInterface);
             WibmoSDK.setInAppTxnIdCallback(inAppShellTxnIdCallback);
+
+            if (categoryId != null && !categoryId.isEmpty()) {
+                try {
+                    wPayInitRequest.setCategoryId(Integer.parseInt(categoryId));
+                } catch (Exception e) {
+                    Log.e(TAG, "Category id parsing error : ", e);
+                }
+            }
 
             WibmoSDK.startForInApp(activity, wPayInitRequest);
         } catch (Exception e) {

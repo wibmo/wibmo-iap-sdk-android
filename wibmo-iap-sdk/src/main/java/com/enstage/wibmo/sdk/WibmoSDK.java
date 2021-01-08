@@ -41,7 +41,7 @@ import java.util.List;
 
 public class WibmoSDK {
 	private static final String TAG = WibmoSDK.class.getSimpleName();
-    public static final String VERSION = "2.4.0";
+    public static final String VERSION = "2.5.2";
 
     public static final String RES_CODE_NO_ERROR = "000";
     public static final String RES_CODE_FAILURE_TIMED_OUT = "203"; //User Timedout
@@ -49,6 +49,7 @@ public class WibmoSDK {
     public static final String RES_CODE_FAILURE_SYSTEM_ABORT = "205";
     public static final String RES_CODE_FAILURE_INTERNAL_ERROR = "051";
     public static final String RES_CODE_FAILURE_TXN = "050";
+    public static final String RES_CODE_FAILURE_TXN_CLOSED_WALLET = "300";
     public static final String RES_CODE_TOO_EARLY = "080";
     public static final String RES_CODE_FAILURE_VELOCITY_LIMIT_REACHED = "082";
 
@@ -77,13 +78,18 @@ public class WibmoSDK {
     public static final String PAYMENT_TYPE_VISA_CARD = "w.ds.pt.card_visa";
     public static final String PAYMENT_TYPE_MASTER_CARD = "w.ds.pt.card_mastercard";
     public static final String PAYMENT_TYPE_RUPAY_CARD = "w.ds.pt.card_rupay";
+    public static final String PAYMENT_TYPE_DINERS_CARD = "w.ds.pt.card_diners";
+    public static final String PAYMENT_TYPE_JCB_CARD = "w.ds.pt.card_jcb";
+    public static final String PAYMENT_TYPE_CASHBACK_CARD = "w.ds.pt.card_cashback";
 
     public static final String TRANSACTION_TYPE_W2FA = "W2fa";
     public static final String TRANSACTION_TYPE_WPAY = "WPay";
+
     public static final String TRANSACTION_TYPE_EBILL_GENERIC = "WPay-Ebill-Generic";
     public static final String TRANSACTION_TYPE_EBILL_POS = "WPay-Ebill-POS";
 
     private static InAppTxnIdCallback inAppTxnIdCallback;
+    private static boolean disableRetryOnWebviewPost;
 
     public static final int REQUEST_CODE_PROCEED_WEB_TXN = 101;//Browser based(clicked on skip in push ui page)
 
@@ -128,6 +134,14 @@ public class WibmoSDK {
             t.setDaemon(true);
             t.start();
         }
+    }
+
+    public static boolean isRetryDisabledForWebviewPost() {
+        return disableRetryOnWebviewPost;
+    }
+
+    public static void disableRetryOnWebviewPost(boolean retryOnWebviewPost) {
+        WibmoSDK.disableRetryOnWebviewPost = retryOnWebviewPost;
     }
 
     public static void startForInApp(Activity activity, WPayInitRequest wPayInitRequest) {

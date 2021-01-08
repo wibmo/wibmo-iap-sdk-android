@@ -43,6 +43,24 @@ public class TransactionInfo implements Serializable {
 	private boolean txnAmtKnown = true;
 	private boolean chargeLater = false;
 
+	private String billerType;       // 0 for Non BBPS and 1 for BBPS
+	private String paymentType;   // 1 for Card and 2 for UPI or Other
+
+	public String getBillerType() {
+		return billerType;
+	}
+
+	public void setBillerType(String billerType) {
+		this.billerType = billerType;
+	}
+
+	public String getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
+	}
 
 	public String getTxnAmount() {
 		return txnAmount;

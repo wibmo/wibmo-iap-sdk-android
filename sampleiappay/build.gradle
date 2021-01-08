@@ -1,8 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 29
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -12,8 +11,8 @@ android {
 
     defaultConfig {
         applicationId "com.enstage.wibmo.iap.sample.iappay"
-        minSdkVersion 14
-        targetSdkVersion 26
+        minSdkVersion 21
+        targetSdkVersion 28
 
         versionCode 2060400
         versionName '2.6.04.00'
@@ -57,8 +56,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     //compile project(':wibmo-iap-sdk')
-    compile 'com.wibmo.iap.sdk:wibmo-iap-sdk:+'
+    implementation 'com.wibmo.iap.sdk:wibmo-iap-sdk:2.5.2'
 }

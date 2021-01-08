@@ -15,8 +15,10 @@
  */
 package com.enstage.wibmo.sdk.inapp;
 
-import android.app.Activity;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
+
+import com.enstage.wibmo.sdk.WibmoSDK;
 
 public class InAppShellJavaScriptInterface {
     private static final String TAG = "InAppShellJSInterface";
@@ -73,11 +75,17 @@ public class InAppShellJavaScriptInterface {
     @android.webkit.JavascriptInterface
     @SuppressWarnings("unused")
     public void doIAPWPay(String wPayInitRequest, String returnUrl) {
+        doIAPWPay(wPayInitRequest, returnUrl, null);
+    }
+
+    @android.webkit.JavascriptInterface
+    @SuppressWarnings("unused")
+    public void doIAPWPay(String wPayInitRequest, String returnUrl, String categoryId) {
         inAppShellHepler.setResponseUrl(returnUrl);
         Log.d(TAG, "IAPWPay : "+wPayInitRequest);
         Log.d(TAG, "responseUrl : "+ inAppShellHepler.getResponseUrl());
 
-        inAppShellHepler.processIAP(wPayInitRequest);
+        inAppShellHepler.processIAP(wPayInitRequest,categoryId);
     }
 
     @android.webkit.JavascriptInterface
@@ -89,6 +97,15 @@ public class InAppShellJavaScriptInterface {
     public void sendWibmoTxnId(String wibmoTxnId, String merTxnId) {
         if(callbackMethodName!=null) {
             callJavaScript(callbackMethodName, wibmoTxnId, merTxnId);
+        }
+    }
+
+    @JavascriptInterface
+    public void disableRetryOnWebviewPost(boolean disablePostData) {
+        try {
+            WibmoSDK.disableRetryOnWebviewPost(disablePostData);
+        } catch (Exception e) {
+            Log.e(TAG, "error:"+e,e);
         }
     }
 

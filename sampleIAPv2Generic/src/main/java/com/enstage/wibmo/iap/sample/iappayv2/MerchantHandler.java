@@ -82,8 +82,7 @@ public class MerchantHandler {
     }
 
     public static String doStatusCheck(WPayInitRequest req, String wibmoTxnId) throws Exception {
-        //String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/iapGeneric/txnStatusv2.jsp";
-        String posturl = "https://"+ getMerchantDomain() +"/sampleTest/iapGeneric/txnStatusv2.jsp";
+        String posturl = "https://"+ getMerchantDomain() +"/sampleMerchant/iapGeneric/txnStatusv2.jsp";
 
         StringBuilder postsb = new StringBuilder();
         postsb.append("merTxnId=").append(URLEncoder.encode(req.getTransactionInfo().getMerTxnId(), "utf-8"));
